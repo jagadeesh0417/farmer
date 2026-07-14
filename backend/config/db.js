@@ -2,11 +2,16 @@ import mongoose from 'mongoose'
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI)
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
+    })
     console.log(`MongoDB connected: ${conn.connection.host}`)
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`)
-    process.exit(1)
+    console.log('Retrying in 5 seconds...')
+    await new Promise(r => setTimeout(r, 5000))
+    return connectDB()
   }
 }
 

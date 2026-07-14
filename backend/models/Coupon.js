@@ -15,7 +15,6 @@ const couponSchema = new mongoose.Schema({
   usedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true })
 
-couponSchema.index({ code: 1 })
 couponSchema.index({ type: 1 })
 
 export default mongoose.model('Coupon', couponSchema)

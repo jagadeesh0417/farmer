@@ -47,7 +47,6 @@ productSchema.pre('save', function (next) {
 })
 
 productSchema.index({ name: 'text', description: 'text' })
-productSchema.index({ slug: 1 })
 productSchema.index({ category: 1 })
 productSchema.index({ isActive: 1, isFeatured: 1 })
 
