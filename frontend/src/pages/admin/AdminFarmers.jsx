@@ -31,7 +31,7 @@ export default function AdminFarmers() {
 
   useEffect(() => { load() }, [page])
 
-  const handleSearch = (e) => { e.preventDefault(); setPage(1); load() }
+  const handleSearch = (e) => { e.preventDefault(); setPage(1) }
 
   const resetForm = () => {
     setEditing(null)
@@ -177,6 +177,12 @@ export default function AdminFarmers() {
             ))}
           </tbody>
         </table>
+        {farmers.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-lg font-medium text-slate-400 mb-1">No farmers found</p>
+            <p className="text-sm text-slate-400">{search ? 'Try a different search term' : 'Click "Add Farmer" to register one'}</p>
+          </div>
+        )}
       </div>
 
       {qrData && (

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { formatPrice } from '../../lib/utils'
+import { cld } from '../../lib/cloudinary'
+import { toast } from 'react-toastify'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
@@ -12,19 +14,19 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const load = async () => {
-      try {
-        const [s, orders, products, sales] = await Promise.all([
-          api.getOrderStats().catch(() => null),
-          api.getRecentOrders().catch(() => []),
-          api.getBestSelling().catch(() => []),
-          api.getSalesGraph().catch(() => []),
-        ])
-        setStats(s)
-        setRecentOrders(orders)
-        setBestSelling(products)
-        setSalesData(sales)
-      } catch (err) { console.error(err) }
-      finally { setLoading(false) }
+      let errors = 0
+      const [s, orders, products, sales] = await Promise.all([
+        api.getOrderStats().catch(() => { errors++; return null }),
+        api.getRecentOrders().catch(() => { errors++; return [] }),
+        api.getBestSelling().catch(() => { errors++; return [] }),
+        api.getSalesGraph().catch(() => { errors++; return [] }),
+      ])
+      if (errors === 4) toast.error('Failed to load dashboard data — check your connection')
+      setStats(s)
+      setRecentOrders(orders)
+      setBestSelling(products)
+      setSalesData(sales)
+      setLoading(false)
     }
     load()
   }, [])
@@ -77,7 +79,7 @@ export default function AdminDashboard() {
             <div className="space-y-3">
               {bestSelling.slice(0, 5).map(p => (
                 <div key={p._id} className="flex items-center gap-3">
-                  <img src={p.images?.[0] || '/placeholder.jpg'} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
+                  <img src={cld(p.images?.[0], 'f_auto,q_auto,w_200,c_fill')} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900 truncate">{p.name}</p>
                     <p className="text-xs text-slate-500">{formatPrice(p.basePrice)}</p>

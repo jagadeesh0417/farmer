@@ -126,6 +126,12 @@ export default function AdminCategories() {
                 ))}
               </tbody>
             </table>
+            {categories.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-lg font-medium text-slate-400 mb-1">No categories yet</p>
+                <p className="text-sm text-slate-400">Create your first category using the form</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

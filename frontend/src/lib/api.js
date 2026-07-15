@@ -19,10 +19,37 @@ async function request(endpoint, options = {}) {
     headers['Content-Type'] = 'application/json'
   }
 
-  const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`)
-  return data
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
+
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+      signal: controller.signal,
+    })
+
+    let data
+    const contentType = res.headers.get('content-type') || ''
+    if (contentType.includes('application/json')) {
+      data = await res.json()
+    } else {
+      const text = await res.text()
+      throw new Error(`Server returned ${res.status}: ${text.slice(0, 200)}`)
+    }
+
+    if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`)
+    return data
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error('Request timed out')
+    if (err.message?.includes('Failed to fetch')) {
+      throw new Error('Network error — check your connection or the server may be down')
+    }
+    throw err
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 export const api = {
@@ -30,6 +57,7 @@ export const api = {
   login: (credentials) => request('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
   signup: (data) => request('/auth/signup', { method: 'POST', body: JSON.stringify(data) }),
   getMe: () => request('/auth/me'),
+  getAdminMe: () => request('/auth/admin/me'),
   updateProfile: (data) => request('/auth/profile', { method: 'PUT', body: JSON.stringify(data) }),
 
   // Products

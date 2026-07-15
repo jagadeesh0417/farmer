@@ -1,7 +1,7 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
-import { protect } from '../middleware/auth.js'
+import { protect, adminOnly } from '../middleware/auth.js'
 
 const router = express.Router()
 
@@ -43,6 +43,10 @@ router.post('/login', async (req, res) => {
 })
 
 router.get('/me', protect, async (req, res) => {
+  res.json({ user: req.user })
+})
+
+router.get('/admin/me', protect, adminOnly, async (req, res) => {
   res.json({ user: req.user })
 })
 

@@ -112,6 +112,12 @@ export default function AdminCoupons() {
                 ))}
               </tbody>
             </table>
+            {coupons.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-lg font-medium text-slate-400 mb-1">No coupons yet</p>
+                <p className="text-sm text-slate-400">Create your first coupon using the form</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

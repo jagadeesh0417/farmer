@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
-import { formatPrice, getImageUrl } from '../../lib/utils'
+import { formatPrice } from '../../lib/utils'
+import { cld } from '../../lib/cloudinary'
 import { toast } from 'react-toastify'
 
 export default function AdminProducts() {
@@ -23,7 +24,7 @@ export default function AdminProducts() {
 
   useEffect(() => { load() }, [page])
 
-  const handleSearch = (e) => { e.preventDefault(); setPage(1); load() }
+  const handleSearch = (e) => { e.preventDefault(); setPage(1) }
 
   const handleToggleActive = async (id) => {
     try { await api.toggleProductActive(id); toast.success('Toggled'); load() }
@@ -67,7 +68,7 @@ export default function AdminProducts() {
                   <tr key={p._id} className="border-b border-slate-50 hover:bg-slate-50/50">
                     <td className="p-3">
                       <div className="flex items-center gap-3">
-                        <img src={getImageUrl(p.images?.[0])} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
+                        <img src={cld(p.images?.[0], 'f_auto,q_auto,w_200,c_fill')} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
                         <div><p className="font-medium text-slate-900">{p.name}</p><p className="text-[10px] text-slate-400">{p.slug}</p></div>
                       </div>
                     </td>
@@ -94,6 +95,12 @@ export default function AdminProducts() {
                 ))}
               </tbody>
             </table>
+            {products.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-lg font-medium text-slate-400 mb-1">No products found</p>
+                <p className="text-sm text-slate-400">{search ? 'Try a different search term' : 'Click "Add Product" to create one'}</p>
+              </div>
+            )}
           </div>
           {total > 20 && (
             <div className="mt-4 flex justify-center gap-2">

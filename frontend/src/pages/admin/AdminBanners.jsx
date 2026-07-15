@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../../lib/api'
+import { cld } from '../../lib/cloudinary'
 import { toast } from 'react-toastify'
 
 export default function AdminBanners() {
@@ -86,7 +87,7 @@ export default function AdminBanners() {
                   {form.image ? 'Change Image' : 'Upload Image'}
                 </button>
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} hidden />
-                {form.image && <img src={form.image} alt="" className="mt-2 h-20 w-full rounded-lg object-cover" />}
+                {form.image && <img src={cld(form.image, 'f_auto,q_auto,w_400,c_limit')} alt="" className="mt-2 h-20 w-full rounded-lg object-cover" />}
               </div>
               <div className="flex gap-2">
                 <button type="submit" className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 transition">{editing ? 'Update' : 'Create'}</button>
@@ -97,7 +98,12 @@ export default function AdminBanners() {
         </div>
 
         <div className="lg:col-span-2 space-y-4">
-          {['hero', 'promotional', 'side'].map(position => {
+          {banners.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-slate-200 bg-white shadow-sm">
+              <p className="text-lg font-medium text-slate-400 mb-1">No banners yet</p>
+              <p className="text-sm text-slate-400">Upload your first banner using the form</p>
+            </div>
+          ) : ['hero', 'promotional', 'side'].map(position => {
             const filtered = banners.filter(b => b.position === position)
             if (filtered.length === 0 && position !== 'hero') return null
             return (
@@ -106,7 +112,7 @@ export default function AdminBanners() {
                 <div className="grid gap-3">
                   {filtered.map(b => (
                     <div key={b._id} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                      {b.image && <img src={b.image} alt="" className="h-16 w-24 rounded-lg object-cover shrink-0" />}
+                      {b.image && <img src={cld(b.image, 'f_auto,q_auto,w_200,c_fill')} alt="" className="h-16 w-24 rounded-lg object-cover shrink-0" />}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-slate-900 text-sm">{b.title || 'Untitled'}</p>
                         <p className="text-xs text-slate-500 truncate">{b.subtitle || b.redirectLink || ''}</p>

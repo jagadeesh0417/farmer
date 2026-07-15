@@ -75,6 +75,12 @@ export default function AdminOrders() {
                 ))}
               </tbody>
             </table>
+            {orders.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-lg font-medium text-slate-400 mb-1">No orders found</p>
+                <p className="text-sm text-slate-400">{statusFilter ? 'No orders match this status filter' : 'Orders will appear here once customers place them'}</p>
+              </div>
+            )}
           </div>
 
           {selected && (
