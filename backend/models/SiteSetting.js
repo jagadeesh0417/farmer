@@ -84,6 +84,26 @@ const siteSettingSchema = new mongoose.Schema({
     showArrows: { type: Boolean, default: true },
     showDots: { type: Boolean, default: true },
   },
+
+  // Banner URLs
+  homeBannerUrl: String,
+  homeMainBanner1Url: String,
+  homeMainBanner2Url: String,
+  homeMainBanner3Url: String,
+  homeMainBanner4Url: String,
+  homeMiddleTopBannerUrl: String,
+  homeMiddleBottomBannerUrl: String,
+  homeRightStoryBannerUrl: String,
+  adBannerLeftUrl: String,
+  adBannerRightUrl: String,
+
+  // Promo banners (3 in the middle of homepage)
+  promoBanner1Url: String,
+  promoBanner1Link: String,
+  promoBanner2Url: String,
+  promoBanner2Link: String,
+  promoBanner3Url: String,
+  promoBanner3Link: String,
 }, { timestamps: true })
 
 export default mongoose.model('SiteSetting', siteSettingSchema)

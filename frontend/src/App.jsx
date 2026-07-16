@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Header from './components/Header'
+import Footer from './components/Footer'
 import MobileBottomNav from './components/MobileBottomNav'
 import { useAuth } from './contexts/AuthContext'
 import ScrollToTop from './components/ScrollToTop'
@@ -71,6 +72,7 @@ function AppLayout() {
           </Routes>
         </Suspense>
       </main>
+      <Footer />
       <MobileBottomNav />
     </div>
   )

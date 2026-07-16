@@ -45,6 +45,8 @@ export default function Home() {
   const [bannerLinksMap, setBannerLinksMap] = useState({})
   const [carouselIdx, setCarouselIdx] = useState(0)
   const [transition, setTransition] = useState(true)
+  const [paused, setPaused] = useState(false)
+  const [touchStart, setTouchStart] = useState(null)
 
   const carouselRef = useRef(null)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
@@ -64,17 +66,40 @@ export default function Home() {
     homeAssets.homeMainBanner4Url || ''
   ].filter(u => u !== '')
 
-  const allBanners = [...bannerUrls, bannerUrls[0]]
-
   const sideBanners = {
     middleTop: homeAssets.homeMiddleTopBannerUrl || '',
     middleBottom: homeAssets.homeMiddleBottomBannerUrl || '',
     rightStory: homeAssets.homeRightStoryBannerUrl || ''
   }
 
+  const promoBanners = [
+    { url: homeAssets.promoBanner1Url || '', link: homeAssets.promoBanner1Link || '' },
+    { url: homeAssets.promoBanner2Url || '', link: homeAssets.promoBanner2Link || '' },
+    { url: homeAssets.promoBanner3Url || '', link: homeAssets.promoBanner3Link || '' },
+  ].filter(b => b.url)
+
   const adBanners = {
     left: homeAssets.adBannerLeftUrl || '',
     right: homeAssets.adBannerRightUrl || ''
+  }
+
+  const goPrev = () => {
+    setCarouselIdx(prev => prev > 0 ? prev - 1 : bannerUrls.length - 1)
+  }
+  const goNext = () => {
+    setCarouselIdx(prev => (prev + 1) % bannerUrls.length)
+  }
+  const goDot = (i) => {
+    setTransition(true)
+    setCarouselIdx(i)
+  }
+
+  const handleTouchStart = (e) => setTouchStart(e.touches[0].clientX)
+  const handleTouchEnd = (e) => {
+    if (touchStart === null) return
+    const diff = touchStart - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 50) diff > 0 ? goNext() : goPrev()
+    setTouchStart(null)
   }
 
   useEffect(() => {
@@ -116,7 +141,13 @@ export default function Home() {
           homeMiddleBottomBannerUrl: s.home_middle_bottom_banner_url || '',
           homeRightStoryBannerUrl: s.home_right_story_banner_url || '',
           adBannerLeftUrl: s.ad_banner_left_url || '',
-          adBannerRightUrl: s.ad_banner_right_url || ''
+          adBannerRightUrl: s.ad_banner_right_url || '',
+          promoBanner1Url: s.promo_banner_1_url || '',
+          promoBanner1Link: s.promo_banner_1_link || '',
+          promoBanner2Url: s.promo_banner_2_url || '',
+          promoBanner2Link: s.promo_banner_2_link || '',
+          promoBanner3Url: s.promo_banner_3_url || '',
+          promoBanner3Link: s.promo_banner_3_link || ''
         }
         setHomeAssets(assets)
 
@@ -140,21 +171,10 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const id = window.setInterval(() => setCarouselIdx(prev => prev + 1), 2100)
+    if (paused || bannerUrls.length < 2) return
+    const id = window.setInterval(() => setCarouselIdx(prev => (prev + 1) % bannerUrls.length), 2100)
     return () => window.clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    if (carouselIdx !== bannerUrls.length) return
-    const id = window.setTimeout(() => {
-      setTransition(false)
-      setCarouselIdx(0)
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => setTransition(true))
-      })
-    }, 600)
-    return () => window.clearTimeout(id)
-  }, [carouselIdx, bannerUrls.length])
+  }, [paused, bannerUrls.length])
 
   const displayProducts = products.length > 5 ? [...products, ...products, ...products] : products
 
@@ -171,17 +191,23 @@ export default function Home() {
       {/* BANNER GRID SECTION */}
       {(bannerUrls.length > 0) && (
         <section className="grid gap-3 md:grid-cols-[2fr,1fr] lg:grid-cols-[2.2fr,0.85fr,0.6fr]">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div
+            className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             <div
               className="flex h-48 sm:h-64 lg:h-[330px]"
               style={{
-                width: `${100 * allBanners.length}%`,
-                transform: `translateX(-${100 / allBanners.length * carouselIdx}%)`,
+                width: `${100 * bannerUrls.length}%`,
+                transform: `translateX(-${100 / bannerUrls.length * carouselIdx}%)`,
                 transition: transition ? 'transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none'
               }}
             >
-              {allBanners.map((url, idx) => {
-                const bannerKey = ['home_main_banner_1', 'home_main_banner_2', 'home_main_banner_3', 'home_main_banner_4'][idx % bannerUrls.length]
+              {bannerUrls.map((url, idx) => {
+                const bannerKey = ['home_main_banner_1', 'home_main_banner_2', 'home_main_banner_3', 'home_main_banner_4'][idx]
                 const hasLink = !!bannerLinksMap[bannerKey]
                 return (
                   <img
@@ -192,11 +218,26 @@ export default function Home() {
                     fetchPriority={idx === 0 ? 'high' : 'auto'}
                     onClick={() => handleBannerClick(bannerKey)}
                     className={`h-48 w-full flex-shrink-0 object-cover sm:h-64 lg:h-[330px]${hasLink ? ' cursor-pointer hover:opacity-90' : ''}`}
-                    style={{ width: `${100 / allBanners.length}%` }}
+                    style={{ width: `${100 / bannerUrls.length}%` }}
                   />
                 )
               })}
             </div>
+            {bannerUrls.length > 1 && (
+              <>
+                <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-1.5 text-slate-700 shadow hover:bg-white transition sm:p-2" aria-label="Previous banner">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-1.5 text-slate-700 shadow hover:bg-white transition sm:p-2" aria-label="Next banner">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+                <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
+                  {bannerUrls.map((_, i) => (
+                    <button key={i} onClick={() => goDot(i)} className={`h-2 w-2 rounded-full transition ${i === carouselIdx ? 'bg-white' : 'bg-white/50'}`} aria-label={`Go to banner ${i + 1}`} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-1">
@@ -263,6 +304,23 @@ export default function Home() {
           }
         </div>
       </section>
+
+      {/* 3 MIDDLE PROMO BANNERS */}
+      {promoBanners.length > 0 && (
+        <section className="mt-10 grid gap-3 sm:grid-cols-3">
+          {promoBanners.map((b, i) => (
+            <div key={i} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              {b.link ? (
+                <a href={b.link.startsWith('/') ? b.link : undefined} onClick={b.link.startsWith('/') ? undefined : () => window.open(b.link, '_blank')} target={b.link.startsWith('/') ? undefined : '_blank'} rel={b.link.startsWith('/') ? undefined : 'noopener noreferrer'}>
+                  <img src={b.url} alt={`Promotional banner ${i + 1}`} loading="lazy" className="aspect-[4/3] w-full object-cover transition hover:opacity-90 sm:aspect-[3/2]" />
+                </a>
+              ) : (
+                <img src={b.url} alt={`Promotional banner ${i + 1}`} loading="lazy" className="aspect-[4/3] w-full object-cover sm:aspect-[3/2]" />
+              )}
+            </div>
+          ))}
+        </section>
+      )}
 
       {/* AD BANNERS */}
       {(adBanners.left || adBanners.right) && (
