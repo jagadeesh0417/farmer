@@ -1,13 +1,12 @@
 import mongoose from 'mongoose'
 
-function ensureDbName(uri) {
-  if (!uri) return uri
+function getDbName(uri) {
+  if (!uri) return null
   const srvMatch = uri.match(/^mongodb\+srv:\/\/[^/]+\/([^?]*)/)
   const stdMatch = uri.match(/^mongodb:\/\/[^/]+\/([^?]*)/)
-  if ((srvMatch && srvMatch[1]) || (stdMatch && stdMatch[1])) return uri
-  const qIdx = uri.indexOf('?')
-  if (qIdx === -1) return uri + '/haifarmer'
-  return uri.slice(0, qIdx) + '/haifarmer' + uri.slice(qIdx)
+  const pathDb = (srvMatch && srvMatch[1]) || (stdMatch && stdMatch[1])
+  if (pathDb) return null
+  return 'haifarmer'
 }
 
 let cached = global._mongooseCache
@@ -20,11 +19,11 @@ export async function connectDB() {
     cached.error = 'MONGODB_URI environment variable is not set'
     return null
   }
-  const uri = ensureDbName(process.env.MONGODB_URI)
-  cached.promise = mongoose.connect(uri, {
-    serverSelectionTimeoutMS: 10000,
-    bufferCommands: false,
-  }).then(conn => {
+  const uri = process.env.MONGODB_URI
+  const dbName = getDbName(uri)
+  const opts = { serverSelectionTimeoutMS: 10000, bufferCommands: false }
+  if (dbName) opts.dbName = dbName
+  cached.promise = mongoose.connect(uri, opts).then(conn => {
     cached.conn = conn
     cached.error = null
     return conn
