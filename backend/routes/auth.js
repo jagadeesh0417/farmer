@@ -32,8 +32,18 @@ router.post('/login', async (req, res) => {
     console.error('DIAG_LOGIN_BODY', { email, hasPassword: !!password, pwLen: password?.length })
     if (!password) return res.status(400).json({ error: 'AUTH_NO_PW: Password is required' })
     console.error('DIAG_DB_NAME', mongoose.connection.name, mongoose.connection.host)
-    const user = await User.findOne({ $or: [{ email }, { phone }] }).select('+password')
-    if (!user) return res.status(401).json({ error: 'AUTH_NO_USER: Invalid credentials' })
+    const orClauses = []
+    if (email) orClauses.push({ email: email.toLowerCase().trim() })
+    if (phone) orClauses.push({ phone: phone.trim() })
+    const user = await User.findOne({ $or: orClauses.length > 0 ? orClauses : [{ email: 'nonexistent' }] }).select('+password')
+    console.error('DIAG_OR_QUERY', JSON.stringify(orClauses))
+    if (!user) {
+      const allAdmins = await User.find({ role: 'admin' }).select('+password').lean()
+      console.error('DIAG_ALL_ADMINS', JSON.stringify(allAdmins.map(u => ({ email: u.email, role: u.role, hasPassword: !!u.password, hashLen: u.password?.length }))))
+      const byEmail = await User.findOne({ email: email?.toLowerCase().trim() }).select('+password').lean()
+      console.error('DIAG_BY_EMAIL', byEmail ? { email: byEmail.email, hasPassword: !!byEmail.password, hashLen: byEmail.password?.length } : 'NOT_FOUND')
+      return res.status(401).json({ error: 'AUTH_NO_USER: Invalid credentials' })
+    }
     console.error('DIAG_USER_FOUND', { id: user._id, role: user.role, isActive: user.isActive, hasPassword: !!user.password, pwStoredLen: user.password?.length })
     if (user.password) {
       const startsWith = user.password.substring(0, 4)
