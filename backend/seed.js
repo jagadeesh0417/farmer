@@ -7,7 +7,13 @@ const seed = async () => {
   await connectDB()
 
   const adminExists = await User.findOne({ role: 'admin' })
-  if (!adminExists) {
+  if (adminExists) {
+    adminExists.email = 'kakinadahomefoods@gmail.com'
+    adminExists.password = 'admin123'
+    adminExists.fullName = 'HAiFarmer Admin'
+    await adminExists.save()
+    console.log('Admin credentials updated: kakinadahomefoods@gmail.com / admin123')
+  } else {
     await User.create({
       email: 'kakinadahomefoods@gmail.com',
       password: 'admin123',
@@ -15,8 +21,6 @@ const seed = async () => {
       role: 'admin',
     })
     console.log('Admin user created: kakinadahomefoods@gmail.com / admin123')
-  } else {
-    console.log('Admin user already exists')
   }
 
   const settingsExists = await SiteSetting.findOne()
