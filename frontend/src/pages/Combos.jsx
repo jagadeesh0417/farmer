@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import SeoHead from '../components/SeoHead'
 import BundleCard from '../components/BundleCard'
+import { getComboBundles as getSupabaseComboBundles } from '../lib/productService'
 
 export default function Combos() {
   const [bundles, setBundles] = useState([])
@@ -12,7 +13,10 @@ export default function Combos() {
     const load = async () => {
       setLoading(true)
       try {
-        const data = await api.getBundles({ combo: 'true' })
+        let data = await api.getBundles({ combo: 'true' })
+        if (!data || data.length === 0) {
+          data = await getSupabaseComboBundles().catch(() => [])
+        }
         setBundles(data || [])
       } catch (e) { console.error(e) }
       finally { setLoading(false) }

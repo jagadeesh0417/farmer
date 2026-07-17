@@ -8,6 +8,7 @@ import BundleCard from '../components/BundleCard'
 import { api } from '../lib/api'
 import { getImageUrl } from '../lib/utils'
 import { CartIcon } from '../components/Icons'
+import { getNewArrivals as getSupabaseNewArrivals, getComboBundles as getSupabaseComboBundles, getActiveBanners as getSupabaseBanners } from '../lib/productService'
 
 const PLACEHOLDER_SVG = '/placeholder.jpg'
 
@@ -91,7 +92,7 @@ export default function Home() {
     async function load() {
       setLoading(true)
       try {
-        const [productsData, bundlesData, heroData, promoData, sideData] = await Promise.all([
+        let [productsData, bundlesData, heroData, promoData, sideData] = await Promise.all([
           api.getNewArrivals().catch(() => []),
           api.getBundles({ combo: 'true' }).catch(() => []),
           api.getBanners({ position: 'hero' }).catch(() => []),
@@ -99,6 +100,17 @@ export default function Home() {
           api.getBanners({ position: 'side' }).catch(() => []),
         ])
         if (cancelled) return
+
+        if (!productsData || productsData.length === 0) {
+          productsData = await getSupabaseNewArrivals().catch(() => [])
+        }
+        if (!bundlesData || bundlesData.length === 0) {
+          bundlesData = await getSupabaseComboBundles().catch(() => [])
+        }
+        if (!heroData || heroData.length === 0) {
+          const supabaseBanners = await getSupabaseBanners().catch(() => [])
+          heroData = supabaseBanners.map(b => ({ image: b.image_url, title: '', redirectLink: b.target_link?.link_url || '' }))
+        }
 
         setProducts(productsData || [])
         setBundles(bundlesData || [])
