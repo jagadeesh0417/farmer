@@ -291,6 +291,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why Choose Us */}
+      <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
+      <section className="relative bg-cream-100 py-10 lg:py-14">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Why Choose Us</span>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">Pure <span className="text-terracotta-500 italic">&</span> Trusted</h2>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-2 md:grid-cols-4">
+            {[
+              { icon: '🌿', title: '100% Natural', desc: 'Pesticide-free forest-grown produce' },
+              { icon: '🤝', title: 'Direct from Tribes', desc: 'Fair trade, no middlemen' },
+              { icon: '🧺', title: 'Traditional Farming', desc: 'Rainwater-fed ancient methods' },
+              { icon: '🚚', title: 'Farm to Home', desc: 'Delivered fresh to your doorstep' },
+            ].map(item => (
+              <div key={item.title} className="rounded-xl border border-forest-900/10 bg-cream-50 p-4 text-center hover:border-terracotta-500/30 transition-all">
+                <span className="text-2xl">{item.icon}</span>
+                <h3 className="mt-2 font-heading text-sm font-semibold text-forest-900">{item.title}</h3>
+                <p className="mt-0.5 text-[10px] text-forest-900/50">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
+
       {/* Category sections */}
       {hasCategoryProducts ? categorySections.map((section, ci) => (
         <div key={section.key}>
@@ -401,6 +428,29 @@ export default function Home() {
         </>
       )}
 
+      {/* How It Works */}
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
+      <section className="relative bg-forest-900 py-12 lg:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">How It Works</span>
+          <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">From <span className="text-gold-500 italic">Farm</span> to Home</h2>
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              { step: '01', icon: '🌾', title: 'Tribal Farmers Harvest', desc: 'Grown using traditional rainwater-fed methods, pesticide-free' },
+              { step: '02', icon: '📦', title: 'Carefully Packed', desc: 'Hygienically processed and packed at source' },
+              { step: '03', icon: '🏡', title: 'Delivered to Your Door', desc: 'Farm fresh produce, straight from tribal farms to your home' },
+            ].map(item => (
+              <div key={item.step} className="rounded-xl border border-gold-500/10 bg-forest-950/60 p-5 text-center hover:border-gold-500/30 transition-all">
+                <span className="font-heading text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500/50">{item.step}</span>
+                <div className="mt-3 text-3xl">{item.icon}</div>
+                <h3 className="mt-3 font-heading text-base font-semibold text-cream-50">{item.title}</h3>
+                <p className="mt-1 text-xs text-cream-50/50">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
       {/* Impact section */}
@@ -426,7 +476,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials */}
       <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
+      <section className="relative bg-cream-100 py-12 lg:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Testimonials</span>
+          <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">What Our <span className="text-terracotta-500 italic">Customers</span> Say</h2>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {[
+              { quote: 'The millets taste just like home. So fresh and authentic — reminds me of my grandmother\'s cooking.', name: 'Priya S.', location: 'Hyderabad' },
+              { quote: 'Finally, real chemical-free produce. My family loves the natural sweetness of the forest honey.', name: 'Rajesh K.', location: 'Bangalore' },
+              { quote: 'Direct from tribal farmers with no middlemen. This is the future of food in India.', name: 'Ananya M.', location: 'Chennai' },
+            ].map(item => (
+              <div key={item.name} className="rounded-xl border border-forest-900/10 bg-cream-50 p-5 text-left hover:border-terracotta-500/30 transition-all">
+                <div className="flex gap-1 text-terracotta-500/60 text-xs mb-3">★★★★★</div>
+                <p className="text-sm text-forest-900/70 leading-relaxed italic">&ldquo;{item.quote}&rdquo;</p>
+                <div className="mt-4 flex items-center gap-2 border-t border-forest-900/5 pt-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-terracotta-500/20 text-xs font-bold text-terracotta-600">{item.name[0]}</div>
+                  <div>
+                    <p className="text-xs font-semibold text-forest-900">{item.name}</p>
+                    <p className="text-[10px] text-forest-900/40">{item.location}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
       {/* Combos */}
       <section className="relative bg-cream-100 py-14 lg:py-20" ref={el => sectionRef.current[4] = el} data-section="combos">
@@ -448,6 +526,14 @@ export default function Home() {
               View All Bundles
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Farm to Home closing */}
+      <section className="bg-forest-950 py-10 text-center border-t border-gold-500/10">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <p className="font-heading text-2xl font-bold text-gold-500 sm:text-3xl italic">Farm to Home</p>
+          <p className="mt-2 text-xs text-cream-50/40">Pure forest-grown produce from tribal farms. Delivered to your doorstep.</p>
         </div>
       </section>
 
