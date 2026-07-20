@@ -8,7 +8,7 @@ import BundleCard from '../components/BundleCard'
 import { api } from '../lib/api'
 import { getImageUrl, optimizeImage } from '../lib/utils'
 import { CartIcon } from '../components/Icons'
-import { getNewArrivals as getSupabaseNewArrivals, getComboBundles as getSupabaseComboBundles, getActiveBanners as getSupabaseBanners } from '../lib/productService'
+import { getNewArrivals as getSupabaseNewArrivals, getComboBundles as getSupabaseComboBundles, getActiveBanners as getSupabaseBanners, getCategories as getSupabaseCategories } from '../lib/productService'
 
 function prefetchImage(src) { if (!src) return; const img = new Image(); img.src = src }
 
@@ -17,6 +17,8 @@ export default function Home() {
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
+  const [allProducts, setAllProducts] = useState([])
+  const [categories, setCategories] = useState([])
   const [bundles, setBundles] = useState([])
   const [loading, setLoading] = useState(true)
   const [heroBanners, setHeroBanners] = useState([])
@@ -31,6 +33,30 @@ export default function Home() {
   const [touchStart, setTouchStart] = useState(null)
   const sectionRef = useRef([])
   const [visibleSections, setVisibleSections] = useState({})
+
+  const catList = categories.filter(c => c.name && c.isActive !== false).sort((a, b) => (a.order || 0) - (b.order || 0))
+  const groupedProducts = {}
+  allProducts.forEach(p => {
+    const catName = p.category?.name || p.categoryName
+    if (catName) {
+      if (!groupedProducts[catName]) groupedProducts[catName] = []
+      groupedProducts[catName].push(p)
+    }
+  })
+  let sectionIdx = 5
+  const categorySections = catList.map(cat => {
+    const catProducts = groupedProducts[cat.name] || []
+    if (catProducts.length === 0) return null
+    return {
+      key: cat._id || cat.name,
+      name: cat.name,
+      slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-'),
+      desc: cat.description || `Organic ${cat.name}`,
+      link: `/products?category=${cat.slug || cat.name}`,
+      products: catProducts,
+      idx: sectionIdx++,
+    }
+  }).filter(Boolean)
 
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
   const handleBannerClick = (link) => { if (!link) return; if (link.startsWith('/')) navigate(link); else window.open(link, '_blank') }
@@ -66,21 +92,27 @@ export default function Home() {
     async function load() {
       setLoading(true)
       try {
-        let [productsData, bundlesData, heroData, promoData, sideData] = await Promise.all([
+        let [productsData, bundlesData, heroData, promoData, sideData, categoriesData, allProductsData] = await Promise.all([
           api.getNewArrivals().catch(() => []),
           api.getBundles({ combo: 'true' }).catch(() => []),
           api.getBanners({ position: 'hero' }).catch(() => []),
           api.getBanners({ position: 'promotional' }).catch(() => []),
           api.getBanners({ position: 'side' }).catch(() => []),
+          api.getCategories().catch(() => []),
+          api.getProducts({ limit: 50 }).then(r => r.data || []).catch(() => []),
         ])
         if (cancelled) return
         if (!productsData || productsData.length === 0) productsData = await getSupabaseNewArrivals().catch(() => [])
         if (!bundlesData || bundlesData.length === 0) bundlesData = await getSupabaseComboBundles().catch(() => [])
+        if (!categoriesData || categoriesData.length === 0) categoriesData = await getSupabaseCategories().catch(() => [])
+        if (!allProductsData || allProductsData.length === 0) allProductsData = productsData
         if (!heroData || heroData.length === 0) {
           const supabaseBanners = await getSupabaseBanners().catch(() => [])
           heroData = supabaseBanners.map(b => ({ image: b.image_url, title: '', redirectLink: b.target_link?.link_url || '' }))
         }
         setProducts(productsData || [])
+        setAllProducts(allProductsData || [])
+        setCategories(categoriesData || [])
         setBundles(bundlesData || [])
         setHeroBanners(heroData || [])
         setPromoBanners(promoData || [])
@@ -274,31 +306,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Our Products */}
-      {products.length > 0 && (
-        <>
-          <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
-          <section className="relative bg-cream-100 py-20 lg:py-28" ref={el => sectionRef.current[5] = el} data-section="products">
-            <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.products ? 'visible' : ''}`}>
-              <div className="text-center">
-                <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Our Collection</span>
-                <h2 className="mt-3 font-heading text-4xl font-bold text-forest-900 sm:text-5xl tracking-tight">Shop by <span className="text-terracotta-500 italic">Category</span></h2>
-                <p className="mt-2 text-sm text-forest-900/50 max-w-md mx-auto">Explore our range of organic millets, lentils, spices, oils, and traditional foods — all direct from tribal farms.</p>
+      {/* Category sections */}
+      {categorySections.length > 0 && categorySections.map((section, ci) => (
+        <div key={section.key}>
+          {ci > 0 && <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>}
+          <section className={`relative bg-forest-900 py-16 lg:py-20 ${ci % 2 === 0 ? '' : 'bg-forest-950'}`} ref={el => sectionRef.current[section.idx] = el} data-section={`cat-${section.slug}`}>
+            <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections[`cat-${section.slug}`] ? 'visible' : ''}`}>
+              <div className="flex items-end justify-between">
+                <div>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">{section.name}</span>
+                  <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">{section.desc}</h2>
+                </div>
+                <Link to={section.link} className="hidden sm:inline-flex btn-font items-center gap-2 rounded-xl border border-cream-50/20 px-6 py-3 text-xs font-semibold tracking-[0.08em] uppercase text-cream-50/60 transition-all hover:bg-cream-50/10 hover:text-cream-50 hover:-translate-y-0.5">
+                  View All
+                </Link>
               </div>
-              <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.slice(0, 8).map(product => (
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {section.products.slice(0, 4).map(product => (
                   <ProductCard key={product._id || product.id} product={product} />
                 ))}
               </div>
-              <div className="mt-10 text-center">
-                <Link to="/products" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-10 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-1 shadow-xl shadow-terracotta-500/20 btn-lift">
-                  View All Products
+              <div className="mt-6 text-center sm:hidden">
+                <Link to={section.link} className="btn-font inline-flex items-center gap-2 rounded-xl border border-cream-50/20 px-6 py-3 text-xs font-semibold tracking-[0.08em] uppercase text-cream-50/60 transition-all hover:bg-cream-50/10 hover:text-cream-50">
+                  View All {section.name}
                 </Link>
               </div>
             </div>
           </section>
-        </>
-      )}
+        </div>
+      ))}
+
+      {/* All Products CTA */}
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
+      <section className="relative bg-forest-900 py-12 text-center">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <Link to="/products" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-10 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-1 shadow-xl shadow-terracotta-500/20 btn-lift">
+            Browse All Products
+          </Link>
+        </div>
+      </section>
 
       <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
