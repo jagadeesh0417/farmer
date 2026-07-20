@@ -274,7 +274,33 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
+      {/* Our Products */}
+      {products.length > 0 && (
+        <>
+          <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
+          <section className="relative bg-cream-100 py-20 lg:py-28" ref={el => sectionRef.current[5] = el} data-section="products">
+            <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.products ? 'visible' : ''}`}>
+              <div className="text-center">
+                <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Our Collection</span>
+                <h2 className="mt-3 font-heading text-4xl font-bold text-forest-900 sm:text-5xl tracking-tight">Shop by <span className="text-terracotta-500 italic">Category</span></h2>
+                <p className="mt-2 text-sm text-forest-900/50 max-w-md mx-auto">Explore our range of organic millets, lentils, spices, oils, and traditional foods — all direct from tribal farms.</p>
+              </div>
+              <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {products.slice(0, 8).map(product => (
+                  <ProductCard key={product._id || product.id} product={product} />
+                ))}
+              </div>
+              <div className="mt-10 text-center">
+                <Link to="/products" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-10 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-1 shadow-xl shadow-terracotta-500/20 btn-lift">
+                  View All Products
+                </Link>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
       {/* New arrivals */}
       <section className="relative bg-cream-100 py-20 lg:py-28" ref={el => sectionRef.current[2] = el} data-section="arrivals">
