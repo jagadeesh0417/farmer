@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MobileBottomNav from './components/MobileBottomNav'
+import FloatingWhatsApp from './components/FloatingWhatsApp'
 import { useAuth } from './contexts/AuthContext'
 import ScrollToTop from './components/ScrollToTop'
 import PageTracker from './components/PageTracker'
@@ -76,6 +77,7 @@ function AppLayout() {
       </main>
       <Footer />
       <MobileBottomNav />
+      <FloatingWhatsApp />
     </div>
   )
 }
