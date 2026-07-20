@@ -24,7 +24,7 @@ export default function AdminProductForm() {
   useEffect(() => {
     const load = async () => {
       try {
-        const cats = await api.getCategories()
+        const cats = await api.getAllCategories()
         setCategories(cats || [])
         if (isEdit) {
           const products = await api.getProducts({ active: 'all' })
@@ -89,7 +89,7 @@ export default function AdminProductForm() {
 
   const removeImage = (idx) => {
     const url = form.images[idx]
-    api.deleteImage(url).catch(() => {})
+    api.deleteImage(url).catch(err => console.error('Failed to delete image from cloud:', err))
     setForm(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== idx),
@@ -99,11 +99,14 @@ export default function AdminProductForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!form.basePrice || Number(form.basePrice) <= 0) { toast.error('Base price must be greater than 0'); return }
+    if (form.discountPercent < 0 || form.discountPercent > 100) { toast.error('Discount must be 0-100'); return }
+    if (!form.variants.some(v => v.name?.trim() && Number(v.price) > 0)) { toast.error('At least one variant with name and price > 0 is required'); return }
     setSaving(true)
     try {
       const payload = {
         ...form,
-        basePrice: Number(form.basePrice) || 0,
+        basePrice: Number(form.basePrice),
         discountPercent: Math.round(Number(form.discountPercent) || 0),
         variants: form.variants.map(v => ({
           ...v,
@@ -147,7 +150,7 @@ export default function AdminProductForm() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Base Price *</label>
-              <input type="number" value={form.basePrice} onChange={e => handleChange('basePrice', e.target.value)} required className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none" />
+              <input type="number" value={form.basePrice} onChange={e => handleChange('basePrice', e.target.value)} required min="0.01" step="0.01" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Discount %</label>

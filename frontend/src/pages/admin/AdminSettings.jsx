@@ -58,14 +58,14 @@ export default function AdminSettings() {
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {type === 'textarea' ? (
-        <textarea value={getNestedValue(settings, path) || ''} onChange={e => handleChange(path, e.target.value)} rows={3} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+        <textarea value={getNestedValue(settings, path) ?? ''} onChange={e => handleChange(path, e.target.value)} rows={3} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
       ) : type === 'checkbox' ? (
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={getNestedValue(settings, path) || false} onChange={e => handleChange(path, e.target.checked)} className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
           <span className="text-sm text-slate-600">{placeholder}</span>
         </label>
       ) : (
-        <input type={type} value={getNestedValue(settings, path) || ''} onChange={e => handleChange(path, e.target.value)} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+        <input type={type} value={getNestedValue(settings, path) ?? ''} onChange={e => handleChange(path, e.target.value)} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
       )}
     </div>
   )

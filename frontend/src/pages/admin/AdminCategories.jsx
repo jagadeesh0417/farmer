@@ -10,6 +10,7 @@ export default function AdminCategories() {
   const fileRef = useRef(null)
 
   const load = async () => {
+    setLoading(true)
     try {
       const data = await api.getAllCategories()
       setCategories(data || [])
@@ -76,7 +77,7 @@ export default function AdminCategories() {
         <div className="lg:col-span-1">
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-bold text-slate-900 mb-4">{editing ? 'Edit Category' : 'Add Category'}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4" onKeyDown={e => e.key === 'Enter' && handleSubmit(e)}>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <input value={form.name} onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))} placeholder="Category Name *" required className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
               <input value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))} placeholder="Description" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
               <input type="number" value={form.order} onChange={e => setForm(prev => ({ ...prev, order: Number(e.target.value) }))} placeholder="Order" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />

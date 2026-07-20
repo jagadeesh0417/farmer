@@ -7,6 +7,7 @@ export default function AdminBanners() {
   const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({ title: '', subtitle: '', buttonText: '', redirectLink: '', image: '', cloudinaryPublicId: '', order: 0, isActive: true, position: 'hero' })
   const fileRef = useRef(null)
 
@@ -32,12 +33,17 @@ export default function AdminBanners() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
     if (!form.image) return toast.error('Image is required')
+    if (form.redirectLink && !form.redirectLink.startsWith('http://') && !form.redirectLink.startsWith('https://') && !form.redirectLink.startsWith('/')) return toast.error('Redirect link must be a valid URL or path')
+    if (form.order < 0) return toast.error('Order must be 0 or greater')
+    setSubmitting(true)
     try {
       if (editing) { await api.updateBanner(editing, form); toast.success('Banner updated') }
       else { await api.createBanner(form); toast.success('Banner created') }
       resetForm(); load()
     } catch (err) { toast.error(err.message) }
+    finally { setSubmitting(false) }
   }
 
   const handleDelete = async (id) => {
@@ -90,7 +96,7 @@ export default function AdminBanners() {
                 {form.image && <img src={cld(form.image, 'f_auto,q_auto,w_400,c_limit')} alt="" className="mt-2 h-20 w-full rounded-lg object-cover" />}
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 transition">{editing ? 'Update' : 'Create'}</button>
+                <button type="submit" disabled={submitting} className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50 transition">{submitting ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
                 {editing && <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>}
               </div>
             </form>

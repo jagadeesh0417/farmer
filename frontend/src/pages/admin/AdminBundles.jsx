@@ -9,6 +9,7 @@ export default function AdminBundles() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
   const fileRef = useRef(null)
   const [form, setForm] = useState({
     name: '', description: '', image: '', cloudinaryPublicId: '',
@@ -57,7 +58,11 @@ export default function AdminBundles() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
     if (!form.name.trim()) return toast.error('Name is required')
+    if (form.discountPercent < 0 || form.discountPercent > 100) return toast.error('Discount must be 0-100')
+    if (!form.items.some(i => i.product)) return toast.error('At least one item must have a product selected')
+    setSubmitting(true)
     try {
       const payload = {
         ...form,
@@ -68,6 +73,7 @@ export default function AdminBundles() {
       else { await api.createBundle(payload); toast.success('Bundle created') }
       resetForm(); load()
     } catch (err) { toast.error(err.message) }
+    finally { setSubmitting(false) }
   }
 
   const handleDelete = async (id) => {
@@ -111,6 +117,16 @@ export default function AdminBundles() {
         items[idx].variantId = p.variants?.[0]?._id || ''
       }
     }
+    if (field === 'variantId') {
+      const p = products.find(x => x._id === items[idx].product)
+      if (p) {
+        const v = p.variants?.find(x => (x._id || x.id) === value)
+        if (v) {
+          items[idx].variantName = v.name || ''
+          items[idx].price = v.price || p.basePrice || 0
+        }
+      }
+    }
     setForm(prev => ({ ...prev, items }))
   }
 
@@ -144,6 +160,15 @@ export default function AdminBundles() {
                       <option value="">Select product</option>
                       {products.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
                     </select>
+                    {item.product && (() => {
+                      const p = products.find(x => x._id === item.product)
+                      return p?.variants?.length > 1 ? (
+                        <select value={item.variantId} onChange={e => setItem(idx, 'variantId', e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs outline-none focus:border-brand-500">
+                          <option value="">Select variant</option>
+                          {p.variants.map(v => <option key={v._id || v.id} value={v._id || v.id}>{v.name} - {formatPrice(v.price)}</option>)}
+                        </select>
+                      ) : null
+                    })()}
                     <div className="grid grid-cols-2 gap-2">
                       <input type="number" value={item.quantity} onChange={e => setItem(idx, 'quantity', e.target.value)} placeholder="Qty" min="1" className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs outline-none focus:border-brand-500" />
                       <input type="number" value={item.price} onChange={e => setItem(idx, 'price', e.target.value)} placeholder="Price" className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs outline-none focus:border-brand-500" />
@@ -161,7 +186,7 @@ export default function AdminBundles() {
               </div>
 
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 transition">{editing ? 'Update' : 'Create'}</button>
+                <button type="submit" disabled={submitting} className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50 transition">{submitting ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
                 {editing && <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>}
               </div>
             </form>

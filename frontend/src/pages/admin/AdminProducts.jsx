@@ -31,7 +31,7 @@ export default function AdminProducts() {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { load() }, [page])
+  useEffect(() => { load() }, [page, search])
 
   const handleSearch = (e) => { e.preventDefault(); setPage(1) }
 

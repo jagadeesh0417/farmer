@@ -9,6 +9,7 @@ export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
   const [typeFilter, setTypeFilter] = useState('')
   const [form, setForm] = useState({
     code: '', type: 'universal', discountType: 'percentage', discountValue: '',
@@ -41,13 +42,19 @@ export default function AdminCoupons() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
     if (!form.code.trim() || !form.discountValue) return toast.error('Code and value are required')
+    if (Number(form.discountValue) <= 0) return toast.error('Discount value must be greater than 0')
+    if (form.discountType === 'percentage' && Number(form.discountValue) > 100) return toast.error('Percentage discount cannot exceed 100%')
+    if (form.expiryDate && new Date(form.expiryDate) < new Date(new Date().toDateString())) return toast.error('Expiry date must be in the future')
+    setSubmitting(true)
     try {
       const payload = { ...form, discountValue: Number(form.discountValue), maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : undefined, minPurchase: Number(form.minPurchase), maxUses: Number(form.maxUses) }
       if (editing) { await api.updateCoupon(editing, payload); toast.success('Coupon updated') }
       else { await api.createCoupon(payload); toast.success('Coupon created') }
       resetForm(); load()
     } catch (err) { toast.error(err.message) }
+    finally { setSubmitting(false) }
   }
 
   const handleDelete = async (id) => {
@@ -105,7 +112,7 @@ export default function AdminCoupons() {
                 One Use Per User
               </label>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 transition">{editing ? 'Update' : 'Create'}</button>
+                <button type="submit" disabled={submitting} className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50 transition">{submitting ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
                 {editing && <button type="button" onClick={resetForm} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>}
               </div>
             </form>

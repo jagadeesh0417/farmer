@@ -25,7 +25,9 @@ export default function AdminOrders() {
 
   useEffect(() => { load() }, [page, statusFilter])
 
-  const handleStatusChange = async (id, status) => {
+  const handleStatusChange = async (id, status, currentStatus) => {
+    if (status === currentStatus) return
+    if (!confirm(`Change order status to "${status}"?`)) return
     try { await api.updateOrderStatus(id, status); toast.success(`Order ${status}`); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -63,7 +65,7 @@ export default function AdminOrders() {
                       <span className={`text-[10px] font-semibold ${order.paymentStatus === 'paid' ? 'text-green-600' : order.paymentStatus === 'failed' ? 'text-red-600' : 'text-amber-600'}`}>{order.paymentStatus}</span>
                     </td>
                     <td className="p-3">
-                      <select value={order.status} onChange={e => handleStatusChange(order._id, e.target.value)} className="rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none">
+                      <select value={order.status} onChange={e => handleStatusChange(order._id, e.target.value, order.status)} className="rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none">
                         {statuses.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </td>

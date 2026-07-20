@@ -6,6 +6,7 @@ export default function AdminFarmers() {
   const [farmers, setFarmers] = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -30,7 +31,7 @@ export default function AdminFarmers() {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { load() }, [page])
+  useEffect(() => { load() }, [page, search])
 
   const handleSearch = (e) => { e.preventDefault(); setPage(1) }
 
@@ -51,13 +52,16 @@ export default function AdminFarmers() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
     if (!form.name.trim() || !form.phone.trim()) return toast.error('Name and phone are required')
+    setSubmitting(true)
     try {
       const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean) }
       if (editing) { await api.updateFarmer(editing, payload); toast.success('Farmer updated') }
       else { await api.createFarmer(payload); toast.success('Farmer created') }
       resetForm(); load()
     } catch (err) { toast.error(err.message) }
+    finally { setSubmitting(false) }
   }
 
   const handleToggleActive = async (id) => {
@@ -163,7 +167,7 @@ export default function AdminFarmers() {
               <input ref={fileRef} type="file" multiple accept="image/*" onChange={handleImageUpload} hidden />
             </div>
             <div className="sm:col-span-2 flex gap-2">
-              <button type="submit" className="rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-700">{editing === 'new' ? 'Create' : 'Update'}</button>
+              <button type="submit" disabled={submitting} className="rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50">{submitting ? 'Saving...' : editing === 'new' ? 'Create' : 'Update'}</button>
               <button type="button" onClick={() => { setEditing(null); resetForm() }} className="rounded-xl border border-slate-200 px-6 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
             </div>
           </form>
