@@ -246,7 +246,7 @@ export default function Home() {
       <div className="organic-divider-gold"><div className="absolute inset-0 bg-cream-50" /></div>
       <section className="bg-cream-50 py-6" ref={el => sectionRef.current[0] = el} data-section="trust">
         <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.trust ? 'visible' : ''}`}>
-          <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 text-center md:grid-cols-4">
             {[
               { number: '20+', label: 'Traditional Foods' },
               { number: '100%', label: 'Chemical Free' },
@@ -276,7 +276,7 @@ export default function Home() {
             For generations, tribal farmers have cultivated the land using traditional methods — rainwater-fed, pesticide-free, 
             and in perfect harmony with nature. We bring this ancient wisdom directly to your home.
           </p>
-          <div className="mt-6 flex justify-center gap-6 text-center">
+          <div className="mt-6 flex justify-center gap-4 text-center">
             {[
               { icon: '🌿', title: 'Direct from Tribes' },
               { icon: '🌱', title: '100% Natural' },
@@ -306,7 +306,7 @@ export default function Home() {
                   View All
                 </Link>
               </div>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {section.products.slice(0, 4).map(product => (
                   <ProductCard key={product._id || product.id} product={product} />
                 ))}
@@ -329,7 +329,7 @@ export default function Home() {
                 <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">Premium <span className="text-gold-500 italic">Produce</span></h2>
                 <p className="mt-2 text-sm text-cream-50/50 max-w-md mx-auto">Pure forest-grown produce direct from tribal farms</p>
               </div>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="mt-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {fallbackPool.slice(0, 8).map(product => (
                   <ProductCard key={product._id || product.id} product={product} />
                 ))}
@@ -358,7 +358,7 @@ export default function Home() {
                 <p className="font-heading text-lg text-forest-900/40 italic">No products yet</p>
               </div>
             ) : (
-              <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar snap-x" style={{ scrollPaddingLeft: 'calc(50% - 140px)' }}>
+              <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar snap-x" style={{ scrollPaddingLeft: 'calc(50% - 140px)' }}>
                 {displayProducts.map((product, idx) => (
                   <div key={`${product._id || product.id}-${idx}`} className="w-[200px] flex-none snap-start">
                     <ProductCard product={product} compact />
@@ -383,7 +383,7 @@ export default function Home() {
             <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">Special Offers</span>
               <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">Farm Fresh Deals</h2>
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="mt-8 grid gap-2 sm:grid-cols-3">
                 {promoList.map((b, i) => (
                   <div key={i} className="group overflow-hidden rounded-2xl border border-cream-50/10 bg-forest-950 shadow-xl img-zoom">
                     {b.link ? (
@@ -410,7 +410,7 @@ export default function Home() {
           <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">Our Impact</span>
           <h2 className="mt-4 font-heading text-4xl font-bold text-cream-50 sm:text-5xl tracking-tight">Making a <span className="text-gold-500 italic">Difference</span></h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-cream-50/50">Every purchase supports indigenous communities and preserves ancient agricultural traditions.</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid gap-2 sm:grid-cols-3">
             {[
               { number: '20+', label: 'Farmers Empowered', icon: '👨‍🌾' },
               { number: '100%', label: 'Chemical Free', icon: '🌿' },
