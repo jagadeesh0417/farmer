@@ -13,12 +13,6 @@ export default function Footer() {
   const whatsapp = settings?.whatsapp || settings?.whatsapp_number || '9709704563'
   const address = settings?.address || ''
   const social = settings?.footer?.socialLinks || settings?.socialLinks || {}
-  const policies = {
-    privacy: settings?.footer?.privacyPolicyUrl || '',
-    terms: settings?.footer?.termsUrl || '',
-    refund: settings?.footer?.refundPolicyUrl || '',
-    shipping: settings?.footer?.shippingPolicyUrl || '',
-  }
 
   return (
     <footer className="bg-forest-950 text-cream-50/70">
@@ -29,7 +23,7 @@ export default function Footer() {
             {[
               { icon: '🚚', title: 'Free Shipping', desc: 'On orders above ₹2,599' },
               { icon: '🔒', title: 'Secure Payment', desc: '100% secure checkout' },
-              { icon: '🔄', title: 'Easy Returns', desc: '7-day return policy' },
+              { icon: '🔄', title: 'Easy Returns', desc: '7-day easy returns' },
               { icon: '🤝', title: 'Support Farmers', desc: 'Direct tribal sourcing' },
             ].map(item => (
               <div key={item.title} className="text-center">
@@ -92,16 +86,7 @@ export default function Footer() {
               <li><Link to="/about" className="text-sm text-cream-50/50 hover:text-gold-500 transition-all">About Us</Link></li>
             </ul>
           </div>
-          {/* Policies */}
-          <div>
-            <h3 className="font-heading text-lg font-semibold text-cream-50">Policies</h3>
-            <ul className="mt-4 space-y-3">
-              {policies.privacy ? <li><a href={policies.privacy} target="_blank" rel="noopener noreferrer" className="text-sm text-cream-50/50 hover:text-gold-500 transition-all">Privacy Policy</a></li> : <li><span className="text-sm text-cream-50/20">Privacy Policy</span></li>}
-              {policies.terms ? <li><a href={policies.terms} target="_blank" rel="noopener noreferrer" className="text-sm text-cream-50/50 hover:text-gold-500 transition-all">Terms &amp; Conditions</a></li> : <li><span className="text-sm text-cream-50/20">Terms &amp; Conditions</span></li>}
-              {policies.refund ? <li><a href={policies.refund} target="_blank" rel="noopener noreferrer" className="text-sm text-cream-50/50 hover:text-gold-500 transition-all">Refund Policy</a></li> : <li><span className="text-sm text-cream-50/20">Refund Policy</span></li>}
-              {policies.shipping ? <li><a href={policies.shipping} target="_blank" rel="noopener noreferrer" className="text-sm text-cream-50/50 hover:text-gold-500 transition-all">Shipping Policy</a></li> : <li><span className="text-sm text-cream-50/20">Shipping Policy</span></li>}
-            </ul>
-          </div>
+
           {/* Contact */}
           <div>
             <h3 className="font-heading text-lg font-semibold text-cream-50">Contact</h3>
@@ -140,12 +125,9 @@ export default function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-cream-50/10 pt-6 sm:flex-row">
           <p className="text-xs text-cream-50/30">© {year} {storeName}. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-cream-50/30">
-            {policies.privacy && <a href={policies.privacy} target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-all">Privacy</a>}
-            {policies.terms && <><span>·</span><a href={policies.terms} target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-all">Terms</a></>}
-            {policies.refund && <><span>·</span><a href={policies.refund} target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-all">Refund</a></>}
-            {policies.shipping && <><span>·</span><a href={policies.shipping} target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-all">Shipping</a></>}
-            <><span>·</span><Link to="/about" className="hover:text-gold-500 transition-all">About</Link></>
-            <><span>·</span><Link to="/products" className="hover:text-gold-500 transition-all">Products</Link></>
+            <Link to="/about" className="hover:text-gold-500 transition-all">About</Link>
+            <span>·</span>
+            <Link to="/products" className="hover:text-gold-500 transition-all">Products</Link>
           </div>
         </div>
       </div>

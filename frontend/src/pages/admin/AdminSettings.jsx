@@ -176,10 +176,6 @@ export default function AdminSettings() {
             <div className="grid sm:grid-cols-2 gap-4">
               <Input label="Company Name" path="footer.companyName" />
               <Input label="About Text" path="footer.aboutText" type="textarea" />
-              <Input label="Privacy Policy URL" path="footer.privacyPolicyUrl" />
-              <Input label="Refund Policy URL" path="footer.refundPolicyUrl" />
-              <Input label="Shipping Policy URL" path="footer.shippingPolicyUrl" />
-              <Input label="Terms URL" path="footer.termsUrl" />
               <Input label="FAQ URL" path="footer.faqUrl" />
               <Input label="Contact URL" path="footer.contactUrl" />
               <Input label="Facebook URL" path="footer.socialLinks.facebook" />

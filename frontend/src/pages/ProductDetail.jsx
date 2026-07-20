@@ -235,7 +235,7 @@ export default function ProductDetail() {
             {/* Guarantee */}
             <div className="flex items-center gap-2 rounded-xl bg-forest-900/5 px-4 py-2.5">
               <span className="text-lg">🛡️</span>
-              <p className="text-xs text-forest-900/60">100% Satisfaction Guaranteed — return within 7 days for a full refund.</p>
+              <p className="text-xs text-forest-900/60">100% Satisfaction Guaranteed — 7-day easy returns.</p>
             </div>
 
             {/* About */}
