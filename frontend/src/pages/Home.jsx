@@ -209,8 +209,8 @@ export default function Home() {
             {[
               { number: '20+', label: 'Traditional Foods', sub: 'Millets, lentils & spices' },
               { number: '100%', label: 'Chemical Free', sub: 'No pesticides or fertilizers' },
-              { number: 'Direct', label: 'From Tribal Farmers', sub: 'Fair trade, no middlemen' },
-              { number: 'Free', label: 'Shipping Above ₹2,599', sub: 'Across India' },
+              { number: 'Direct', label: 'From Tribal Farmers', sub: 'No middlemen, fair trade' },
+              { number: '₹2,599+', label: 'Free Shipping', sub: 'Across India' },
             ].map(item => (
               <div key={item.label} className="space-y-1">
                 <p className="font-heading text-3xl font-bold text-terracotta-500 sm:text-4xl">{item.number}</p>
@@ -220,7 +220,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <p className="font-heading text-base italic text-forest-900/50">Every Order Directly Supports Tribal Farmers</p>
+            <p className="font-heading text-base italic text-forest-900/50">Every Order Supports Tribal Farmers</p>
           </div>
         </div>
       </section>
