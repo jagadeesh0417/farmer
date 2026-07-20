@@ -427,21 +427,21 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="relative bg-forest-900 py-4">
+      <section className="relative bg-forest-900 py-8 lg:py-10">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">How It Works</span>
-          <h2 className="mt-2 font-heading text-2xl font-bold text-cream-50 sm:text-3xl tracking-tight">From <span className="text-gold-500 italic">Farm</span> to Home</h2>
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">From <span className="text-gold-500 italic">Farm</span> to Home</h2>
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
               { step: '01', icon: '🌾', title: 'Tribal Farmers Harvest', desc: 'Grown using traditional rainwater-fed methods, pesticide-free' },
               { step: '02', icon: '📦', title: 'Carefully Packed', desc: 'Hygienically processed and packed at source' },
               { step: '03', icon: '🏡', title: 'Delivered to Your Door', desc: 'Farm fresh produce, straight from tribal farms to your home' },
             ].map(item => (
-              <div key={item.step} className="rounded-xl border border-gold-500/10 bg-forest-950/60 p-4 text-center hover:border-gold-500/30 transition-all">
-                <span className="font-heading text-[9px] font-bold tracking-[0.2em] uppercase text-gold-500/50">{item.step}</span>
-                <div className="mt-2 text-2xl">{item.icon}</div>
-                <h3 className="mt-2 font-heading text-sm font-semibold text-cream-50">{item.title}</h3>
-                <p className="mt-1 text-[10px] text-cream-50/50">{item.desc}</p>
+              <div key={item.step} className="rounded-2xl border border-gold-500/10 bg-forest-950/60 p-6 sm:p-7 text-center hover:border-gold-500/30 hover:-translate-y-0.5 transition-all">
+                <span className="font-heading text-xs font-bold tracking-[0.2em] uppercase text-gold-500/50">{item.step}</span>
+                <div className="mt-3 text-4xl">{item.icon}</div>
+                <h3 className="mt-3 font-heading text-lg font-semibold text-cream-50">{item.title}</h3>
+                <p className="mt-1.5 text-sm text-cream-50/50">{item.desc}</p>
               </div>
             ))}
           </div>
