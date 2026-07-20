@@ -312,6 +312,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Promo banners */}
+      {promoList.length > 0 && (
+        <>
+          <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
+          <section className="relative bg-forest-900 py-16 sm:py-20">
+            <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">Special Offers</span>
+              <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">Farm Fresh Deals</h2>
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                {promoList.map((b, i) => (
+                  <div key={i} className="group overflow-hidden rounded-2xl border border-cream-50/10 bg-forest-950 shadow-xl img-zoom">
+                    {b.link ? (
+                      <a href={b.link.startsWith('/') ? undefined : b.link} onClick={b.link.startsWith('/') ? () => navigate(b.link) : undefined} target={b.link.startsWith('/') ? undefined : '_blank'} rel={b.link.startsWith('/') ? undefined : 'noopener noreferrer'}>
+                        <img src={optimizeImage(b.url, 800)} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover" />
+                      </a>
+                    ) : (
+                      <img src={optimizeImage(b.url, 800)} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
       <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
       {/* Impact section */}
