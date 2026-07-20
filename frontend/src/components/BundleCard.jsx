@@ -49,45 +49,36 @@ export default function BundleCard({ bundle }) {
   }
 
   return (
-    <div className="w-full rounded-3xl border border-border-warm bg-white shadow-md overflow-hidden hover:shadow-xl transition">
+    <div className="w-full rounded-3xl border border-border-warm bg-white shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 sm:p-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-terracotta-500/10 px-4 py-1.5 text-xs font-semibold tracking-[0.08em] uppercase text-terracotta-500">
-              Best Value
-            </span>
-            <span className="text-sm font-medium text-forest-900/60">{productCount} Products</span>
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-terracotta-500/10 px-4 py-1.5 text-xs font-semibold tracking-[0.08em] uppercase text-terracotta-500">Best Value</span>
+            <span className="text-sm font-medium text-forest-900/50">{productCount} Products</span>
           </div>
-          <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-2xl border border-border-warm bg-cream-50">
-            <img
-              src={getImageUrl(image, settings?.placeholder_image)}
-              alt={name}
-              className="h-72 w-full object-cover transition duration-500 hover:scale-105"
-              onError={(e) => { e.target.src = settings?.placeholder_image || 'https://placehold.co/600x400?text=Combo' }}
-            />
-            <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-forest-900/90 px-4 py-1.5 text-sm font-semibold text-cream-50 backdrop-blur-sm">
-              {productCount} Products
-            </span>
+          <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-2xl border border-border-warm bg-cream-50 img-zoom">
+            <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
+              className="h-72 w-full object-cover transition duration-500"
+              onError={(e) => { e.target.src = settings?.placeholder_image || 'https://placehold.co/600x400?text=Combo' }} />
+            <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-xl bg-forest-900/90 px-4 py-1.5 text-sm font-semibold text-cream-50 backdrop-blur-sm shadow-sm">{productCount} Products</span>
           </Link>
         </div>
 
         <div className="flex flex-col gap-4">
           <div>
-            <Link to={`/combos/${slug}`} className="hover:text-terracotta-500 transition">
+            <Link to={`/combos/${slug}`} className="hover:text-terracotta-500 transition-colors">
               <h2 className="font-heading text-2xl font-bold text-text-dark">{name}</h2>
             </Link>
-            <div className="mt-2 text-sm text-forest-900/60">
+            <div className="mt-2 text-sm text-forest-900/50">
               <div className="relative">
                 <p className={showFullDesc ? '' : 'line-clamp-2'}>{displayDesc}</p>
                 {!showFullDesc && displayDesc.length > 50 && (
                   <button onClick={(e) => { e.preventDefault(); setShowFullDesc(true) }} className="inline-block font-semibold text-terracotta-500 hover:text-terracotta-600">...</button>
                 )}
-                {showFullDesc && (
-                  <button onClick={(e) => { e.preventDefault(); setShowFullDesc(false) }} className="text-xs text-terracotta-500 hover:underline font-semibold block mt-1">Show less</button>
-                )}
+                {showFullDesc && <button onClick={(e) => { e.preventDefault(); setShowFullDesc(false) }} className="text-xs text-terracotta-500 hover:underline font-semibold block mt-1">Show less</button>}
               </div>
               {contains && (
-                <div className="mt-2 text-xs font-medium text-forest-900/70 bg-cream-50 p-3 rounded-xl border border-border-warm">
+                <div className="mt-2 text-xs font-medium text-forest-900/60 bg-cream-50 p-3 rounded-xl border border-border-warm">
                   <span className="font-semibold text-forest-900">Contains: </span>{contains}
                 </div>
               )}
@@ -95,44 +86,37 @@ export default function BundleCard({ bundle }) {
           </div>
 
           <div className="flex flex-nowrap gap-2 overflow-x-auto hide-scrollbar">
-            <div className="flex items-center gap-1 rounded-lg bg-sage-300/20 px-3 py-1.5 text-[10px] font-medium text-forest-900 whitespace-nowrap">100% Natural</div>
-            <div className="flex items-center gap-1 rounded-lg bg-sage-300/20 px-3 py-1.5 text-[10px] font-medium text-forest-900 whitespace-nowrap">Chemical Free</div>
-            <div className="flex items-center gap-1 rounded-lg bg-sage-300/20 px-3 py-1.5 text-[10px] font-medium text-forest-900 whitespace-nowrap">Direct from Farmers</div>
+            <div className="flex items-center gap-1 rounded-xl bg-sage-300/20 px-3 py-1.5 text-[10px] font-medium text-forest-900 whitespace-nowrap">100% Natural</div>
+            <div className="flex items-center gap-1 rounded-xl bg-sage-300/20 px-3 py-1.5 text-[10px] font-medium text-forest-900 whitespace-nowrap">Chemical Free</div>
+            <div className="flex items-center gap-1 rounded-xl bg-sage-300/20 px-3 py-1.5 text-[10px] font-medium text-forest-900 whitespace-nowrap">Direct from Farmers</div>
           </div>
 
           <div className="space-y-3 border-t border-border-warm pt-4 mt-auto">
             <div className="space-y-1">
-              {originalTotal > bundlePrice && <span className="block text-base text-forest-900/40 line-through">{formatPrice(originalTotal)}</span>}
+              {originalTotal > bundlePrice && <span className="block text-base text-forest-900/30 line-through">{formatPrice(originalTotal)}</span>}
               <div className="flex items-center gap-2 flex-nowrap">
-                <span className="font-heading text-3xl font-bold text-forest-900">{formatPrice(bundlePrice)}</span>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sage-300/20 px-3 py-0.5 text-[10px] font-semibold text-forest-900/70">+ shipping</span>
+                <span className="font-heading text-3xl font-bold text-text-dark">{formatPrice(bundlePrice)}</span>
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-sage-300/20 px-3 py-0.5 text-[10px] font-semibold text-forest-900/50">+ shipping</span>
               </div>
               {savings > 0 && <p className="text-sm font-medium text-terracotta-500">Save {formatPrice(savings)} ({discountPct}%)</p>}
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center rounded-lg border border-border-warm bg-white">
+              <div className="flex items-center rounded-xl border border-border-warm bg-white">
                 <button type="button" onClick={() => handleQuantityChange(quantity - 1)} className="px-3 py-2 text-forest-900/60 hover:bg-cream-100 disabled:opacity-50 text-sm" disabled={quantity <= 1}>−</button>
                 <span className="min-w-[2rem] text-center text-sm font-semibold text-text-dark">{quantity}</span>
                 <button type="button" onClick={() => handleQuantityChange(quantity + 1)} className="px-3 py-2 text-forest-900/60 hover:bg-cream-100 text-sm">+</button>
               </div>
-              <button
-                onClick={async () => {
-                  if (isInCart) {
-                    await removeFromCart(cartItem.id)
-                  } else {
-                    await addToCart({
-                      bundle_id: id,
-                      quantity: quantity,
-                      bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle }
-                    })
-                  }
+              <button onClick={async () => {
+                  if (isInCart) await removeFromCart(cartItem.id)
+                  else await addToCart({ bundle_id: id, quantity, bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
                 }}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold tracking-[0.05em] uppercase transition ${isInCart ? 'bg-forest-900/10 text-forest-900 hover:bg-forest-900 hover:text-cream-50' : 'bg-terracotta-500 text-cream-50 hover:bg-terracotta-600'}`}
-              >{isInCart ? 'Remove' : 'Add to cart'}</button>
+                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold tracking-[0.06em] uppercase transition-all ${isInCart ? 'bg-forest-900/10 text-forest-900 hover:bg-forest-900 hover:text-cream-50' : 'bg-terracotta-500 text-cream-50 hover:bg-terracotta-600 hover:-translate-y-0.5 shadow-lg shadow-terracotta-500/20'}`}>
+                {isInCart ? 'Remove' : 'Add to cart'}
+              </button>
             </div>
 
-            <Link to={`/combos/${slug}`} className="block text-center text-sm font-medium text-terracotta-500 hover:text-terracotta-600 transition">
+            <Link to={`/combos/${slug}`} className="block text-center text-sm font-medium text-terracotta-500 hover:text-terracotta-600 transition-colors">
               View all {productCount} products →
             </Link>
           </div>

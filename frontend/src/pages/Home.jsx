@@ -10,56 +10,37 @@ import { getImageUrl, optimizeImage } from '../lib/utils'
 import { CartIcon } from '../components/Icons'
 import { getNewArrivals as getSupabaseNewArrivals, getComboBundles as getSupabaseComboBundles, getActiveBanners as getSupabaseBanners } from '../lib/productService'
 
-function prefetchImage(src) {
-  if (!src) return
-  const img = new Image()
-  img.src = src
-}
+function prefetchImage(src) { if (!src) return; const img = new Image(); img.src = src }
 
 export default function Home() {
   const { cartItems } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
-
   const [products, setProducts] = useState([])
   const [bundles, setBundles] = useState([])
   const [loading, setLoading] = useState(true)
-
   const [heroBanners, setHeroBanners] = useState([])
   const [promoBanners, setPromoBanners] = useState([])
   const [sideBanners, setSideBanners] = useState([])
-
   const [fallbackBannerUrls, setFallbackBannerUrls] = useState([])
   const [fallbackPromoUrls, setFallbackPromoUrls] = useState([])
   const [fallbackSideUrls, setFallbackSideUrls] = useState({ middleTop: '', middleBottom: '', rightStory: '' })
-
   const [carouselIdx, setCarouselIdx] = useState(0)
   const [transition, setTransition] = useState(true)
   const [paused, setPaused] = useState(false)
   const [touchStart, setTouchStart] = useState(null)
+  const sectionRef = useRef([])
+  const [visibleSections, setVisibleSections] = useState({})
 
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
-
-  const handleBannerClick = (link) => {
-    if (!link) return
-    if (link.startsWith('/')) navigate(link)
-    else window.open(link, '_blank')
-  }
-
-  const bannerUrls = heroBanners.length > 0
-    ? heroBanners.map(b => b.image)
-    : fallbackBannerUrls
-
-  const promoList = promoBanners.length > 0
-    ? promoBanners.map(b => ({ url: b.image, link: b.redirectLink || '' }))
-    : fallbackPromoUrls
-
+  const handleBannerClick = (link) => { if (!link) return; if (link.startsWith('/')) navigate(link); else window.open(link, '_blank') }
+  const bannerUrls = heroBanners.length > 0 ? heroBanners.map(b => b.image) : fallbackBannerUrls
+  const promoList = promoBanners.length > 0 ? promoBanners.map(b => ({ url: b.image, link: b.redirectLink || '' })) : fallbackPromoUrls
   const sideList = sideBanners.length > 0 ? sideBanners : []
 
   const goPrev = () => setCarouselIdx(prev => prev > 0 ? prev - 1 : bannerUrls.length - 1)
   const goNext = () => setCarouselIdx(prev => (prev + 1) % bannerUrls.length)
   const goDot = (i) => { setTransition(true); setCarouselIdx(i) }
-
   const handleTouchStart = (e) => setTouchStart(e.touches[0].clientX)
   const handleTouchEnd = (e) => {
     if (touchStart === null) return
@@ -67,6 +48,18 @@ export default function Home() {
     if (Math.abs(diff) > 50) diff > 0 ? goNext() : goPrev()
     setTouchStart(null)
   }
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setVisibleSections(prev => ({ ...prev, [entry.target.dataset.section]: true }))
+        }
+      })
+    }, { threshold: 0.15 })
+    sectionRef.current.forEach(el => { if (el) observer.observe(el) })
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -81,49 +74,25 @@ export default function Home() {
           api.getBanners({ position: 'side' }).catch(() => []),
         ])
         if (cancelled) return
-
-        if (!productsData || productsData.length === 0) {
-          productsData = await getSupabaseNewArrivals().catch(() => [])
-        }
-        if (!bundlesData || bundlesData.length === 0) {
-          bundlesData = await getSupabaseComboBundles().catch(() => [])
-        }
+        if (!productsData || productsData.length === 0) productsData = await getSupabaseNewArrivals().catch(() => [])
+        if (!bundlesData || bundlesData.length === 0) bundlesData = await getSupabaseComboBundles().catch(() => [])
         if (!heroData || heroData.length === 0) {
           const supabaseBanners = await getSupabaseBanners().catch(() => [])
           heroData = supabaseBanners.map(b => ({ image: b.image_url, title: '', redirectLink: b.target_link?.link_url || '' }))
         }
-
         setProducts(productsData || [])
         setBundles(bundlesData || [])
         setHeroBanners(heroData || [])
         setPromoBanners(promoData || [])
         setSideBanners(sideData || [])
-
         const s = settings || {}
-        const fb = [
-          s.home_banner_url || '',
-          s.home_main_banner_1_url || s.home_left_banner_url || '',
-          s.home_main_banner_2_url || '',
-          s.home_main_banner_3_url || '',
-          s.home_main_banner_4_url || '',
-        ].filter(u => u !== '')
+        const fb = [s.home_banner_url || '', s.home_main_banner_1_url || s.home_left_banner_url || '', s.home_main_banner_2_url || '', s.home_main_banner_3_url || '', s.home_main_banner_4_url || ''].filter(u => u !== '')
         setFallbackBannerUrls(fb)
-        setFallbackPromoUrls([
-          { url: s.promo_banner_1_url || '', link: s.promo_banner_1_link || '' },
-          { url: s.promo_banner_2_url || '', link: s.promo_banner_2_link || '' },
-          { url: s.promo_banner_3_url || '', link: s.promo_banner_3_link || '' },
-        ].filter(b => b.url))
-        setFallbackSideUrls({
-          middleTop: s.home_middle_top_banner_url || '',
-          middleBottom: s.home_middle_bottom_banner_url || '',
-          rightStory: s.home_right_story_banner_url || '',
-        })
+        setFallbackPromoUrls([{ url: s.promo_banner_1_url || '', link: s.promo_banner_1_link || '' }, { url: s.promo_banner_2_url || '', link: s.promo_banner_2_link || '' }, { url: s.promo_banner_3_url || '', link: s.promo_banner_3_link || '' }].filter(b => b.url))
+        setFallbackSideUrls({ middleTop: s.home_middle_top_banner_url || '', middleBottom: s.home_middle_bottom_banner_url || '', rightStory: s.home_right_story_banner_url || '' })
         ;[fb, s.home_middle_top_banner_url || '', s.home_middle_bottom_banner_url || '', s.home_right_story_banner_url || ''].filter(Boolean).forEach(prefetchImage)
-      } catch (err) {
-        console.error('Error loading homepage data:', err)
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
+      } catch (err) { console.error(err) }
+      finally { if (!cancelled) setLoading(false) }
     }
     load()
     return () => { cancelled = true }
@@ -133,10 +102,7 @@ export default function Home() {
     if (bannerUrls.length > 0) {
       const first = optimizeImage(bannerUrls[0], 2000)
       const link = document.createElement('link')
-      link.rel = 'preload'
-      link.as = 'image'
-      link.href = first
-      link.fetchPriority = 'high'
+      link.rel = 'preload'; link.as = 'image'; link.href = first; link.fetchPriority = 'high'
       document.head.appendChild(link)
       return () => { document.head.removeChild(link) }
     }
@@ -144,30 +110,26 @@ export default function Home() {
 
   useEffect(() => {
     if (paused || bannerUrls.length < 2) return
-    const id = window.setInterval(() => setCarouselIdx(prev => (prev + 1) % bannerUrls.length), 4000)
+    const id = window.setInterval(() => setCarouselIdx(prev => (prev + 1) % bannerUrls.length), 5000)
     return () => window.clearInterval(id)
   }, [paused, bannerUrls.length])
 
   const displayProducts = products.length > 5 ? [...products, ...products, ...products] : products
 
   const orgSchema = {
-    '@context': 'https://schema.org',
-    '@type': ['LocalBusiness', 'OnlineStore'],
-    name: 'HAiFarmer',
-    url: 'https://haifarmer.com',
-    image: 'https://haifarmer.com/og-image.png',
+    '@context': 'https://schema.org', '@type': ['LocalBusiness', 'OnlineStore'],
+    name: 'HAiFarmer', url: 'https://haifarmer.com', image: 'https://haifarmer.com/og-image.png',
     telephone: '+91-9709704563',
-    description: 'Natural & organic groceries, organic food, and vegetables from tribal villages with rainwater-fed crops',
-    areaServed: 'IN',
-    priceRange: '₹100 - ₹5000',
+    description: 'Premium organic produce directly from tribal forests. Chemical-free, farm to home.',
+    areaServed: 'IN', priceRange: '₹100 - ₹5000',
   }
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-forest-900">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-cream-50/30 border-t-gold-500"></div>
-          <p className="mt-4 font-heading text-lg text-cream-50/60">HAiFarmer</p>
+          <div className="mx-auto h-14 w-14 animate-spin rounded-full border-2 border-cream-50/20 border-t-gold-500"></div>
+          <p className="mt-5 font-heading text-xl text-cream-50/60 italic">HAiFarmer</p>
         </div>
       </div>
     )
@@ -177,66 +139,61 @@ export default function Home() {
     <div className="bg-cream-50">
       <SeoHead schema={orgSchema} />
 
-      {/* HERO SECTION */}
+      {/* Hero */}
       {bannerUrls.length > 0 && (
-        <section className="relative min-h-[70vh] sm:min-h-[80vh] flex items-end bg-forest-900 overflow-hidden">
+        <section className="relative min-h-screen flex items-center justify-center bg-forest-900 overflow-hidden"
+          onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
           <div className="absolute inset-0">
-            <div
-              className="flex h-full"
-              style={{
-                width: `${100 * bannerUrls.length}%`,
-                transform: `translateX(-${100 / bannerUrls.length * carouselIdx}%)`,
-                transition: transition ? 'transform 800ms cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none'
-              }}
-            >
+            <div className="flex h-full" style={{ width: `${100 * bannerUrls.length}%`, transform: `translateX(-${100 / bannerUrls.length * carouselIdx}%)`, transition: transition ? 'transform 1200ms cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none' }}>
               {bannerUrls.map((url, idx) => (
                 <div key={idx} className="relative h-full" style={{ width: `${100 / bannerUrls.length}%` }}>
-                  <img
-                    src={optimizeImage(url, 2000)}
-                    alt={heroBanners[idx]?.title || `Banner ${idx + 1}`}
-                    loading={idx === 0 ? 'eager' : 'lazy'}
-                    fetchPriority={idx === 0 ? 'high' : 'auto'}
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-900/90 via-forest-900/40 to-forest-900/20" />
+                  <img src={optimizeImage(url, 2000)} alt={heroBanners[idx]?.title || ''} loading={idx === 0 ? 'eager' : 'lazy'} fetchPriority={idx === 0 ? 'high' : 'auto'} className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-forest-900/80 via-forest-900/50 to-forest-900/30" />
                 </div>
               ))}
             </div>
+            {/* Decorative leaf */}
+            <div className="absolute top-20 right-20 text-cream-50/5 leaf-float hidden lg:block">
+              <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor"><path d="M50 10C30 30 15 55 15 75c0 10 5 15 15 15 20 0 55-30 55-55C85 20 70 10 50 10z"/></svg>
+            </div>
           </div>
-
-          <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
-            <div className="max-w-2xl animate-fade-up">
-              <span className="inline-block rounded-full border border-gold-500/30 bg-gold-500/10 px-4 py-1 text-xs font-semibold tracking-[0.12em] uppercase text-gold-500">From Tribal Villages</span>
-              <p className="mt-4 font-heading text-sm font-semibold tracking-[0.2em] uppercase text-cream-50/50">Real Food. Real Farmers. Real Health.</p>
-              <h1 className="mt-2 font-heading text-4xl font-bold leading-tight text-cream-50 sm:text-5xl lg:text-6xl tracking-tight">
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
+            <div className="max-w-3xl mx-auto animate-fade-up">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-5 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500 mb-6">From the Forests to Your Home</div>
+              <p className="font-heading text-sm font-semibold tracking-[0.25em] uppercase text-cream-50/40 mb-4">Real Food. Real Farmers. Real Health.</p>
+              <h1 className="font-heading text-5xl font-bold leading-tight text-cream-50 sm:text-6xl lg:text-7xl tracking-tight">
                 Naturally Grown,<br />
-                <span className="text-gold-500">Tribal Cultivated</span>
+                <span className="text-gold-500 italic">Tribal Cultivated</span>
               </h1>
-              <p className="mt-4 max-w-lg text-base leading-relaxed text-cream-50/70 sm:text-lg">
-                Pure forest-grown produce direct from tribal farms. No middlemen. No chemicals. Farm to home.
+              <p className="mt-6 max-w-xl mx-auto text-base leading-relaxed text-cream-50/60 sm:text-lg">
+                Pure forest-grown organic produce directly from indigenous farming communities. No middlemen, no chemicals — just nature&apos;s finest, from farm to home.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link to="/products" className="inline-flex items-center gap-2 rounded-full bg-terracotta-500 px-8 py-3 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition hover:bg-terracotta-600 shadow-lg shadow-terracotta-500/20">
+              <div className="mt-10 flex flex-wrap justify-center gap-4">
+                <Link to="/products" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-9 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all duration-300 hover:bg-terracotta-600 hover:-translate-y-1 shadow-xl shadow-terracotta-500/25 btn-lift">
                   Explore Products
                 </Link>
-                <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-cream-50/30 px-8 py-3 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition hover:bg-cream-50/10">
+                <Link to="/about" className="btn-font inline-flex items-center gap-2 rounded-xl border border-cream-50/25 px-9 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all duration-300 hover:bg-cream-50/10 hover:-translate-y-1">
                   Our Story
                 </Link>
               </div>
+              <div className="mt-8 flex items-center justify-center gap-6 text-cream-50/40">
+                <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span className="text-gold-500">✦</span> 100% Natural</div>
+                <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span className="text-gold-500">✦</span> Ethically Sourced</div>
+                <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span className="text-gold-500">✦</span> Farm to Home</div>
+              </div>
             </div>
           </div>
-
           {bannerUrls.length > 1 && (
             <>
-              <button onClick={goPrev} className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-cream-50/10 p-2 text-cream-50/60 backdrop-blur-sm transition hover:bg-cream-50/20 hover:text-cream-50" aria-label="Previous">
+              <button onClick={goPrev} className="absolute left-5 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-cream-50/10 p-3 text-cream-50/40 backdrop-blur-sm transition-all hover:bg-cream-50/20 hover:text-cream-50" aria-label="Previous">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               </button>
-              <button onClick={goNext} className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-cream-50/10 p-2 text-cream-50/60 backdrop-blur-sm transition hover:bg-cream-50/20 hover:text-cream-50" aria-label="Next">
+              <button onClick={goNext} className="absolute right-5 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-cream-50/10 p-3 text-cream-50/40 backdrop-blur-sm transition-all hover:bg-cream-50/20 hover:text-cream-50" aria-label="Next">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </button>
-              <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+              <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-2">
                 {bannerUrls.map((_, i) => (
-                  <button key={i} onClick={() => goDot(i)} className={`h-2 rounded-full transition-all ${i === carouselIdx ? 'w-8 bg-gold-500' : 'w-2 bg-cream-50/40 hover:bg-cream-50/60'}`} aria-label={`Go to slide ${i + 1}`} />
+                  <button key={i} onClick={() => goDot(i)} className={`h-2 rounded-full transition-all ${i === carouselIdx ? 'w-10 bg-gold-500' : 'w-2 bg-cream-50/30 hover:bg-cream-50/50'}`} aria-label={`Slide ${i + 1}`} />
                 ))}
               </div>
             </>
@@ -244,79 +201,103 @@ export default function Home() {
         </section>
       )}
 
-      {/* SIDE BANNERS SECTION */}
-      {(sideList.length > 0 || fallbackSideUrls.middleTop) && (
-        <section className="relative bg-forest-900">
-          <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[0, 1, 2].map(i => {
-                const banner = sideList[i]
-                const fallback = i === 0 ? fallbackSideUrls.middleTop : i === 1 ? fallbackSideUrls.middleBottom : fallbackSideUrls.rightStory
-                const url = banner?.image || fallback
-                if (!url) return null
-                return (
-                  <div key={i} className="group overflow-hidden rounded-2xl border border-cream-50/10 bg-forest-950 shadow-xl">
-                    <img
-                      src={optimizeImage(url, 800)}
-                      alt={banner?.title || ''}
-                      onClick={() => handleBannerClick(banner?.redirectLink)}
-                      className={`w-full h-48 sm:h-56 object-cover transition duration-500 group-hover:scale-105 ${banner?.redirectLink ? 'cursor-pointer' : ''}`}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* PROMISE STRIP */}
-      <section className="relative bg-forest-900 border-y border-gold-500/10">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-          <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
+      {/* Trust strip */}
+      <div className="organic-divider-gold"><div className="absolute inset-0 bg-cream-50" /></div>
+      <section className="bg-cream-50 py-10" ref={el => sectionRef.current[0] = el} data-section="trust">
+        <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.trust ? 'visible' : ''}`}>
+          <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
             {[
               { number: '20+', label: 'Traditional Foods', sub: 'Millets, lentils & spices' },
               { number: '100%', label: 'Chemical Free', sub: 'No pesticides or fertilizers' },
-              { number: 'Direct', label: 'From Tribal Farmers', sub: 'No middlemen, fair trade' },
-              { number: '₹2,599+', label: 'Free Shipping', sub: 'Across India' },
+              { number: 'Direct', label: 'From Tribal Farmers', sub: 'Fair trade, no middlemen' },
+              { number: 'Free', label: 'Shipping Above ₹2,599', sub: 'Across India' },
             ].map(item => (
               <div key={item.label} className="space-y-1">
-                <p className="font-heading text-2xl font-bold text-gold-500 sm:text-3xl">{item.number}</p>
-                <p className="text-sm font-semibold text-cream-50">{item.label}</p>
-                <p className="text-[10px] text-cream-50/50">{item.sub}</p>
+                <p className="font-heading text-3xl font-bold text-terracotta-500 sm:text-4xl">{item.number}</p>
+                <p className="text-sm font-semibold text-forest-900">{item.label}</p>
+                <p className="text-[10px] text-forest-900/40">{item.sub}</p>
               </div>
             ))}
           </div>
-          <div className="mt-8 text-center">
-            <p className="font-heading text-base italic text-cream-50/60">Every Order Supports Tribal Farmers</p>
+          <div className="mt-6 text-center">
+            <p className="font-heading text-base italic text-forest-900/50">Every Order Directly Supports Tribal Farmers</p>
           </div>
         </div>
       </section>
 
-      <div className="organic-divider"><div className="absolute inset-0 bg-cream-100" /></div>
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
-      {/* NEW ARRIVALS SECTION */}
-      <section className="relative bg-cream-100 py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Story section */}
+      <section className="relative bg-forest-900 py-20 lg:py-28 overflow-hidden" ref={el => sectionRef.current[1] = el} data-section="story">
+        <div className="absolute top-0 right-0 w-1/3 h-full opacity-[0.03]">
+          <svg viewBox="0 0 200 200" className="w-full h-full" fill="currentColor" color="#C8A96A"><circle cx="100" cy="100" r="80"/><circle cx="30" cy="180" r="60"/><circle cx="180" cy="40" r="40"/></svg>
+        </div>
+        <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.story ? 'visible' : ''}`}>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500 mb-4">Our Story</span>
+              <h2 className="font-heading text-4xl font-bold text-cream-50 sm:text-5xl tracking-tight">From the <span className="text-gold-500 italic">Tribes</span></h2>
+              <p className="mt-6 text-base leading-relaxed text-cream-50/60">
+                For generations, tribal farmers have cultivated the land using traditional methods — rainwater-fed, pesticide-free, 
+                and in perfect harmony with nature. HAiFarmer brings this ancient wisdom directly to your home.
+              </p>
+              <p className="mt-4 text-base leading-relaxed text-cream-50/60">
+                We work directly with indigenous farming communities, ensuring fair prices and respecting their traditional knowledge. 
+                Every product tells a story of the land it was grown on and the hands that nurtured it.
+              </p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {[
+                  { icon: '🌿', title: 'Direct from Tribes', desc: 'No middlemen' },
+                  { icon: '🌱', title: '100% Natural', desc: 'Pesticide-free' },
+                  { icon: '💚', title: 'Creating Impact', desc: 'Supporting communities' },
+                ].map(item => (
+                  <div key={item.title} className="rounded-2xl border border-gold-500/10 bg-forest-950/60 p-5 text-center">
+                    <span className="text-2xl">{item.icon}</span>
+                    <h3 className="mt-2 font-heading text-base font-semibold text-cream-50">{item.title}</h3>
+                    <p className="mt-0.5 text-xs text-cream-50/40">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative">
+              <div className="aspect-[4/5] rounded-3xl bg-gradient-to-br from-sage-300/20 via-forest-950 to-forest-900 overflow-hidden border border-gold-500/10 shadow-2xl">
+                <div className="flex h-full items-center justify-center">
+                  <div className="text-center p-10">
+                    <span className="font-heading text-6xl text-gold-500/30">🍃</span>
+                    <p className="mt-4 font-heading text-xl italic text-cream-50/40">Nature&apos;s Finest,<br/>Directly from Tribal Hands</p>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 rounded-full bg-gold-500/10 blur-2xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
+
+      {/* New arrivals */}
+      <section className="relative bg-cream-100 py-20 lg:py-28" ref={el => sectionRef.current[2] = el} data-section="arrivals">
+        <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.arrivals ? 'visible' : ''}`}>
           <div className="flex items-end justify-between">
             <div>
-              <span className="inline-block rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-3 py-1 text-[10px] font-semibold tracking-[0.12em] uppercase text-terracotta-500">Fresh from the farm</span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">New Arrivals</h2>
-              <p className="mt-2 text-sm text-forest-900/60 max-w-md">Handpicked organic produce from tribal farmers. Fresh harvest, direct to your door.</p>
+              <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Fresh Harvest</span>
+              <h2 className="mt-3 font-heading text-4xl font-bold text-forest-900 sm:text-5xl tracking-tight">Best Sellers</h2>
+              <p className="mt-2 text-sm text-forest-900/50 max-w-md">Handpicked organic produce from tribal farmers. Fresh harvest, direct to your door.</p>
             </div>
-            <Link to="/products" className="hidden sm:inline-flex items-center gap-1 rounded-full border border-forest-900/20 px-5 py-2 text-xs font-semibold tracking-[0.08em] uppercase text-forest-900 transition hover:bg-forest-900 hover:text-cream-50">
+            <Link to="/products" className="hidden sm:inline-flex btn-font items-center gap-2 rounded-xl border border-forest-900/20 px-6 py-3 text-xs font-semibold tracking-[0.08em] uppercase text-forest-900 transition-all hover:bg-forest-900 hover:text-cream-50 hover:-translate-y-0.5">
               View All
             </Link>
           </div>
           <div className="mt-10">
             {products.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-sand-300 bg-cream-50 p-12 text-center">
-                <p className="font-heading text-lg text-forest-900/50">No new arrivals selected yet.</p>
+              <div className="rounded-3xl border border-dashed border-forest-900/10 bg-cream-50 p-16 text-center">
+                <p className="font-heading text-xl text-forest-900/40 italic">No products yet</p>
               </div>
             ) : (
               <div className="flex gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x" style={{ scrollPaddingLeft: 'calc(50% - 140px)' }}>
                 {displayProducts.map((product, idx) => (
-                  <div key={`${product._id || product.id}-${idx}`} className="w-[180px] flex-none snap-start">
+                  <div key={`${product._id || product.id}-${idx}`} className="w-[220px] flex-none snap-start">
                     <ProductCard product={product} compact />
                   </div>
                 ))}
@@ -324,83 +305,79 @@ export default function Home() {
             )}
           </div>
           <div className="mt-8 text-center sm:hidden">
-            <Link to="/products" className="inline-flex items-center gap-1 rounded-full bg-terracotta-500 px-6 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase text-cream-50 transition hover:bg-terracotta-600">
+            <Link to="/products" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-8 py-3 text-xs font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-0.5 shadow-lg shadow-terracotta-500/20">
               View All Products
             </Link>
           </div>
         </div>
       </section>
 
-      <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-forest-900" /></div>
+      <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
 
-      {/* PROMO BANNERS */}
-      {promoList.length > 0 && (
-        <section className="relative bg-forest-900 py-16 sm:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <span className="inline-block rounded-full border border-gold-500/30 bg-gold-500/10 px-3 py-1 text-[10px] font-semibold tracking-[0.12em] uppercase text-gold-500">Special Offers</span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">Farm Fresh Deals</h2>
-            </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              {promoList.map((b, i) => (
-                <div key={i} className="group overflow-hidden rounded-2xl border border-cream-50/10 bg-forest-950 shadow-xl">
-                  {b.link ? (
-                    <a href={b.link.startsWith('/') ? undefined : b.link} onClick={b.link.startsWith('/') ? () => navigate(b.link) : undefined} target={b.link.startsWith('/') ? undefined : '_blank'} rel={b.link.startsWith('/') ? undefined : 'noopener noreferrer'}>
-                      <img src={optimizeImage(b.url, 800)} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
-                    </a>
-                  ) : (
-                    <img src={optimizeImage(b.url, 800)} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover" />
-                  )}
-                </div>
-              ))}
-            </div>
+      {/* Impact section */}
+      <section className="relative bg-forest-900 py-20 lg:py-28 overflow-hidden" ref={el => sectionRef.current[3] = el} data-section="impact">
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 25% 50%, #C8A96A 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center reveal ${visibleSections.impact ? 'visible' : ''}`}>
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">Our Impact</span>
+          <h2 className="mt-4 font-heading text-4xl font-bold text-cream-50 sm:text-5xl tracking-tight">Making a <span className="text-gold-500 italic">Difference</span></h2>
+          <p className="mx-auto mt-4 max-w-xl text-base text-cream-50/50">Every purchase supports indigenous communities and preserves ancient agricultural traditions.</p>
+          <div className="mt-12 grid gap-6 sm:grid-cols-3">
+            {[
+              { number: '20+', label: 'Farmers Empowered', desc: 'Direct fair-trade partnerships with tribal communities', icon: '👨‍🌾' },
+              { number: '100%', label: 'Chemical Free', desc: 'All products grown without pesticides or fertilizers', icon: '🌿' },
+              { number: '946+', label: 'Community Members', desc: 'Growing family of conscious consumers', icon: '🤝' },
+            ].map(item => (
+              <div key={item.label} className="rounded-3xl border border-gold-500/10 bg-forest-950/60 p-8 text-center hover:border-gold-500/30 transition-all duration-500">
+                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-gold-500/10 text-3xl shadow-lg shadow-gold-500/5">{item.icon}</div>
+                <p className="font-heading text-4xl font-bold text-gold-500">{item.number}</p>
+                <p className="mt-2 font-heading text-lg font-semibold text-cream-50">{item.label}</p>
+                <p className="mt-2 text-sm text-cream-50/40 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      <div className="organic-divider"><div className="absolute inset-0 bg-cream-100" /></div>
+      <div className="organic-divider organic-divider-reverse"><div className="absolute inset-0 bg-cream-100" /></div>
 
-      {/* COMBOS SECTION */}
-      <section className="relative bg-cream-100 py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Combos */}
+      <section className="relative bg-cream-100 py-20 lg:py-28" ref={el => sectionRef.current[4] = el} data-section="combos">
+        <div className={`mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 reveal ${visibleSections.combos ? 'visible' : ''}`}>
           <div className="text-center">
-              <span className="inline-block rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-3 py-1 text-[10px] font-semibold tracking-[0.12em] uppercase text-terracotta-500">Farm to Home</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">Family Combos</h2>
-            <p className="mt-2 text-sm text-forest-900/60">Thoughtfully curated bundles from tribal farms. Best value, pure quality. Free shipping on orders above ₹2,599.</p>
+            <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Farm to Home</span>
+            <h2 className="mt-3 font-heading text-4xl font-bold text-forest-900 sm:text-5xl tracking-tight">Family Combos</h2>
+            <p className="mt-2 text-sm text-forest-900/50">Curated bundles from tribal farms. Best value, pure quality. Free shipping above ₹2,599.</p>
           </div>
           <div className="mt-10 space-y-6">
             {bundles.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-sand-300 bg-cream-50 p-12 text-center">
-                <p className="font-heading text-lg text-forest-900/50">No combos selected yet.</p>
+              <div className="rounded-3xl border border-dashed border-forest-900/10 bg-cream-50 p-16 text-center">
+                <p className="font-heading text-xl text-forest-900/40 italic">No combos yet</p>
               </div>
             ) : bundles.map(b => <BundleCard key={b._id || b.id} bundle={b} />)}
           </div>
           <div className="mt-8 text-center">
-            <Link to="/combos" className="inline-flex items-center gap-1 rounded-full bg-terracotta-500 px-8 py-3 text-xs font-semibold tracking-[0.08em] uppercase text-cream-50 transition hover:bg-terracotta-600 shadow-lg shadow-terracotta-500/20">
+            <Link to="/combos" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-10 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-1 shadow-xl shadow-terracotta-500/20 btn-lift">
               View All Bundles
             </Link>
           </div>
         </div>
       </section>
 
-      {/* FARM TO HOME BANNER */}
-      <section className="bg-forest-950 py-10 text-center">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="font-heading text-2xl font-bold text-gold-500 sm:text-3xl">Farm to Home</p>
-          <p className="mt-2 text-sm text-cream-50/50">Pure forest-grown produce from tribal farms. Delivered to your doorstep.</p>
+      {/* Farm to Home closing */}
+      <section className="bg-forest-950 py-14 text-center border-t border-gold-500/10">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <p className="font-heading text-3xl font-bold text-gold-500 sm:text-4xl italic">Farm to Home</p>
+          <p className="mt-3 text-sm text-cream-50/40">Pure forest-grown produce from tribal farms. Delivered to your doorstep.</p>
         </div>
       </section>
 
-      {/* FLOATING CART BUTTON */}
-      <button
-        type="button"
-        onClick={() => navigate('/checkout')}
-        className="fixed bottom-[72px] right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-terracotta-500 text-cream-50 shadow-[0_8px_32px_rgba(183,91,52,0.35)] transition hover:bg-terracotta-600 hover:-translate-y-1 sm:bottom-8 sm:right-8 sm:h-16 sm:w-16"
-        aria-label="Open shopping cart"
-      >
+      {/* Floating cart */}
+      <button type="button" onClick={() => navigate('/checkout')}
+        className="fixed bottom-[76px] right-5 z-50 flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta-500 text-cream-50 shadow-[0_8px_32px_rgba(182,90,52,0.35)] transition-all hover:bg-terracotta-600 hover:-translate-y-1 sm:bottom-8 sm:right-8 sm:h-16 sm:w-16 btn-lift"
+        aria-label="Shopping cart">
         <CartIcon className="h-7 w-7 sm:h-8 sm:w-8" />
         {cartCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-forest-900 px-2 py-0.5 text-xs font-semibold text-cream-50">{cartCount}</span>
+          <span className="absolute -right-1 -top-1 rounded-full bg-forest-900 px-2 py-0.5 text-xs font-bold text-cream-50 shadow-sm">{cartCount}</span>
         )}
       </button>
     </div>
