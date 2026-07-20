@@ -86,7 +86,7 @@ export default function BundleDetail() {
         <div className="grid gap-12 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-sage-300/20 via-cream-50 to-sage-300/10 border border-border-warm shadow-lg img-zoom">
-              <img src={imgSrc} alt={bundle.name} className="w-full h-[400px] sm:h-[500px] lg:h-[600px] object-cover" />
+              <img src={imgSrc} alt={bundle.name} className="w-full h-[280px] sm:h-[400px] lg:h-[600px] object-cover" />
             </div>
           </div>
           <div className="flex flex-col gap-6">

@@ -169,3 +169,8 @@ img, video, canvas, svg { max-width: 100%; }
 .blob-clip {
   clip-path: path('M60,10 C90,5 115,25 120,55 C125,85 110,115 80,125 C50,135 15,130 5,100 C-5,70 5,30 30,15 Z');
 }
+
+@media (max-width: 640px) {
+  .organic-divider { height: 40px; }
+  .curve-divider { height: 50px; }
+}

@@ -104,7 +104,7 @@ export default function ProductDetail() {
           {/* Gallery */}
           <div className="space-y-4">
             <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-sage-300/20 via-cream-50 to-sage-300/10 border border-forest-900/10 shadow-lg">
-              <img src={mainImgSrc} alt={product.name} className="h-[400px] w-full object-cover transition-transform duration-700 sm:h-[500px] lg:h-[560px] group-hover:scale-105" />
+              <img src={mainImgSrc} alt={product.name} className="h-[300px] w-full object-cover transition-transform duration-700 sm:h-[400px] lg:h-[560px] group-hover:scale-105" />
               {/* Badge pill */}
               <span className="absolute left-3 top-3 z-10 rounded-full bg-forest-900/80 backdrop-blur-sm px-3 py-1 text-[9px] font-semibold tracking-[0.12em] uppercase text-cream-50 shadow-sm">{badges[0]}</span>
             </div>

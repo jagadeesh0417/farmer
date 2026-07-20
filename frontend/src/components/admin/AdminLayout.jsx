@@ -94,19 +94,23 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-lg flex justify-around px-1 py-1">
-        {navItems.slice(0, 5).map(item => (
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 shadow-lg flex items-stretch overflow-x-auto hide-scrollbar px-1 py-1">
+        {navItems.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.end}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold rounded-lg transition ${
+              `flex flex-col items-center justify-center gap-0.5 min-w-[64px] px-2 py-1.5 text-[11px] font-semibold rounded-lg transition shrink-0 ${
                 isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-500 hover:bg-slate-50'
               }`
             }
-          ><span className="text-lg">{item.icon}</span><span>{item.label}</span></NavLink>
+          ><span className="text-base">{item.icon}</span><span className="whitespace-nowrap">{item.label}</span></NavLink>
         ))}
+        <button onClick={handleLogout} className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] px-2 py-1.5 text-[11px] font-semibold text-red-400 hover:bg-red-50 rounded-lg transition shrink-0">
+          <span className="text-base">🚪</span>
+          <span className="whitespace-nowrap">Logout</span>
+        </button>
       </div>
 
       <main className="flex-1 md:ml-56 pb-20 md:pb-0 min-h-screen">

@@ -156,18 +156,18 @@ export default function Products() {
 
       {/* Category cards */}
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-        <div className="-mt-6 relative z-10 grid grid-cols-3 gap-3 sm:grid-cols-5">
+        <div className="-mt-6 relative z-10 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {mergedCategories.map(cat => {
             const isActive = (catSlug === cat.slug) || (!catSlug && !cat.slug)
             return (
               <button key={cat.slug || cat.name} onClick={() => updateParams({ category: cat.slug || null, page: '1' })}
-                className={`flex flex-col items-center gap-1.5 rounded-2xl p-4 text-center transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1.5 rounded-2xl p-3 sm:p-4 text-center transition-all duration-200 ${
                   isActive
                     ? 'bg-terracotta-500 text-cream-50 shadow-lg shadow-terracotta-500/25'
                     : 'bg-[#FBF8F1] text-terracotta-500 border border-forest-900/10 hover:shadow-md hover:-translate-y-0.5'
                 }`}>
-                <span className={`text-2xl ${isActive ? 'opacity-100' : 'opacity-80'}`}>{cat.icon}</span>
-                <span className="font-heading text-[11px] font-bold tracking-wide uppercase">{cat.name}</span>
+                <span className={`text-xl sm:text-2xl ${isActive ? 'opacity-100' : 'opacity-80'}`}>{cat.icon}</span>
+                <span className="font-heading text-[10px] sm:text-[11px] font-bold tracking-wide uppercase leading-tight">{cat.name}</span>
               </button>
             )
           })}
@@ -292,10 +292,10 @@ export default function Products() {
                 </div>
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-10 flex items-center justify-center gap-1.5">
+                  <div className="mt-10 flex items-center justify-center gap-1">
                     <button disabled={page <= 1} onClick={() => updateParams({ page: String(page - 1) })}
-                      className="btn-font rounded-lg border border-forest-900/10 bg-[#FBF8F1] px-3 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5 disabled:opacity-30">← Prev</button>
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      className="btn-font rounded-lg border border-forest-900/10 bg-[#FBF8F1] px-2 sm:px-3 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5 disabled:opacity-30">← <span className="hidden sm:inline">Prev</span></button>
+                    {Array.from({ length: Math.min(totalPages <= 5 ? totalPages : 3, totalPages) }, (_, i) => {
                       let p
                       if (totalPages <= 5) p = i + 1
                       else if (page <= 3) p = i + 1
@@ -303,11 +303,11 @@ export default function Products() {
                       else p = page - 2 + i
                       return (
                         <button key={p} onClick={() => updateParams({ page: String(p) })}
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${page === p ? 'bg-terracotta-500 text-cream-50 shadow-sm shadow-terracotta-500/30' : 'border border-forest-900/10 bg-[#FBF8F1] text-forest-900/60 hover:bg-forest-900/5 hover:text-forest-900'}`}>{p}</button>
+                          className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[11px] sm:text-xs font-semibold transition-all ${page === p ? 'bg-terracotta-500 text-cream-50 shadow-sm shadow-terracotta-500/30' : 'border border-forest-900/10 bg-[#FBF8F1] text-forest-900/60 hover:bg-forest-900/5 hover:text-forest-900'}`}>{p}</button>
                       )
                     })}
                     <button disabled={page >= totalPages} onClick={() => updateParams({ page: String(page + 1) })}
-                      className="btn-font rounded-lg border border-forest-900/10 bg-[#FBF8F1] px-3 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5 disabled:opacity-30">Next →</button>
+                      className="btn-font rounded-lg border border-forest-900/10 bg-[#FBF8F1] px-2 sm:px-3 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5 disabled:opacity-30"><span className="hidden sm:inline">Next</span> →</button>
                   </div>
                 )}
               </>

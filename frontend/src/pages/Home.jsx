@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import BundleCard from '../components/BundleCard'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
@@ -137,7 +138,7 @@ export default function Home() {
             <div className="flex h-full" style={{ width: `${100 * bannerUrls.length}%`, transform: `translateX(-${100 / bannerUrls.length * carouselIdx}%)`, transition: transition ? 'transform 1200ms cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none' }}>
               {bannerUrls.map((url, idx) => (
                 <div key={idx} className="relative h-full" style={{ width: `${100 / bannerUrls.length}%` }}>
-                  <img src={optimizeImage(url, 2000)} alt={heroBanners[idx]?.title || ''} loading={idx === 0 ? 'eager' : 'lazy'} fetchPriority={idx === 0 ? 'high' : 'auto'} className="h-full w-full object-cover" />
+                  <img src={optimizeImage(url, typeof window !== 'undefined' && window.innerWidth < 768 ? 800 : 2000)} alt={heroBanners[idx]?.title || ''} loading={idx === 0 ? 'eager' : 'lazy'} fetchPriority={idx === 0 ? 'high' : 'auto'} className="h-full w-full object-cover" sizes="100vw" />
                   <div className="absolute inset-0 bg-gradient-to-r from-forest-900/80 via-forest-900/50 to-forest-900/30" />
                 </div>
               ))}
@@ -150,7 +151,7 @@ export default function Home() {
           <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10 text-center lg:text-left">
             <div className="max-w-3xl lg:max-w-2xl animate-fade-up">
               <p className="font-heading text-[11px] font-semibold tracking-[0.2em] uppercase text-gold-500/70 mb-4 sm:mb-5">Rooted in Tradition. Shared with Love.</p>
-              <h1 className="font-heading text-5xl font-bold leading-tight text-cream-50 sm:text-6xl lg:text-7xl tracking-tight">
+              <h1 className="font-heading text-4xl sm:text-5xl sm:leading-tight lg:text-7xl font-bold leading-[1.1] text-cream-50 tracking-tight">
                 Real Food.<br />
                 <span className="text-gold-500 italic">Real Farmers.</span>
               </h1>
@@ -163,7 +164,7 @@ export default function Home() {
                   <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </Link>
               </div>
-              <div className="mt-5 flex items-center justify-center lg:justify-start gap-4 text-cream-50/40">
+              <div className="mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1.5 text-cream-50/40">
                 <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span className="text-gold-500">✦</span> 100% Natural</div>
                 <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span className="text-gold-500">✦</span> Ethically Sourced</div>
                 <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span className="text-gold-500">✦</span> Farm to Home</div>
@@ -182,15 +183,15 @@ export default function Home() {
           </div>
           {bannerUrls.length > 1 && (
             <>
-              <button onClick={goPrev} className="absolute left-5 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-cream-50/10 p-3 text-cream-50/40 backdrop-blur-sm transition-all hover:bg-cream-50/20 hover:text-cream-50" aria-label="Previous">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              <button onClick={goPrev} className="absolute left-2 sm:left-5 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-cream-50/10 p-2 sm:p-3 text-cream-50/40 backdrop-blur-sm transition-all hover:bg-cream-50/20 hover:text-cream-50" aria-label="Previous">
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               </button>
-              <button onClick={goNext} className="absolute right-5 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-cream-50/10 p-3 text-cream-50/40 backdrop-blur-sm transition-all hover:bg-cream-50/20 hover:text-cream-50" aria-label="Next">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <button onClick={goNext} className="absolute right-2 sm:right-5 top-1/2 z-20 -translate-y-1/2 rounded-xl bg-cream-50/10 p-2 sm:p-3 text-cream-50/40 backdrop-blur-sm transition-all hover:bg-cream-50/20 hover:text-cream-50" aria-label="Next">
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </button>
-              <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+              <div className="absolute bottom-6 sm:bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-2">
                 {bannerUrls.map((_, i) => (
-                  <button key={i} onClick={() => goDot(i)} className={`h-2 rounded-full transition-all ${i === carouselIdx ? 'w-10 bg-gold-500' : 'w-2 bg-cream-50/30 hover:bg-cream-50/50'}`} aria-label={`Slide ${i + 1}`} />
+                  <button key={i} onClick={() => goDot(i)} className={`h-1.5 sm:h-2 rounded-full transition-all ${i === carouselIdx ? 'w-6 sm:w-10 bg-gold-500' : 'w-1.5 sm:w-2 bg-cream-50/30 hover:bg-cream-50/50'}`} aria-label={`Slide ${i + 1}`} />
                 ))}
               </div>
             </>
@@ -399,43 +400,26 @@ export default function Home() {
       </section>
 
       {/* Combos */}
-      <section className="relative bg-cream-100 py-8 lg:py-10">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Farm to Home</span>
-          <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">Value Combos You&rsquo;ll Love</h2>
-          <p className="mt-2 text-sm text-forest-900/50 max-w-md mx-auto">Handpicked combinations that bring freshness, nutrition, and savings together.</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: '🥣', name: 'Healthy Breakfast Combo', items: 'Millets + Honey + Dry Fruits', save: '15%', original: '₹1,299', discounted: '₹1,099', badge: 'Save 15%', popular: false },
-              { icon: '🌶', name: 'Kitchen Essentials Combo', items: 'Spices + Rice + Grocery Staples', save: '10%', original: '₹1,999', discounted: '₹1,799', badge: 'Save 10%', popular: false },
-              { icon: '🌾', name: 'Wellness Combo', items: 'Millets + Cold Pressed Oil + Honey', save: '20%', original: '₹1,599', discounted: '₹1,279', badge: 'Best Seller', popular: false },
-              { icon: '🎁', name: 'Family Combo Pack', items: 'Everyday groceries for the whole family.', save: '12%', original: '₹2,499', discounted: '₹2,199', badge: 'Most Popular', popular: true },
-            ].map((combo, i) => (
-              <div key={i} className={`rounded-2xl border ${combo.popular ? 'border-terracotta-500/30 bg-white shadow-lg ring-1 ring-terracotta-500/10' : 'border-forest-900/10 bg-white shadow-sm'} p-5 text-center transition-all hover:shadow-xl hover:-translate-y-1`}>
-                {combo.popular && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-terracotta-500/10 px-3 py-1 text-[9px] font-semibold tracking-[0.1em] uppercase text-terracotta-600 mb-2">Most Popular</span>
-                )}
-                <span className="text-3xl">{combo.icon}</span>
-                <h3 className="mt-2 font-heading text-sm font-semibold text-forest-900">{combo.name}</h3>
-                <p className="mt-1 text-[11px] text-forest-900/50">{combo.items}</p>
-                <div className="mt-3 flex items-center justify-center gap-2">
-                  <span className="text-xs text-forest-900/30 line-through">{combo.original}</span>
-                  <span className="font-heading text-lg font-bold text-terracotta-500">{combo.discounted}</span>
-                </div>
-                <span className="inline-block mt-1 rounded-full bg-green-600/10 px-2 py-0.5 text-[10px] font-semibold text-green-600">Save {combo.save}</span>
-                <div className="mt-3 flex gap-2">
-                  <button type="button" className="flex-1 rounded-xl bg-terracotta-500 py-2.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600">
-                    Add to Cart
-                  </button>
-                  <button type="button" className="flex h-10 w-10 items-center justify-center rounded-xl border border-forest-900/10 text-forest-900/30 transition-all hover:border-terracotta-500/30 hover:text-terracotta-500">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                  </button>
-                </div>
-              </div>
-            ))}
+      {bundles && bundles.length > 0 && (
+        <section className="relative bg-cream-100 py-8 lg:py-10">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Farm to Home</span>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">Value Combos You&rsquo;ll Love</h2>
+            <p className="mt-2 text-sm text-forest-900/50 max-w-md mx-auto">Handpicked combinations that bring freshness, nutrition, and savings together.</p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {bundles.slice(0, 4).map(bundle => (
+                <BundleCard key={bundle._id || bundle.id} bundle={bundle} compact />
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link to="/combos" className="btn-font inline-flex items-center gap-2 rounded-xl bg-terracotta-500 px-9 py-3.5 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-1 shadow-xl shadow-terracotta-500/25 btn-lift">
+                View All Combos
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Farm to Home closing */}
       <section className="bg-forest-950 py-6 text-center border-t border-gold-500/10">

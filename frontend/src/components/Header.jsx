@@ -45,7 +45,7 @@ export default function Header() {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-forest-900/95 shadow-[0_4px_30px_rgba(0,0,0,0.25)] backdrop-blur-md' : 'bg-gradient-to-b from-black/40 to-transparent'}`}>
       {headerText && (
-        <div className={`overflow-hidden px-4 py-1.5 text-[10px] font-medium tracking-[0.12em] uppercase text-cream-50/60 transition-all duration-500 ${scrolled ? 'bg-forest-950/80' : 'bg-black/20'}`}>
+        <div className={`overflow-hidden px-4 py-1.5 text-[11px] sm:text-[10px] font-medium tracking-[0.12em] uppercase text-cream-50/60 transition-all duration-500 ${scrolled ? 'bg-forest-950/80' : 'bg-black/20'}`}>
           <div className="header-marquee whitespace-nowrap">
             {Array.from({ length: 12 }).map((_, i) => (
               <span key={i} className="mx-10 inline-block whitespace-pre">{headerText}</span>

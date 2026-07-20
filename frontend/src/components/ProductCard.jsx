@@ -54,7 +54,7 @@ export default function ProductCard({ product, compact = false }) {
   return (
     <Link to={`/products/${slugify(product.name)}`} className="group relative flex h-full flex-col rounded-2xl bg-[#FBF8F1] shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden">
       {/* Image */}
-      <div className="relative h-[180px] overflow-hidden bg-gradient-to-br from-sage-300/20 via-cream-50 to-sage-300/10">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-sage-300/20 via-cream-50 to-sage-300/10">
         {product.discount_percent > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-terracotta-500 px-2.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-cream-50 shadow-sm">{product.discount_percent}% off</span>
         )}
@@ -70,7 +70,7 @@ export default function ProductCard({ product, compact = false }) {
         )}
 
         {/* Product name */}
-        <h3 className="mt-1.5 font-heading text-base font-bold text-forest-900 leading-tight group-hover:text-terracotta-500 transition-colors">{product.name}</h3>
+        <h3 className="mt-1.5 font-heading text-base font-bold text-forest-900 leading-tight group-hover:text-terracotta-500 transition-colors line-clamp-2">{product.name}</h3>
 
         {/* Descriptor */}
         {descriptor && (
@@ -97,7 +97,7 @@ export default function ProductCard({ product, compact = false }) {
             </div>
           ) : (
             <button onClick={handleQuickAdd}
-              className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-dashed border-terracotta-500/40 text-terracotta-500 transition-all hover:bg-terracotta-500 hover:text-cream-50 hover:border-terracotta-500 active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-terracotta-500/40 text-terracotta-500 transition-all hover:bg-terracotta-500 hover:text-cream-50 hover:border-terracotta-500 active:scale-90"
               aria-label="Quick add">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
             </button>

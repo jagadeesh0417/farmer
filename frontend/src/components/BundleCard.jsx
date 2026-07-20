@@ -15,7 +15,7 @@ function calculateBundlePrice(bundle) {
   return Number(bundle?.price || bundle?.bundle_price || 0)
 }
 
-export default function BundleCard({ bundle }) {
+export default function BundleCard({ bundle, compact }) {
   const { addToCart, removeFromCart, cartItems, updateQuantity, bundleSelections, setBundleSelection } = useCart()
   const { settings } = useSiteSettings()
   const [showFullDesc, setShowFullDesc] = useState(false)
@@ -46,6 +46,60 @@ export default function BundleCard({ bundle }) {
     if (newQty < 1) return
     if (cartItem) await updateQuantity(cartItem.id, newQty)
     else toast.info('Add to cart first')
+  }
+
+  if (compact) {
+    return (
+      <div className="w-full rounded-2xl border border-border-warm bg-white shadow-sm overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 group">
+        <Link to={`/combos/${slug}`} className="relative block overflow-hidden bg-cream-50 img-zoom">
+          <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
+            className="aspect-[4/3] w-full object-cover transition duration-500"
+            loading="lazy"
+            onError={(e) => { e.target.src = settings?.placeholder_image || 'https://placehold.co/600x400?text=Combo' }} />
+          {discountPct > 0 && (
+            <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-xl bg-terracotta-500/90 px-3 py-1 text-[10px] font-semibold text-cream-50 backdrop-blur-sm shadow-sm">
+              Save {discountPct}%
+            </span>
+          )}
+          {productCount > 0 && (
+            <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-xl bg-forest-900/80 px-3 py-1 text-[10px] font-semibold text-cream-50 backdrop-blur-sm shadow-sm">
+              {productCount} Items
+            </span>
+          )}
+        </Link>
+        <div className="p-4">
+          <Link to={`/combos/${slug}`} className="hover:text-terracotta-500 transition-colors">
+            <h3 className="font-heading text-sm font-semibold text-text-dark line-clamp-1">{name}</h3>
+          </Link>
+          <p className="mt-1 text-[11px] text-forest-900/50 line-clamp-2">{displayDesc}</p>
+          <div className="mt-3 space-y-1">
+            {originalTotal > bundlePrice && (
+              <span className="block text-xs text-forest-900/30 line-through">{formatPrice(originalTotal)}</span>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="font-heading text-lg font-bold text-text-dark">{formatPrice(bundlePrice)}</span>
+              {savings > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-600/10 px-2 py-0.5 text-[9px] font-semibold text-green-600">
+                  Save {formatPrice(savings)}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button onClick={async () => {
+                if (isInCart) await removeFromCart(cartItem.id)
+                else await addToCart({ bundle_id: id, quantity, bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
+              }}
+              className={`flex-1 rounded-xl py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all ${isInCart ? 'bg-forest-900/10 text-forest-900 hover:bg-forest-900 hover:text-cream-50' : 'bg-terracotta-500 text-cream-50 hover:bg-terracotta-600 hover:-translate-y-0.5 shadow-lg shadow-terracotta-500/20'}`}>
+              {isInCart ? 'Remove' : 'Add to Cart'}
+            </button>
+            <button type="button" className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-warm text-forest-900/30 transition-all hover:border-terracotta-500/30 hover:text-terracotta-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
