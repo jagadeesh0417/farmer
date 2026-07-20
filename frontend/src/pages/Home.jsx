@@ -207,12 +207,13 @@ export default function Home() {
           <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
             <div className="max-w-2xl animate-fade-up">
               <span className="inline-block rounded-full border border-gold-500/30 bg-gold-500/10 px-4 py-1 text-xs font-semibold tracking-[0.12em] uppercase text-gold-500">From Tribal Villages</span>
-              <h1 className="mt-6 font-heading text-4xl font-bold leading-tight text-cream-50 sm:text-5xl lg:text-6xl tracking-tight">
+              <p className="mt-4 font-heading text-sm font-semibold tracking-[0.2em] uppercase text-cream-50/50">Real Food. Real Farmers. Real Health.</p>
+              <h1 className="mt-2 font-heading text-4xl font-bold leading-tight text-cream-50 sm:text-5xl lg:text-6xl tracking-tight">
                 Naturally Grown,<br />
                 <span className="text-gold-500">Tribal Cultivated</span>
               </h1>
               <p className="mt-4 max-w-lg text-base leading-relaxed text-cream-50/70 sm:text-lg">
-                Rainwater-fed organic produce straight from indigenous farming communities. Pesticide-free, chemical-free, pure.
+                Pure forest-grown produce direct from tribal farms. No middlemen. No chemicals. Farm to home.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link to="/products" className="inline-flex items-center gap-2 rounded-full bg-terracotta-500 px-8 py-3 text-sm font-semibold tracking-[0.08em] uppercase text-cream-50 transition hover:bg-terracotta-600 shadow-lg shadow-terracotta-500/20">
@@ -268,6 +269,29 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* PROMISE STRIP */}
+      <section className="relative bg-forest-900 border-y border-gold-500/10">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+          <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
+            {[
+              { number: '20+', label: 'Traditional Foods', sub: 'Millets, lentils & spices' },
+              { number: '100%', label: 'Chemical Free', sub: 'No pesticides or fertilizers' },
+              { number: 'Direct', label: 'From Tribal Farmers', sub: 'No middlemen, fair trade' },
+              { number: '₹2,599+', label: 'Free Shipping', sub: 'Across India' },
+            ].map(item => (
+              <div key={item.label} className="space-y-1">
+                <p className="font-heading text-2xl font-bold text-gold-500 sm:text-3xl">{item.number}</p>
+                <p className="text-sm font-semibold text-cream-50">{item.label}</p>
+                <p className="text-[10px] text-cream-50/50">{item.sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <p className="font-heading text-base italic text-cream-50/60">Every Order Supports Tribal Farmers</p>
+          </div>
+        </div>
+      </section>
 
       <div className="organic-divider"><div className="absolute inset-0 bg-cream-100" /></div>
 
@@ -340,9 +364,9 @@ export default function Home() {
       <section className="relative bg-cream-100 py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <span className="inline-block rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-3 py-1 text-[10px] font-semibold tracking-[0.12em] uppercase text-terracotta-500">Curated Bundles</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">Combo's</h2>
-            <p className="mt-2 text-sm text-forest-900/60">Thoughtfully curated bundles from tribal farms. Best value, pure quality.</p>
+              <span className="inline-block rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-3 py-1 text-[10px] font-semibold tracking-[0.12em] uppercase text-terracotta-500">Farm to Home</span>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">Family Combos</h2>
+            <p className="mt-2 text-sm text-forest-900/60">Thoughtfully curated bundles from tribal farms. Best value, pure quality. Free shipping on orders above ₹2,599.</p>
           </div>
           <div className="mt-10 space-y-6">
             {bundles.length === 0 ? (
@@ -356,6 +380,14 @@ export default function Home() {
               View All Bundles
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* FARM TO HOME BANNER */}
+      <section className="bg-forest-950 py-10 text-center">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="font-heading text-2xl font-bold text-gold-500 sm:text-3xl">Farm to Home</p>
+          <p className="mt-2 text-sm text-cream-50/50">Pure forest-grown produce from tribal farms. Delivered to your doorstep.</p>
         </div>
       </section>
 
