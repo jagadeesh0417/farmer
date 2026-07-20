@@ -473,24 +473,24 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="relative bg-cream-100 py-4 pb-0">
+      <section className="relative bg-cream-100 py-8 lg:py-10">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-terracotta-500/20 bg-terracotta-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-terracotta-500">Testimonials</span>
-          <h2 className="mt-2 font-heading text-2xl font-bold text-forest-900 sm:text-3xl tracking-tight">What Our <span className="text-terracotta-500 italic">Customers</span> Say</h2>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <h2 className="mt-3 font-heading text-3xl font-bold text-forest-900 sm:text-4xl tracking-tight">What Our <span className="text-terracotta-500 italic">Customers</span> Say</h2>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
             {[
               { quote: 'The millets taste just like home. So fresh and authentic — reminds me of my grandmother\'s cooking.', name: 'Priya S.', location: 'Hyderabad' },
               { quote: 'Finally, real chemical-free produce. My family loves the natural sweetness of the forest honey.', name: 'Rajesh K.', location: 'Bangalore' },
               { quote: 'Direct from tribal farmers with no middlemen. This is the future of food in India.', name: 'Ananya M.', location: 'Chennai' },
             ].map(item => (
-              <div key={item.name} className="rounded-xl border border-forest-900/10 bg-cream-50 p-4 text-left hover:border-terracotta-500/30 transition-all">
-                <div className="flex gap-1 text-terracotta-500/60 text-[10px] mb-2">★★★★★</div>
-                <p className="text-xs text-forest-900/70 leading-relaxed italic">&ldquo;{item.quote}&rdquo;</p>
-                <div className="mt-3 flex items-center gap-2 border-t border-forest-900/5 pt-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-terracotta-500/20 text-xs font-bold text-terracotta-600">{item.name[0]}</div>
+              <div key={item.name} className="rounded-2xl border border-forest-900/10 bg-white p-6 text-left shadow-sm hover:border-terracotta-500/30 hover:shadow-md transition-all">
+                <div className="flex gap-1 text-terracotta-500/60 text-sm mb-3">★★★★★</div>
+                <p className="text-sm text-forest-900/70 leading-relaxed italic">&ldquo;{item.quote}&rdquo;</p>
+                <div className="mt-4 flex items-center gap-3 border-t border-forest-900/5 pt-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-terracotta-500/20 text-sm font-bold text-terracotta-600">{item.name[0]}</div>
                   <div>
-                    <p className="text-xs font-semibold text-forest-900">{item.name}</p>
-                    <p className="text-[10px] text-forest-900/40">{item.location}</p>
+                    <p className="text-sm font-semibold text-forest-900">{item.name}</p>
+                    <p className="text-xs text-forest-900/40">{item.location}</p>
                   </div>
                 </div>
               </div>
@@ -529,6 +529,13 @@ export default function Home() {
           <p className="mt-2 text-xs text-cream-50/40">Pure forest-grown produce from tribal farms. Delivered to your doorstep.</p>
         </div>
       </section>
+
+      {/* Floating WhatsApp */}
+      <a href="https://wa.me/919709704563" target="_blank" rel="noopener noreferrer"
+        className="fixed bottom-[76px] left-5 z-50 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#25D366] text-white shadow-[0_8px_32px_rgba(37,211,102,0.35)] transition-all hover:bg-[#20BD5A] hover:-translate-y-1 sm:bottom-8 sm:left-8 sm:h-16 sm:w-16 btn-lift"
+        aria-label="WhatsApp">
+        <svg className="h-7 w-7 sm:h-8 sm:w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
 
       {/* Floating cart */}
       <button type="button" onClick={() => navigate('/checkout')}
