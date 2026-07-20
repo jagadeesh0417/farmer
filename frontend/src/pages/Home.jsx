@@ -36,11 +36,14 @@ export default function Home() {
 
   const catList = categories.filter(c => c.name && c.isActive !== false).sort((a, b) => (a.order || 0) - (b.order || 0))
   const groupedProducts = {}
+  const uncategorized = []
   allProducts.forEach(p => {
     const catName = p.category?.name || p.categoryName
     if (catName) {
       if (!groupedProducts[catName]) groupedProducts[catName] = []
       groupedProducts[catName].push(p)
+    } else {
+      uncategorized.push(p)
     }
   })
   let sectionIdx = 5
@@ -57,6 +60,10 @@ export default function Home() {
       idx: sectionIdx++,
     }
   }).filter(Boolean)
+  const hasCategoryProducts = categorySections.length > 0
+  const allProductsPool = allProducts.length > 0 ? allProducts : products
+  const fallbackPool = uncategorized.length > 0 ? uncategorized : allProductsPool
+  const showFallbackGrid = !hasCategoryProducts && fallbackPool.length > 0
 
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
   const handleBannerClick = (link) => { if (!link) return; if (link.startsWith('/')) navigate(link); else window.open(link, '_blank') }
@@ -102,6 +109,7 @@ export default function Home() {
           api.getProducts({ limit: 50 }).then(r => r.data || []).catch(() => []),
         ])
         if (cancelled) return
+        console.log('Home data:', { productsCount: productsData?.length, bundlesCount: bundlesData?.length, heroCount: heroData?.length, promoCount: promoData?.length, categoriesCount: categoriesData?.length, allProductsCount: allProductsData?.length })
         if (!productsData || productsData.length === 0) productsData = await getSupabaseNewArrivals().catch(() => [])
         if (!bundlesData || bundlesData.length === 0) bundlesData = await getSupabaseComboBundles().catch(() => [])
         if (!categoriesData || categoriesData.length === 0) categoriesData = await getSupabaseCategories().catch(() => [])
@@ -308,7 +316,7 @@ export default function Home() {
       </section>
 
       {/* Category sections */}
-      {categorySections.length > 0 && categorySections.map((section, ci) => (
+      {hasCategoryProducts ? categorySections.map((section, ci) => (
         <div key={section.key}>
           {ci > 0 && <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>}
           <section className={`relative bg-forest-900 py-16 lg:py-20 ${ci % 2 === 0 ? '' : 'bg-forest-950'}`} ref={el => sectionRef.current[section.idx] = el} data-section={`cat-${section.slug}`}>
@@ -335,7 +343,25 @@ export default function Home() {
             </div>
           </section>
         </div>
-      ))}
+      )) : showFallbackGrid && (
+        <div>
+          <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
+          <section className="relative bg-forest-900 py-16 lg:py-20" ref={el => sectionRef.current[5] = el} data-section="all-products">
+            <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+              <div className="text-center">
+                <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">Our Collection</span>
+                <h2 className="mt-3 font-heading text-3xl font-bold text-cream-50 sm:text-4xl tracking-tight">Premium <span className="text-gold-500 italic">Produce</span></h2>
+                <p className="mt-2 text-sm text-cream-50/50 max-w-md mx-auto">Pure forest-grown produce direct from tribal farms</p>
+              </div>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {fallbackPool.slice(0, 8).map(product => (
+                  <ProductCard key={product._id || product.id} product={product} />
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* All Products CTA */}
       <div className="organic-divider"><div className="absolute inset-0 bg-forest-900" /></div>
