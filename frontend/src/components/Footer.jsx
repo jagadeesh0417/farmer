@@ -44,7 +44,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
           {/* Company */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Company</h3>
@@ -54,24 +54,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          {/* Help */}
-          <div>
-            <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Help</h3>
-            <ul className="space-y-2.5">
-              {[{ label: 'FAQs', to: '/about' }, { label: 'Track Order', to: '/orders' }, { label: 'Shipping Policy', to: '/about' }, { label: 'Returns & Exchanges', to: '/about' }].map(item => (
-                <li key={item.label}><Link to={item.to} className="text-sm text-muted hover:text-green-600 transition-colors">{item.label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          {/* Policies */}
-          <div>
-            <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Policies</h3>
-            <ul className="space-y-2.5">
-              {[{ label: 'Terms & Conditions', to: '/about' }, { label: 'Privacy Policy', to: '/about' }, { label: 'Terms of Service', to: '/about' }].map(item => (
-                <li key={item.label}><Link to={item.to} className="text-sm text-muted hover:text-green-600 transition-colors">{item.label}</Link></li>
-              ))}
-            </ul>
-          </div>
+
           {/* Get in Touch */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Get in Touch</h3>
