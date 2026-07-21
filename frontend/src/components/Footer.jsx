@@ -45,6 +45,11 @@ export default function Footer() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+          {/* Brand */}
+          <div className="md:col-span-1">
+            <h3 className="font-heading text-lg font-bold text-ink">Fresh & Natural Products</h3>
+            <p className="text-sm text-muted mt-2 leading-relaxed">Pure forest-grown produce directly from tribal farmers. Chemical-free, no middlemen, farm to home.</p>
+          </div>
           {/* Company */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Company</h3>
