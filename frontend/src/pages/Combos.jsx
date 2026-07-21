@@ -23,30 +23,30 @@ export default function Combos() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="bg-white min-h-screen">
       <SeoHead title="Combos & Bundles" description="Save big with curated product bundles from HAiFarmer. Organic vegetable combos, fruit bundles, spice packs and more at special discount prices." />
 
       {/* Hero */}
-      <section className="relative bg-forest-900 pt-28 pb-16 sm:pt-32 sm:pb-20 overflow-hidden">
-        <div className="absolute top-10 right-10 text-gold-500/5 leaf-float hidden lg:block">
-          <svg width="80" height="80" viewBox="0 0 100 100" fill="currentColor"><path d="M50 10C30 30 15 55 15 75c0 10 5 15 15 15 20 0 55-30 55-55C85 20 70 10 50 10z"/></svg>
-        </div>
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center relative z-10">
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold-500">Curated Bundles</span>
-          <h1 className="mt-4 font-heading text-4xl font-bold text-cream-50 sm:text-5xl lg:text-6xl tracking-tight">Family Combos</h1>
-          <p className="mt-3 text-cream-50/50 max-w-lg mx-auto">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
+      <section className="relative bg-green-800 overflow-hidden">
+        <div className="relative min-h-[40vh] flex items-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-800/80 to-green-800/40" />
+          <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full text-center">
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-white/80">Curated Bundles</span>
+            <h1 className="mt-4 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">Value Combos</h1>
+            <p className="mt-3 text-white/60 max-w-lg mx-auto">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
+          </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-10">
         {loading ? (
           <div className="flex min-h-[40vh] items-center justify-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-2 border-forest-900/20 border-t-terracotta-500" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-green-600" />
           </div>
         ) : bundles.length === 0 ? (
           <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-            <p className="font-heading text-2xl font-semibold text-text-dark italic">No combos available</p>
-            <p className="mt-1 text-sm text-forest-900/50">Check back soon for exciting bundles!</p>
+            <p className="font-heading text-2xl font-semibold text-ink italic">No combos available</p>
+            <p className="mt-1 text-sm text-muted">Check back soon for exciting bundles!</p>
           </div>
         ) : (
           <div className="space-y-6">

@@ -137,7 +137,7 @@ export default function Products() {
                   {BENEFITS.map(b => <FilterCheckbox key={b.label} label={b.label} count={b.count} />)}
                 </FilterSection>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="mt-6 w-full rounded-lg bg-ink text-white py-2.5 text-sm font-semibold lg:hidden">Apply</button>
+              <button onClick={() => setSidebarOpen(false)} className="mt-6 w-full rounded-lg bg-green-600 text-white py-2.5 text-sm font-semibold lg:hidden">Apply</button>
             </div>
           </aside>
 
