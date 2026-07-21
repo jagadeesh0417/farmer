@@ -6,7 +6,6 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import MobileBottomNav from './components/MobileBottomNav'
 import FloatingWhatsApp from './components/FloatingWhatsApp'
-import { useAuth } from './contexts/AuthContext'
 import ScrollToTop from './components/ScrollToTop'
 import PageTracker from './components/PageTracker'
 import AdminLayout from './components/admin/AdminLayout'
@@ -19,13 +18,6 @@ const BundleDetail = lazy(() => import('./pages/BundleDetail'))
 const About = lazy(() => import('./pages/About'))
 const Farmers = lazy(() => import('./pages/Farmers'))
 const FarmerDetail = lazy(() => import('./pages/FarmerDetail'))
-const Login = lazy(() => import('./pages/Login'))
-const Signup = lazy(() => import('./pages/Signup'))
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
-const Checkout = lazy(() => import('./pages/Checkout'))
-const Payment = lazy(() => import('./pages/Payment'))
-const Account = lazy(() => import('./pages/Account'))
-
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
@@ -38,18 +30,9 @@ const AdminBundles = lazy(() => import('./pages/admin/AdminBundles'))
 const AdminFarmers = lazy(() => import('./pages/admin/AdminFarmers'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
-  if (loading) return <div className="flex min-h-[40vh] items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" /></div>
-  if (!user) return <Navigate to="/login" replace />
-  return children
-}
-
 function LoadingFallback() { return <div className="min-h-[40vh]" /> }
 
 function AppLayout() {
-  const { user, loading } = useAuth()
-  if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" /></div>
   return (
     <div className="min-h-screen flex flex-col font-sans">
       <Header />
@@ -64,13 +47,13 @@ function AppLayout() {
             <Route path="/combos" element={<Combos />} />
             <Route path="/combos/:slug" element={<BundleDetail />} />
             <Route path="/cart" element={<Navigate to="/checkout" replace />} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
-            <Route path="/orders" element={<ProtectedRoute><Account initialTab="orders" /></ProtectedRoute>} />
-            <Route path="/account" element={<ProtectedRoute><Account initialTab="account" /></ProtectedRoute>} />
-            <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-            <Route path="/signup" element={user ? <Navigate to="/" replace /> : <Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/checkout" element={<Navigate to="/" replace />} />
+            <Route path="/payment" element={<Navigate to="/" replace />} />
+            <Route path="/orders" element={<Navigate to="/" replace />} />
+            <Route path="/account" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/signup" element={<Navigate to="/" replace />} />
+            <Route path="/forgot-password" element={<Navigate to="/" replace />} />
             <Route path="*" element={<div className="p-10 text-center text-slate-500">Page not found</div>} />
           </Routes>
         </Suspense>

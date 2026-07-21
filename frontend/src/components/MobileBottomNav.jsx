@@ -1,9 +1,7 @@
 import { NavLink } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { HomeIcon, ProductsIcon, CombosIcon, AboutIcon, AccountIcon } from './Icons'
+import { HomeIcon, ProductsIcon, CombosIcon, AboutIcon } from './Icons'
 
 export default function MobileBottomNav() {
-  const { user } = useAuth()
   const btn = 'flex flex-1 flex-col items-center justify-center rounded-xl py-2 text-[10px] font-semibold tracking-[0.06em] uppercase transition-all'
   const activeBtn = 'bg-green-50 text-green-600'
   const inactiveBtn = 'text-muted hover:text-green-600 hover:bg-green-50'
@@ -27,12 +25,7 @@ export default function MobileBottomNav() {
           <span className="mb-0.5 inline-flex h-7 w-7 items-center justify-center"><AboutIcon className="h-5 w-5" /></span>
           <span>ABOUT</span>
         </NavLink>
-        {user && (
-          <NavLink to="/account" className={({ isActive }) => `${btn} ${isActive ? activeBtn : inactiveBtn}`}>
-            <span className="mb-0.5 inline-flex h-7 w-7 items-center justify-center"><AccountIcon className="h-5 w-5" /></span>
-            <span>ACCOUNT</span>
-          </NavLink>
-        )}
+
       </div>
     </nav>
   )

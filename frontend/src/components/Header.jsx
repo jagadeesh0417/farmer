@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
 import { fetchSiteSettings } from '../contexts/SiteSettingsContext'
-import { CartIcon, AccountIcon, LogoutIcon, MenuIcon, CloseIcon } from './Icons'
+import { CartIcon, LogoutIcon, MenuIcon, CloseIcon } from './Icons'
 
 const ANNOUNCEMENTS = [
   'Free Delivery across all India',
@@ -162,9 +162,7 @@ export default function Header() {
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center rounded-lg p-2 text-muted hover:text-green-600 hover:bg-green-50 transition-all">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-            <Link to={user ? '/account' : '/login'} onClick={closeAll} className="rounded-lg p-2 text-muted hover:text-green-600 hover:bg-green-50 transition-all" aria-label="Account">
-              <AccountIcon className="h-5 w-5" />
-            </Link>
+
             <button onClick={() => navigate('/orders')} aria-label="Track order" className="hidden sm:flex rounded-lg p-2 text-muted hover:text-green-600 hover:bg-green-50 transition-all">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 14l2 2 4-4"/></svg>
             </button>
