@@ -139,6 +139,7 @@ export default function Header() {
                 </div>
               )}
             </div>
+            <NavLink to="/combos" className={({ isActive }) => `px-3 py-2 text-[12px] font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Combos</NavLink>
             <div className="relative" onMouseEnter={() => setMegaOpen('story')} onMouseLeave={() => setMegaOpen(false)}>
               <Link to="/about" className={`px-3 py-2 text-[12px] font-medium transition-colors ${megaOpen === 'story' ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>
                 Our Story <span className="text-[9px] ml-0.5">▼</span>
@@ -238,6 +239,7 @@ export default function Header() {
                 </div>
               )}
             </div>
+            <Link to="/combos" onClick={closeAll} className="block rounded-lg px-4 py-3 text-sm font-semibold text-ink hover:bg-green-50 hover:text-green-600">Combos</Link>
             <div>
               <div className="flex items-center justify-between rounded-lg px-4 py-3">
                 <Link to="/about" onClick={closeAll} className="flex-1 text-sm font-semibold text-ink hover:text-green-600">Our Story</Link>
