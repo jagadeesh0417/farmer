@@ -269,18 +269,6 @@ export default function ProductDetail() {
           </div>
         )}
       </div>
-
-      {/* Newsletter */}
-      <div className="bg-sand border-t border-border">
-        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10 text-center">
-          <h3 className="font-heading text-xl font-bold text-ink">Sign Up To Get Updates</h3>
-          <p className="text-sm text-muted mt-1">Get 15% off your first order + exclusive updates.</p>
-          <div className="mt-4 flex gap-2 max-w-md mx-auto">
-            <input type="email" placeholder="Enter your email" className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm outline-none focus:border-green-600 bg-white" />
-            <button className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors shrink-0">Subscribe</button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

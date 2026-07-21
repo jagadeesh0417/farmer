@@ -11,22 +11,6 @@ export default function Footer() {
 
   return (
     <footer className="bg-white border-t border-border">
-      {/* Newsletter */}
-      <div className="bg-sand">
-        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="font-heading text-xl font-bold text-ink">Sign Up To Get Updates</h3>
-              <p className="text-sm text-muted mt-1">Get 15% off your first order + updates on new products.</p>
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <input type="email" placeholder="Enter your email" className="flex-1 sm:w-64 rounded-lg border border-border px-4 py-2.5 text-sm text-ink placeholder:text-muted-light outline-none focus:border-green-600 bg-white" />
-              <button className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors shrink-0">Subscribe</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Social + Links */}
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
         <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
