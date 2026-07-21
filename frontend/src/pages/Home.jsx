@@ -8,226 +8,287 @@ import { api } from '../lib/api'
 import { optimizeImage } from '../lib/utils'
 import { CartIcon } from '../components/Icons'
 
+const HERO_SLIDES = [
+  { title: 'Pure Food from the Heart of the Forest', sub: 'Wild-harvested millets, honey, and spices sourced directly from tribal communities.', cta: 'Shop Now', img: '' },
+  { title: 'Nature\'s Finest, Direct to Your Door', sub: 'Chemical-free produce grown with traditional wisdom. Taste the difference.', cta: 'Explore Products', img: '' },
+]
+
+const CERTIFICATIONS = [
+  { label: 'FSSAI Certified', icon: '✓' },
+  { label: '100% Natural', icon: '🌿' },
+  { label: 'Free Delivery', icon: '🚚' },
+  { label: 'COD Available', icon: '💰' },
+]
+
+const CATEGORIES = [
+  { name: 'Millets', img: '', slug: 'millets', desc: 'Nutrient-rich traditional grains' },
+  { name: 'Honey', img: '', slug: 'honey', desc: 'Pure raw forest honey' },
+  { name: 'Spices', img: '', slug: 'spices', desc: 'Aromatic single-origin spices' },
+  { name: 'Pulses & Grains', img: '', slug: '', desc: 'Farm-fresh daily essentials' },
+  { name: 'Cold-Pressed Oils', img: '', slug: '', desc: 'Wood-pressed traditional oils' },
+  { name: 'Combos', img: '', slug: 'combos', desc: 'Curated value gift boxes' },
+]
+
+const BENEFITS = [
+  { label: 'Immunity', icon: '🛡️', slug: '' },
+  { label: 'Gut Health', icon: '🌱', slug: '' },
+  { label: 'Diabetes Friendly', icon: '🍃', slug: '' },
+  { label: 'Energy', icon: '⚡', slug: '' },
+  { label: 'Sleep', icon: '🌙', slug: '' },
+]
+
+const VALUES = [
+  { label: 'Made in India', icon: '🇮🇳' },
+  { label: 'Eco-Friendly', icon: '♻️' },
+  { label: 'Ethical Practices', icon: '🤝' },
+  { label: '100% Natural', icon: '🌿' },
+  { label: 'Non-GMO', icon: '🌾' },
+  { label: 'Certified Organic', icon: '✓' },
+]
+
 export default function Home() {
   const { cartItems } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
-  const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
+  const [heroIdx, setHeroIdx] = useState(0)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+  const bgImage = settings?.hero_image || ''
 
   useEffect(() => {
     let cancelled = false
     async function load() {
       try {
-        const [productsData, bannerData] = await Promise.all([
-          api.getProducts({ limit: 8 }).then(r => r.data || []).catch(() => []),
-          api.getBanners({ position: 'hero' }).catch(() => []),
-        ])
+        const productsData = await api.getProducts({ limit: 8 }).then(r => r.data || []).catch(() => [])
         if (cancelled) return
         setProducts(productsData)
-        setBanners(bannerData)
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
     load()
-    return () => { cancelled = true }
+    const id = setInterval(() => setHeroIdx(prev => (prev + 1) % HERO_SLIDES.length), 5000)
+    return () => { cancelled = true; clearInterval(id) }
   }, [])
 
-  const bgImage = banners?.[0]?.image || settings?.hero_image || ''
-
   return (
-    <div className="bg-cream-50">
+    <div className="bg-white">
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
-      {/* Hero */}
-      <section className="relative min-h-screen flex items-center bg-forest-900 overflow-hidden">
-        <div className="absolute inset-0">
-          {bgImage && (
-            <img src={optimizeImage(bgImage, 2000)} alt="" className="h-full w-full object-cover" loading="eager" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-r from-forest-900/90 via-forest-900/70 to-forest-900/40" />
-        </div>
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="max-w-xl animate-fade-up">
-              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-terracotta-500 mb-4">Rooted in Tradition. Shared with Love.</p>
-              <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.08] text-cream-50 tracking-tight">
-                Real Food.<br />
-                <span className="text-gold-500 italic">Real Farmers.</span>
-              </h1>
-              <p className="mt-5 max-w-lg text-sm leading-relaxed text-cream-50/60 sm:text-base">
-                Discover wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable.
-              </p>
-              <Link to="/products" className="mt-8 inline-flex items-center gap-2 bg-terracotta-500 px-9 py-3.5 text-[11px] font-semibold tracking-[0.16em] uppercase text-cream-50 transition-all hover:bg-terracotta-600 hover:-translate-y-0.5 shadow-xl shadow-terracotta-500/25 btn-lift" style={{ borderRadius: '4px' }}>
-                Explore Our Products
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </Link>
-              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-                {['100% Natural', 'Ethically Sourced', 'Farm to Home'].map(label => (
-                  <div key={label} className="flex items-center gap-2 text-[10px] font-medium tracking-[0.15em] uppercase text-cream-50/50">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold-500" />
-                    {label}
-                  </div>
-                ))}
-              </div>
+      {/* 1. Hero slider */}
+      <section className="relative bg-green-800 overflow-hidden">
+        <div className="relative min-h-[70vh] flex items-center">
+          {HERO_SLIDES.map((slide, i) => (
+            <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === heroIdx ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div className="absolute inset-0 bg-gradient-to-r from-green-800/80 to-green-800/40" />
             </div>
-            <div className="hidden lg:flex justify-end">
-              <div className="relative flex h-40 w-40 items-center justify-center">
-                <svg className="absolute inset-0 h-full w-full animate-spin-slow" viewBox="0 0 100 100">
-                  <defs><path id="sealPath" d="M50 5a45 45 0 1 1 0 90 45 45 0 0 1 0-90" fill="none" /></defs>
-                  <text fontSize="7" fontWeight="600" letterSpacing="4" fill="#C9A24C"><textPath href="#sealPath" startOffset="3%">WILD · NATURAL · ETHICAL ·</textPath></text>
-                </svg>
-                <div className="flex flex-col items-center">
-                  <span className="font-heading text-4xl font-bold text-gold-500 leading-none">100%</span>
-                  <span className="text-[8px] tracking-[0.15em] uppercase text-gold-500/60">Pure</span>
-                </div>
-              </div>
+          ))}
+          <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full">
+            <div className="max-w-2xl">
+              <p className="text-green-200 text-[11px] font-semibold tracking-[0.12em] uppercase mb-3">Rooted in Tradition</p>
+              <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight">{HERO_SLIDES[heroIdx].title}</h1>
+              <p className="mt-4 text-sm text-white/70 max-w-lg">{HERO_SLIDES[heroIdx].sub}</p>
+              <Link to="/products" className="mt-6 inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-lg text-sm font-semibold hover:bg-green-500 transition-colors">
+                {HERO_SLIDES[heroIdx].cta}
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </Link>
             </div>
           </div>
         </div>
-        <div className="curve-divider absolute bottom-0 left-0 right-0 z-10" />
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {HERO_SLIDES.map((_, i) => (
+            <button key={i} onClick={() => setHeroIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === heroIdx ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/60'}`} aria-label={`Slide ${i + 1}`} />
+          ))}
+        </div>
       </section>
 
-      {/* Our Story — From the Tribes */}
-      <section className="relative py-24 lg:py-28 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
-            <div>
-              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-terracotta-500">Our Story</p>
-              <div className="zigzag inline-block mt-1 mb-6" />
-              <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-ink tracking-tight leading-[1.08]">
-                From the <span className="text-terracotta-500 italic">Tribes</span>
-              </h2>
-              <p className="mt-6 text-sm leading-relaxed text-muted">
-                HaiFarmer was born from a simple belief — that the purest food comes from the closest bond with nature.
-              </p>
-              <p className="mt-4 text-sm leading-relaxed text-muted">
-                We work hand-in-hand with tribal communities across India, bringing you whole, natural products while creating real impact where it matters most.
-              </p>
-              <Link to="/about" className="mt-6 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] uppercase text-terracotta-500 hover:text-terracotta-600 transition-colors">
-                Read Our Story
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </Link>
-            </div>
-            <div className="relative">
-              <div className="relative z-10 rounded-2xl overflow-hidden bg-forest-900/5 aspect-[4/3]">
-                <div className="w-full h-full bg-gradient-to-br from-sage-300/30 to-cream-100 flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <div className="w-20 h-20 mx-auto rounded-full bg-terracotta-500/10 flex items-center justify-center">
-                      <svg className="h-10 w-10 text-terracotta-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                    </div>
-                    <p className="mt-4 text-sm text-muted italic">Tribal women harvesting</p>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-4 -right-4 w-48 h-48 rounded-2xl bg-terracotta-500/10 -z-10" />
-            </div>
-          </div>
-        </div>
-        {/* Features */}
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 mt-14">
-          <div className="grid sm:grid-cols-3 gap-8">
-            {[
-              { icon: '🤝', title: 'Direct from Tribes', desc: 'No middlemen. Just honest relationships and fair trade.' },
-              { icon: '🌿', title: '100% Natural', desc: 'Wild-harvested and chemical-free, as nature intended.' },
-              { icon: '💪', title: 'Creating Impact', desc: 'Empowering tribal communities and preserving their traditions.' },
-            ].map(f => (
-              <div key={f.title} className="flex gap-4 items-start">
-                <span className="text-2xl shrink-0">{f.icon}</span>
-                <div>
-                  <h3 className="font-heading text-base font-semibold text-ink">{f.title}</h3>
-                  <p className="text-xs text-muted mt-1 leading-relaxed">{f.desc}</p>
-                </div>
+      {/* 2. Trust strip */}
+      <section className="bg-white border-b border-border">
+        <div className="mx-auto max-w-7xl px-5 py-4 sm:px-8 lg:px-10">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+            {CERTIFICATIONS.map(item => (
+              <div key={item.label} className="flex items-center gap-2 text-sm text-muted">
+                <span className="text-base">{item.icon}</span>
+                <span className="text-[11px] font-medium">{item.label}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Best Sellers */}
-      <section className="relative bg-forest-900 py-24 lg:py-28 overflow-hidden">
+      {/* 3. Shop by Category */}
+      <section className="py-14 lg:py-18 bg-white">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-4">
-              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-gold-500">Our Collection</p>
-              <h2 className="mt-3 font-heading text-4xl sm:text-5xl font-bold text-cream-50 tracking-tight leading-[1.08]">Best Sellers</h2>
-              <Link to="/products" className="mt-6 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] uppercase text-gold-500 hover:text-gold-400 transition-colors">
-                View All Products
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </Link>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Shop by Category</h2>
+              <p className="text-sm text-muted mt-1">Explore our range of natural products</p>
             </div>
-            <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-forest-950/60 skeleton h-64" />
-                ))
-              ) : products.length > 0 ? (
-                products.slice(0, 4).map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))
-              ) : (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-forest-950/60 border border-gold-500/10 p-4 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 rounded-full bg-forest-900 mx-auto flex items-center justify-center text-2xl">🌾</div>
-                    <p className="mt-2 font-heading text-sm text-cream-50/60">Product</p>
+            <Link to="/products" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {CATEGORIES.map(cat => (
+              <Link key={cat.name} to={cat.slug ? `/products?category=${cat.slug}` : '/products'} className="group block">
+                <div className="aspect-square rounded-xl bg-green-50 flex flex-col items-center justify-center p-4 text-center transition-all group-hover:shadow-md group-hover:-translate-y-0.5 border border-transparent group-hover:border-green-200">
+                  <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-2xl shadow-sm">
+                    {cat.name === 'Millets' && '🌾'}
+                    {cat.name === 'Honey' && '🍯'}
+                    {cat.name === 'Spices' && '🌶'}
+                    {cat.name === 'Pulses & Grains' && '🫘'}
+                    {cat.name === 'Cold-Pressed Oils' && '🫒'}
+                    {cat.name === 'Combos' && '📦'}
                   </div>
-                ))
-              )}
+                  <h3 className="mt-2 text-sm font-semibold text-ink">{cat.name}</h3>
+                  <p className="text-[10px] text-muted mt-0.5">{cat.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Bestsellers carousel */}
+      <section className="py-14 lg:py-18 bg-off-white">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Best Sellers</h2>
+              <p className="text-sm text-muted mt-1">Most loved by our customers</p>
+            </div>
+            <Link to="/products" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {loading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-xl skeleton h-80" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {products.slice(0, 4).map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 5. Shop by Benefit */}
+      <section className="py-14 lg:py-18 bg-white">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink text-center">Shop by Concern</h2>
+          <p className="text-sm text-muted text-center mt-1">Find products tailored to your wellness needs</p>
+          <div className="mt-8 grid grid-cols-3 sm:grid-cols-5 gap-4">
+            {BENEFITS.map(b => (
+              <Link key={b.label} to="/products" className="group block text-center">
+                <div className="aspect-square rounded-xl bg-green-50 flex items-center justify-center text-3xl transition-all group-hover:shadow-md group-hover:-translate-y-0.5 border border-transparent group-hover:border-green-200">{b.icon}</div>
+                <p className="mt-2 text-xs font-semibold text-ink">{b.label}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Deal of the Week */}
+      <section className="py-14 lg:py-18 bg-sand">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="rounded-2xl bg-green-700 overflow-hidden">
+            <div className="grid lg:grid-cols-2">
+              <div className="p-8 lg:p-12 flex flex-col justify-center">
+                <p className="text-green-200 text-[10px] font-semibold tracking-[0.12em] uppercase">Deal of the Week</p>
+                <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mt-2 leading-tight">Forest Honey<br />Combo Pack</h2>
+                <p className="text-white/70 text-sm mt-3">Pure wild honey + organic turmeric — the ultimate immunity duo.</p>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <span className="font-heading text-3xl font-bold text-white">₹599</span>
+                  <span className="text-sm text-white/50 line-through">₹899</span>
+                  <span className="text-sm font-semibold text-sale bg-white/15 px-2 py-0.5 rounded">Save ₹300</span>
+                </div>
+                <Link to="/combos" className="mt-6 inline-flex items-center justify-center bg-white text-green-700 px-8 py-3 rounded-lg text-sm font-semibold hover:bg-green-50 transition-colors w-fit">Shop the Deal →</Link>
+              </div>
+              <div className="bg-gradient-to-br from-green-600 to-green-800 min-h-[300px] flex items-center justify-center">
+                <div className="text-center p-8">
+                  <div className="w-32 h-32 mx-auto rounded-full bg-white/10 flex items-center justify-center text-5xl">🍯</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Impact — Empowering Lives, Naturally */}
-      <section id="impact" className="relative bg-forest-900 py-24 lg:py-28 overflow-hidden gold-diamond-border">
+      {/* 7. Values row */}
+      <section className="py-10 bg-white border-b border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+            {VALUES.map(v => (
+              <div key={v.label} className="flex items-center gap-2 text-sm text-muted">
+                <span className="text-base">{v.icon}</span>
+                <span className="text-[11px] font-medium">{v.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Brand story band */}
+      <section className="py-14 lg:py-18 bg-white">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div className="aspect-[4/3] rounded-xl bg-green-50 flex items-center justify-center">
+              <div className="text-center p-8">
+                <div className="w-20 h-20 rounded-full bg-green-200 flex items-center justify-center mx-auto text-3xl">👨‍🌾</div>
+                <p className="mt-4 text-sm text-muted italic">Our farmers are the heart of our purpose</p>
+              </div>
+            </div>
             <div>
-              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-gold-500">Our Impact</p>
-              <h2 className="mt-2 font-heading text-4xl sm:text-5xl font-bold text-cream-50 tracking-tight leading-[1.08]">Empowering Lives,<br /><span className="text-gold-500 italic">Naturally</span></h2>
-              <p className="mt-5 text-sm leading-relaxed text-cream-50/60 max-w-md">
-                Every purchase you make helps us support tribal families and preserve natural ecosystems.
-              </p>
-              <Link to="/about" className="mt-6 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] uppercase text-gold-500 hover:text-gold-400 transition-colors">
-                See Our Impact
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Our Farmers Are the Heart of Our Purpose</h2>
+              <p className="mt-4 text-sm text-muted leading-relaxed">HaiFarmer works hand-in-hand with tribal communities across India, bringing you wild-harvested and natural products while creating real impact where it matters most.</p>
+              <p className="mt-3 text-sm text-muted leading-relaxed">Every purchase supports fair trade, preserves traditional knowledge, and helps sustain forest ecosystems.</p>
+              <Link to="/farmers" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">
+                Meet the Farmers
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-6">
-              {[
-                { icon: '👥', label: 'Tribal Lives Supported', value: '12,500+' },
-                { icon: '👨‍🌾', label: 'Tribal Farmers Empowered', value: '250+' },
-                { icon: '🌳', label: 'Forest Produce Sourced', value: '50+' },
-                { icon: '🌿', label: 'Natural & Sustainable', value: '100%' },
-              ].map((stat, i) => (
-                <div key={stat.label} className={`${i % 2 === 0 ? 'lg:translate-y-6' : ''}`}>
-                  <div className="flex gap-3 items-start">
-                    <div className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center shrink-0">
-                      <svg className="h-5 w-5 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="font-heading text-3xl font-bold text-gold-500 block">{stat.value}</span>
-                      <span className="text-[11px] text-cream-50/60 leading-tight block mt-0.5">{stat.label}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. Reviews */}
+      <section className="py-14 lg:py-18 bg-off-white">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink text-center">What Our Customers Say</h2>
+          <div className="mt-8 grid sm:grid-cols-3 gap-4">
+            {[
+              { quote: 'The millets taste just like home. So fresh and authentic!', name: 'Priya S.', rating: 5 },
+              { quote: 'Finally, real chemical-free produce. The forest honey is incredible.', name: 'Rajesh K.', rating: 5 },
+              { quote: 'Direct from tribal farmers with no middlemen. This is the future.', name: 'Ananya M.', rating: 5 },
+            ].map(item => (
+              <div key={item.name} className="bg-white rounded-xl border border-border p-6">
+                <div className="flex text-green-600 text-sm mb-2">{'★'.repeat(item.rating)}</div>
+                <p className="text-sm text-muted leading-relaxed italic">"{item.quote}"</p>
+                <p className="mt-3 text-sm font-semibold text-ink">{item.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 10. Newsletter */}
+      <section className="py-14 lg:py-18 bg-sand">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Sign Up To Get Updates</h2>
+          <p className="text-sm text-muted mt-2 max-w-md mx-auto">Get 15% off your first order + updates on new products and exclusive offers.</p>
+          <div className="mt-6 flex gap-2 max-w-md mx-auto">
+            <input type="email" placeholder="Enter your email" className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm text-ink placeholder:text-muted-light outline-none focus:border-green-600 bg-white" />
+            <button className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors shrink-0">Subscribe</button>
           </div>
         </div>
       </section>
 
       {/* Floating cart */}
       <button type="button" onClick={() => navigate('/checkout')}
-        className="fixed bottom-[76px] left-5 z-50 flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta-500 text-cream-50 shadow-[0_8px_32px_rgba(176,83,47,0.35)] transition-all hover:bg-terracotta-600 hover:-translate-y-1 sm:bottom-8 sm:left-8 sm:h-16 sm:w-16 btn-lift"
+        className="fixed bottom-[76px] left-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-all hover:bg-green-700 hover:-translate-y-1 sm:bottom-8 sm:left-8 sm:h-14 sm:w-14"
         aria-label="Shopping cart">
-        <CartIcon className="h-7 w-7 sm:h-8 sm:w-8" />
+        <CartIcon className="h-6 w-6" />
         {cartCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-forest-900 px-2 py-0.5 text-xs font-bold text-cream-50 shadow-sm">{cartCount}</span>
+          <span className="absolute -right-1 -top-1 rounded-full bg-sale px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">{cartCount}</span>
         )}
       </button>
     </div>
