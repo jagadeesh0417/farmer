@@ -119,9 +119,9 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-1">
             <NavLink to="/" end className={({ isActive }) => `px-3 py-2 text-[12px] font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Home</NavLink>
             <div className="relative" onMouseEnter={() => setMegaOpen('shop')} onMouseLeave={() => setMegaOpen(false)}>
-              <button className={`px-3 py-2 text-[12px] font-medium transition-colors ${megaOpen === 'shop' ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>
+              <Link to="/products" className={`px-3 py-2 text-[12px] font-medium transition-colors ${megaOpen === 'shop' ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>
                 Shop <span className="text-[9px] ml-0.5">▼</span>
-              </button>
+              </Link>
               {megaOpen === 'shop' && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[640px] bg-white border border-border rounded-xl shadow-lg py-6 px-8 z-50" onMouseEnter={() => setMegaOpen('shop')} onMouseLeave={() => setMegaOpen(false)}>
                   <div className="grid grid-cols-2 gap-10">
@@ -140,9 +140,9 @@ export default function Header() {
               )}
             </div>
             <div className="relative" onMouseEnter={() => setMegaOpen('story')} onMouseLeave={() => setMegaOpen(false)}>
-              <button className={`px-3 py-2 text-[12px] font-medium transition-colors ${megaOpen === 'story' ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>
+              <Link to="/about" className={`px-3 py-2 text-[12px] font-medium transition-colors ${megaOpen === 'story' ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>
                 Our Story <span className="text-[9px] ml-0.5">▼</span>
-              </button>
+              </Link>
               {megaOpen === 'story' && (
                 <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg py-2 z-50" onMouseEnter={() => setMegaOpen('story')} onMouseLeave={() => setMegaOpen(false)}>
                   <Link to="/about" onClick={closeAll} className="block px-4 py-2 text-sm text-muted hover:text-green-600 transition-colors">About Us</Link>
@@ -211,9 +211,12 @@ export default function Header() {
           <div className="flex-1 overflow-y-auto p-5 space-y-1">
             <NavLink to="/" end onClick={closeAll} className={({ isActive }) => `block rounded-lg px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Home</NavLink>
             <div>
-              <button onClick={() => setMegaOpen(megaOpen === 'shop-mobile' ? false : 'shop-mobile')} className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold text-ink hover:bg-green-50">
-                Shop <span className={`text-[10px] transition-transform ${megaOpen === 'shop-mobile' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3">
+                <Link to="/products" onClick={closeAll} className="flex-1 text-sm font-semibold text-ink hover:text-green-600">Shop</Link>
+                <button onClick={() => setMegaOpen(megaOpen === 'shop-mobile' ? false : 'shop-mobile')} className="p-1 text-muted hover:text-ink">
+                  <span className={`text-[10px] transition-transform ${megaOpen === 'shop-mobile' ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+              </div>
               {megaOpen === 'shop-mobile' && (
                 <div className="ml-4 pl-4 border-l-2 border-green-200 space-y-1 py-2">
                   <h3 className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600 px-4 pt-2 pb-1">Category</h3>
@@ -236,9 +239,12 @@ export default function Header() {
               )}
             </div>
             <div>
-              <button onClick={() => setMegaOpen(megaOpen === 'story-mobile' ? false : 'story-mobile')} className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold text-ink hover:bg-green-50">
-                Our Story <span className={`text-[10px] transition-transform ${megaOpen === 'story-mobile' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
+              <div className="flex items-center justify-between rounded-lg px-4 py-3">
+                <Link to="/about" onClick={closeAll} className="flex-1 text-sm font-semibold text-ink hover:text-green-600">Our Story</Link>
+                <button onClick={() => setMegaOpen(megaOpen === 'story-mobile' ? false : 'story-mobile')} className="p-1 text-muted hover:text-ink">
+                  <span className={`text-[10px] transition-transform ${megaOpen === 'story-mobile' ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+              </div>
               {megaOpen === 'story-mobile' && (
                 <div className="ml-4 pl-4 border-l-2 border-green-200 space-y-1 py-2">
                   <Link to="/about" onClick={closeAll} className="block rounded-lg px-4 py-2 text-sm text-muted hover:text-green-600 hover:bg-green-50">About Us</Link>
