@@ -329,18 +329,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-14 lg:py-18 bg-sand">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Stay Connected</h2>
-          <p className="text-sm text-muted mt-2 max-w-md mx-auto">Get updates on new products, exclusive offers, and stories from our farming communities.</p>
-          <div className="mt-6 flex gap-2 max-w-md mx-auto">
-            <input type="email" placeholder="Enter your email" className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm text-ink placeholder:text-muted-light outline-none focus:border-green-600 bg-white" />
-            <button className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors shrink-0">Subscribe</button>
-          </div>
-        </div>
-      </section>
-
       {/* Floating cart */}
       <button type="button" onClick={() => navigate('/checkout')}
         className="fixed bottom-[76px] left-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-all hover:bg-green-700 hover:-translate-y-1 sm:bottom-8 sm:left-8 sm:h-14 sm:w-14"
