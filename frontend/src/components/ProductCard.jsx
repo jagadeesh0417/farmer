@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { formatPrice, getImageUrl } from '../lib/utils'
@@ -12,16 +12,19 @@ function calculateDiscountedPrice(price, discountPercent) {
   return discountPercent ? Number((price - price * discountPercent / 100).toFixed(2)) : price
 }
 
-export default function ProductCard({ product, compact = false }) {
+export default function ProductCard({ product }) {
   const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection } = useCart()
   const { settings } = useSiteSettings()
 
+  const variants = product.product_variants || product.variants || []
+  const hasVariants = variants.length > 1
+
   const selection = productSelections?.[product.id] || {}
-  const selectedVariantId = selection.variantId || product.product_variants?.[0]?.id
-  const selectedVariant = product.product_variants?.find(v => v.id === selectedVariantId) || product.product_variants?.[0] || null
+  const selectedVariantId = selection.variantId || variants?.[0]?.id || variants?.[0]?._id
+  const selectedVariant = variants.find(v => (v.id || v._id) === selectedVariantId) || variants?.[0] || null
 
   const price = selectedVariant?.price ?? product.base_price ?? product.price
-  const mrp = selectedVariant?.mrp ?? product.mrp ?? price
+  const mrp = selectedVariant?.originalPrice ?? selectedVariant?.mrp ?? product.mrp ?? price
   const savings = mrp - price
   const discountPercent = product.discount_percent || (mrp > price ? Math.round((savings / mrp) * 100) : 0)
 
@@ -30,19 +33,23 @@ export default function ProductCard({ product, compact = false }) {
   const cartQuantity = cartItem?.quantity || selection.quantity || 1
   const imageUrl = getImageUrl(product.image_url || product.images?.[0], settings?.placeholder_image)
 
-  const categoryTag = product.category_tag || product.harvest_type || product.badge || product.category_name || product.category || ''
+  const categoryTag = product.category_tag || product.harvest_type || product.badge || product.category_name || (product.category?.name) || ''
   const descriptor = product.tagline || (product.description ? product.description.slice(0, 60) + (product.description.length > 60 ? '…' : '') : '')
   const rating = product.rating ?? 0
   const reviewCount = product.reviewCount ?? 0
 
-  const isBestSeller = product.isBestSeller || product.is_best_seller || false
+  const isBestSeller = product.isBestSeller || product.is_best_seller || product.totalSold > 50 || false
   const isSale = discountPercent > 0
 
   useEffect(() => {
     if (selectedVariant && !selection.variantId) {
-      setProductSelection(product.id, { variantId: selectedVariant.id })
+      setProductSelection(product.id, { variantId: selectedVariant.id || selectedVariant._id })
     }
-  }, [product.id, selectedVariant?.id, selection.variantId, setProductSelection])
+  }, [product.id, selectedVariant?.id, selectedVariant?._id, selection.variantId, setProductSelection])
+
+  const handleVariantChange = (variantId) => {
+    setProductSelection(product.id, { variantId })
+  }
 
   const handleQuantityChange = async (newQty) => {
     if (cartItem) {
@@ -100,8 +107,24 @@ export default function ProductCard({ product, compact = false }) {
           </div>
         )}
 
+        {/* Variant selector */}
+        {hasVariants && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {variants.map(v => {
+              const vid = v.id || v._id
+              const isSelected = vid === selectedVariantId
+              return (
+                <button key={vid} type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVariantChange(vid) }}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all border ${isSelected ? 'bg-green-600 text-white border-green-600' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'}`}>
+                  {v.name || v.weightLabel || v.unit}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         {/* Price */}
-        <div className="mt-1.5 flex items-baseline gap-1.5">
+        <div className="mt-1.5 flex items-baseline gap-1.5 flex-wrap">
           <span className="text-base font-bold text-ink">{formatPrice(price)}</span>
           {mrp > price && (
             <>
