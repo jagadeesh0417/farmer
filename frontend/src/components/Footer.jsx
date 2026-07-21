@@ -61,7 +61,7 @@ export default function Footer() {
         <div className="mx-auto max-w-7xl px-5 py-5 sm:px-8 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted">© 2026 HAiFarmer. All rights reserved.</p>
           <div className="flex items-center gap-3">
-            {['Visa', 'Mastercard', 'UPI', 'COD'].map(method => (
+            {['Visa', 'Mastercard', 'UPI'].map(method => (
               <span key={method} className="text-[10px] font-semibold text-muted uppercase border border-border rounded px-2 py-0.5">{method}</span>
             ))}
           </div>

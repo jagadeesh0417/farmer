@@ -20,6 +20,7 @@ const Farmers = lazy(() => import('./pages/Farmers'))
 const FarmerDetail = lazy(() => import('./pages/FarmerDetail'))
 const Impact = lazy(() => import('./pages/Impact'))
 const Journal = lazy(() => import('./pages/Journal'))
+const Contact = lazy(() => import('./pages/Contact'))
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
@@ -48,6 +49,7 @@ function AppLayout() {
             <Route path="/farmers/:code" element={<FarmerDetail />} />
             <Route path="/impact" element={<Impact />} />
             <Route path="/journal" element={<Journal />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/combos" element={<Combos />} />
             <Route path="/combos/:slug" element={<BundleDetail />} />
             <Route path="/cart" element={<Navigate to="/checkout" replace />} />

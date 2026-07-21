@@ -90,7 +90,7 @@ export default function Checkout() {
       couponDiscount > 0 ? `🎟️ Coupon (${appliedCoupon?.code}): -${formatPrice(couponDiscount)}` : null,
       `━━━━━━━━━━━━━━`,
       `💳 *Total: ${formatPrice(totalWithShipping)}*`,
-      `💳 *Payment: WhatsApp / Cash on Delivery*`, ``,
+      `💳 *Payment: WhatsApp*`, ``,
       `━━ 📋 Delivery Details ━━`,
       `👤 Name: ${delivery.name || 'Not provided'}`,
       `📱 Phone: ${delivery.phone || 'Not provided'}`,

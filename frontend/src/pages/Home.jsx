@@ -24,7 +24,7 @@ const CERTIFICATIONS = [
   { label: 'FSSAI Certified', icon: '✓' },
   { label: '100% Natural', icon: '🌿' },
   { label: 'Free Delivery', icon: '🚚' },
-  { label: 'COD Available', icon: '💰' },
+
 ]
 
 const VALUES = [
@@ -100,6 +100,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 1.5. Certifications strip */}
+      <section className="border-b border-border bg-sand/30">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-4 lg:py-5">
+          <div className="flex items-center justify-center gap-8 sm:gap-12 lg:gap-20">
+            {CERTIFICATIONS.map((cert, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-ink">
+                <span className="text-lg">{cert.icon}</span>
+                <span className="font-medium text-[13px]">{cert.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 2. Advertisement banner */}
       <section className="py-8 lg:py-10 bg-white">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
@@ -109,7 +123,7 @@ export default function Home() {
               <div className="text-center lg:text-left">
                 <p className="text-green-200 text-[10px] font-semibold tracking-[0.12em] uppercase">Special Offer</p>
                 <h2 className="mt-2 font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">Free Delivery<br /><span className="text-green-200">on orders above ₹999</span></h2>
-                <p className="mt-2 text-sm text-white/70">Plus COD available on all orders</p>
+
               </div>
               <div className="mt-4 lg:mt-0">
                 <span className="inline-flex items-center gap-2 bg-white text-green-700 px-6 py-3 rounded-lg text-sm font-semibold transition-all group-hover:bg-green-50 group-hover:-translate-y-0.5">
