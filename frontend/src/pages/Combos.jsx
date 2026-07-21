@@ -49,8 +49,8 @@ export default function Combos() {
             <p className="mt-1 text-sm text-muted">Check back soon for exciting bundles!</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {bundles.map(bundle => <BundleCard key={bundle._id} bundle={bundle} />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bundles.map(bundle => <BundleCard key={bundle._id} bundle={bundle} compact />)}
           </div>
         )}
       </div>
