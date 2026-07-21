@@ -1,42 +1,44 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { getProducts, getCategories } from '../lib/productService'
+import { getProducts } from '../lib/productService'
 import SeoHead from '../components/SeoHead'
 import ProductCard from '../components/ProductCard'
 
+
 const CATEGORY_CARDS = [
-  { name: 'All Products', slug: '', icon: '🌾' },
-  { name: 'Millets', slug: 'millets', icon: '🌿' },
-  { name: 'Honey', slug: 'honey', icon: '🍯' },
-  { name: 'Spices', slug: 'spices', icon: '🌶️' },
-  { name: 'Combos', slug: 'combos', icon: '📦' },
+  { name: 'All Products', slug: '', icon: 'M4 6h16M4 12h16M4 18h16' },
+  { name: 'Millets', slug: 'millets', icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' },
+  { name: 'Honey', slug: 'honey', icon: 'M12 2C8 2 4 5 4 9c0 3 2 6 4 8l4 5 4-5c2-2 4-5 4-8 0-4-4-7-8-7z' },
+  { name: 'Spices', slug: 'spices', icon: 'M12 2a10 10 0 1010 10M12 2v10l6 6' },
+  { name: 'Combos', slug: 'combos', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4' },
 ]
 
 const HARVEST_TYPES = [
-  { label: 'Wild Crafted', count: 12 },
-  { label: 'Rainfed', count: 8 },
-  { label: 'Forest Harvested', count: 6 },
-  { label: 'Terrace Farmed', count: 4 },
+  { label: 'Wild Harvested', count: 34 },
+  { label: 'Farm Grown', count: 18 },
+  { label: 'Natural', count: 27 },
+  { label: 'Handcrafted', count: 15 },
 ]
 const PRICE_RANGES = [
-  { label: 'Under ₹200', min: 0, max: 200, count: 5 },
-  { label: '₹200 – ₹500', min: 200, max: 500, count: 12 },
-  { label: '₹500+', min: 500, max: Infinity, count: 8 },
+  { label: 'Under ₹200', min: 0, max: 200 },
+  { label: '₹200 – ₹500', min: 200, max: 500 },
+  { label: '₹500 – ₹1000', min: 500, max: 1000 },
+  { label: 'Above ₹1000', min: 1000, max: Infinity },
 ]
 const BENEFITS = [
+  { label: 'Immunity Booster', count: 12 },
+  { label: 'Rich in Protein', count: 8 },
+  { label: 'Diabetes Friendly', count: 6 },
   { label: 'Gluten Free', count: 10 },
-  { label: 'High Fiber', count: 7 },
-  { label: 'Immunity Boost', count: 6 },
-  { label: 'Iron Rich', count: 4 },
-  { label: 'Protein', count: 5 },
-  { label: 'Detox', count: 3 },
+  { label: 'Antioxidant Rich', count: 7 },
+  { label: 'Gut Friendly', count: 5 },
 ]
 
-const FILTER_ICONS = { 'Harvest Type': '🌱', 'Price Range': '💰', 'Benefits': '✨' }
+const FILTER_ICONS = { 'Harvest Type': '🌱', 'Price': '💰', 'Benefits': '✨' }
 
 function ChevronDown({ open }) {
   return (
-    <svg className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
     </svg>
   )
@@ -45,20 +47,15 @@ function ChevronDown({ open }) {
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [viewMode, setViewMode] = useState('grid')
-  const [filterOpen, setFilterOpen] = useState({ 'Harvest Type': true, 'Price Range': true, 'Benefits': true })
+  const [filterOpen, setFilterOpen] = useState({ 'Harvest Type': true, 'Price': true, 'Benefits': true })
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const page = parseInt(searchParams.get('page') || '1')
   const catSlug = searchParams.get('category') || ''
   const search = searchParams.get('search') || ''
   const sort = searchParams.get('sort') || 'created_at'
-  const [searchInput, setSearchInput] = useState(search)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [selectedHarvest, setSelectedHarvest] = useState([])
-  const [selectedPrice, setSelectedPrice] = useState(null)
-  const [selectedBenefits, setSelectedBenefits] = useState([])
 
   const updateParams = (updates) => {
     setSearchParams(prev => {
@@ -74,8 +71,7 @@ export default function Products() {
     const load = async () => {
       setLoading(true)
       try {
-        const [cats, result] = await Promise.all([getCategories(), getProducts(page, 50, catSlug || null, search || null, sort, false)])
-        setCategories(cats || [])
+        const result = await getProducts(page, 50, catSlug || null, search || null, sort, false)
         setProducts(result?.data || [])
         setTotal(result?.total || 0)
       } catch (e) { console.error(e) }
@@ -84,31 +80,16 @@ export default function Products() {
     load()
   }, [page, catSlug, search, sort])
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    updateParams({ search: searchInput || null, page: '1' })
-  }
-
-  const mergedCategories = useMemo(() => {
-    const seen = new Set()
-    const merged = []
-    ;[...CATEGORY_CARDS, ...categories.map(c => ({ name: c.name, slug: c.slug || c.id, icon: '🌿' }))].forEach(c => {
-      const key = c.slug || c.name
-      if (!seen.has(key)) { seen.add(key); merged.push(c) }
-    })
-    return merged
-  }, [categories])
-
   const totalPages = Math.ceil(total / 50)
 
   const FilterSection = ({ title, children }) => {
     const open = filterOpen[title] !== false
     return (
-      <div className="border-b border-forest-900/10 pb-4 last:border-0 last:pb-0">
+      <div className="border-b border-ink/10 pb-5 last:border-0 last:pb-0">
         <button onClick={() => setFilterOpen(prev => ({ ...prev, [title]: !prev[title] }))}
-          className="flex w-full items-center justify-between mb-2">
-          <span className="font-heading text-sm font-semibold text-forest-900 flex items-center gap-1.5">
-            {FILTER_ICONS[title] && <span className="text-xs">{FILTER_ICONS[title]}</span>}
+          className="flex w-full items-center justify-between mb-3">
+          <span className="font-heading text-sm font-semibold text-ink flex items-center gap-2">
+            {FILTER_ICONS[title] && <span className="text-sm">{FILTER_ICONS[title]}</span>}
             {title}
           </span>
           <ChevronDown open={open} />
@@ -119,182 +100,159 @@ export default function Products() {
   }
 
   const FilterCheckbox = ({ label, count, checked, onChange }) => (
-    <label className="flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs text-forest-900/70 transition-colors hover:bg-forest-900/5">
-      <div className="flex items-center gap-2">
+    <label className="flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-xs text-muted transition-colors hover:bg-ink/5">
+      <div className="flex items-center gap-2.5">
         <input type="checkbox" checked={checked} onChange={onChange}
-          className="h-3.5 w-3.5 rounded border-forest-900/30 text-terracotta-500 focus:ring-terracotta-500/30 accent-terracotta-500" />
+          className="h-4 w-4 rounded border-ink/20 text-terracotta-500 focus:ring-terracotta-500/30 accent-terracotta-500" />
         {label}
       </div>
-      {count != null && <span className="text-[10px] text-forest-900/30">({count})</span>}
+      {count != null && <span className="text-[10px] text-muted/40">({count})</span>}
     </label>
   )
 
-  const FilterRadio = ({ label, count, checked, onChange }) => (
-    <label className="flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs text-forest-900/70 transition-colors hover:bg-forest-900/5">
-      <div className="flex items-center gap-2">
-        <input type="radio" checked={checked} onChange={onChange} name="price"
-          className="h-3.5 w-3.5 border-forest-900/30 text-terracotta-500 focus:ring-terracotta-500/30 accent-terracotta-500" />
-        {label}
-      </div>
-      {count != null && <span className="text-[10px] text-forest-900/30">({count})</span>}
+  const FilterRadio = ({ label, checked, onChange, name }) => (
+    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs text-muted transition-colors hover:bg-ink/5">
+      <input type="radio" checked={checked} onChange={onChange} name={name}
+        className="h-4 w-4 border-ink/20 text-terracotta-500 focus:ring-terracotta-500/30 accent-terracotta-500" />
+      {label}
     </label>
   )
 
   return (
-    <div className="min-h-screen bg-[#F4EEE1]">
-      <SeoHead title="All Products" description="Browse our selection of premium organic produce from tribal villages — millets, honey, spices, lentils and more." />
+    <div className="min-h-screen bg-cream-50">
+      <SeoHead title="All Products" description="Explore our handpicked range of wild-harvested and natural products, crafted with care and honesty by tribal communities." />
 
       {/* Header */}
-      <section className="relative bg-[#11281D] pt-28 pb-16 sm:pt-32 sm:pb-20 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_#11281D_0%,_#0A1E12_100%)]" />
+      <section className="relative bg-forest-900 pt-32 pb-20 sm:pt-36 sm:pb-24 overflow-hidden">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center relative z-10">
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.18em] uppercase text-gold-500">Rooted in Tradition. Shared with Love.</span>
-          <h1 className="mt-4 font-heading text-4xl font-bold text-cream-50 sm:text-5xl lg:text-6xl tracking-tight">All Products</h1>
-          <p className="mt-3 text-cream-50/50 max-w-lg mx-auto">Premium organic produce straight from indigenous farming communities. Pesticide-free, chemical-free, pure.</p>
+          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-terracotta-500 mb-3">Rooted in Tradition. Shared with Love.</p>
+          <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold text-cream-50 tracking-tight">All Products</h1>
+          <p className="mt-4 text-sm text-cream-50/60 max-w-lg mx-auto">Explore our handpicked range of wild-harvested and natural products, crafted with care and honesty by tribal communities.</p>
         </div>
       </section>
 
       {/* Category cards */}
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-        <div className="-mt-6 relative z-10 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {mergedCategories.map(cat => {
+        <div className="-mt-8 relative z-10 grid grid-cols-3 sm:grid-cols-5 gap-3">
+          {CATEGORY_CARDS.map(cat => {
             const isActive = (catSlug === cat.slug) || (!catSlug && !cat.slug)
             return (
               <button key={cat.slug || cat.name} onClick={() => updateParams({ category: cat.slug || null, page: '1' })}
-                className={`flex flex-col items-center gap-1.5 rounded-2xl p-3 sm:p-4 text-center transition-all duration-200 ${
+                className={`flex flex-col items-center gap-3 rounded-xl p-5 sm:p-6 text-center transition-all duration-200 ${
                   isActive
                     ? 'bg-terracotta-500 text-cream-50 shadow-lg shadow-terracotta-500/25'
-                    : 'bg-[#FBF8F1] text-terracotta-500 border border-forest-900/10 hover:shadow-md hover:-translate-y-0.5'
+                    : 'bg-card-cream text-ink border border-ink/10 hover:shadow-md hover:-translate-y-0.5'
                 }`}>
-                <span className={`text-xl sm:text-2xl ${isActive ? 'opacity-100' : 'opacity-80'}`}>{cat.icon}</span>
-                <span className="font-heading text-[10px] sm:text-[11px] font-bold tracking-wide uppercase leading-tight">{cat.name}</span>
+                <svg className={`h-7 w-7 ${isActive ? 'text-cream-50' : 'text-muted'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={cat.icon} />
+                </svg>
+                <span className="font-heading text-xs font-bold tracking-wide uppercase">{cat.name}</span>
               </button>
             )
           })}
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-8">
-        {/* Mobile filter toggle */}
-        <div className="flex items-center justify-between gap-4 mb-4 lg:hidden">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="btn-font inline-flex items-center gap-2 rounded-xl border border-forest-900/10 bg-[#FBF8F1] px-4 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm4 6a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm2 6a1 1 0 011-1h4a1 1 0 110 2h-4a1 1 0 01-1-1z" /></svg>
-            Filters
-          </button>
-          <form onSubmit={handleSearch} className="flex-1 flex gap-2">
-            <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search..."
-              className="flex-1 rounded-xl border border-forest-900/10 bg-[#FBF8F1] px-4 py-2 text-xs text-forest-900 placeholder:text-forest-900/40 focus:border-terracotta-500 outline-none min-w-0" />
-            <button type="submit" className="btn-font rounded-xl bg-terracotta-500 px-4 py-2 text-xs font-semibold uppercase text-cream-50 transition-all hover:bg-terracotta-600">Go</button>
-          </form>
-        </div>
-
-        <div className="flex gap-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-10">
+        <div className="flex gap-10">
           {/* Sidebar filters */}
-          <aside className={`${sidebarOpen ? 'fixed inset-0 z-50 flex' : 'hidden'} lg:relative lg:inset-auto lg:z-auto lg:block lg:w-56 lg:flex-shrink-0`}>
+          <aside className={`${sidebarOpen ? 'fixed inset-0 z-50 flex' : 'hidden'} lg:relative lg:inset-auto lg:z-auto lg:block lg:w-64 lg:flex-shrink-0`}>
             {sidebarOpen && <div className="absolute inset-0 bg-forest-900/30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-            <div className="relative w-72 max-w-[85vw] bg-[#F4EEE1] p-6 lg:w-auto lg:bg-transparent lg:p-0 overflow-y-auto">
-              <div className="flex items-center justify-between mb-4 lg:hidden">
-                <span className="text-sm font-semibold text-forest-900">Filters</span>
-                <button onClick={() => setSidebarOpen(false)} className="text-forest-900/50 hover:text-forest-900"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+            <div className="relative w-72 max-w-[85vw] bg-cream-50 p-6 lg:w-auto lg:bg-transparent lg:p-0 overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm4 6a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm2 6a1 1 0 011-1h4a1 1 0 110 2h-4a1 1 0 01-1-1z" /></svg>
+                  <span className="font-heading text-sm font-bold text-ink">Filters</span>
+                </div>
+                <button onClick={() => updateParams({ category: null, page: '1' })} className="text-[10px] font-semibold tracking-wider uppercase text-terracotta-500 hover:text-terracotta-600 flex items-center gap-1">
+                  ↻ Reset All
+                </button>
+                <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-muted hover:text-ink"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
               </div>
 
-              {/* Search desktop */}
-              <form onSubmit={handleSearch} className="hidden lg:block mb-5">
-                <div className="relative">
-                  <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search products..."
-                    className="w-full rounded-xl border border-forest-900/10 bg-white px-4 py-2.5 pr-10 text-sm text-forest-900 placeholder:text-forest-900/40 focus:border-terracotta-500 outline-none" />
-                  <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-forest-900/30 hover:text-terracotta-500">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                  </button>
-                </div>
-              </form>
-
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <FilterSection title="Harvest Type">
                   {HARVEST_TYPES.map(t => (
-                    <FilterCheckbox key={t.label} label={t.label} count={t.count} checked={selectedHarvest.includes(t.label)}
-                      onChange={() => setSelectedHarvest(prev => prev.includes(t.label) ? prev.filter(x => x !== t.label) : [...prev, t.label])} />
+                    <FilterCheckbox key={t.label} label={t.label} count={t.count} />
                   ))}
                 </FilterSection>
-                <FilterSection title="Price Range">
+                <FilterSection title="Price">
                   {PRICE_RANGES.map(r => (
-                    <FilterRadio key={r.label} label={r.label} count={r.count} checked={selectedPrice === r.label}
-                      onChange={() => setSelectedPrice(selectedPrice === r.label ? null : r.label)} />
+                    <FilterRadio key={r.label} label={r.label} name="price" />
                   ))}
                 </FilterSection>
                 <FilterSection title="Benefits">
                   {BENEFITS.map(b => (
-                    <FilterCheckbox key={b.label} label={b.label} count={b.count} checked={selectedBenefits.includes(b.label)}
-                      onChange={() => setSelectedBenefits(prev => prev.includes(b.label) ? prev.filter(x => x !== b.label) : [...prev, b.label])} />
+                    <FilterCheckbox key={b.label} label={b.label} count={b.count} />
                   ))}
                 </FilterSection>
               </div>
 
               {/* Note card */}
-              <div className="mt-6 rounded-xl bg-forest-900/5 p-4 border border-forest-900/5 relative overflow-hidden">
-                <div className="absolute -bottom-4 -right-4 text-forest-900/[0.03]">
+              <div className="mt-8 rounded-xl bg-card-cream p-5 border border-ink/5 relative overflow-hidden">
+                <div className="absolute -bottom-4 -right-4 text-ink/[0.03]">
                   <svg width="80" height="80" viewBox="0 0 100 100" fill="currentColor"><path d="M50 10C30 30 15 55 15 75c0 10 5 15 15 15 20 0 55-30 55-55C85 20 70 10 50 10z"/></svg>
                 </div>
                 <div className="relative z-10">
-                  <p className="font-heading text-[11px] font-semibold text-forest-900 mb-1">Ethically Sourced</p>
-                  <p className="text-[10px] leading-relaxed text-forest-900/60">All our products are sourced ethically and crafted with care by tribal communities.</p>
+                  <p className="text-xs text-muted leading-relaxed">All our products are sourced ethically and crafted with care by tribal communities.</p>
                 </div>
               </div>
-
-              <button onClick={() => setSidebarOpen(false)} className="mt-4 w-full btn-font rounded-xl bg-forest-900 py-3 text-xs font-semibold uppercase text-cream-50 transition-all hover:bg-forest-800 lg:hidden">Apply Filters</button>
             </div>
           </aside>
 
           {/* Main content */}
           <div className="flex-1 min-w-0">
-            {/* Toolbar */}
-            <div className="hidden lg:flex items-center justify-between mb-6">
-              <p className="text-xs text-forest-900/50">
-                Showing <span className="font-semibold text-forest-900">{Math.min(50, total)}</span> of <span className="font-semibold text-forest-900">{total}</span> products
+            {/* Top bar */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-xs text-muted">
+                Showing <span className="font-semibold text-ink">{products.length}</span> of <span className="font-semibold text-ink">{total}</span> products
               </p>
               <div className="flex items-center gap-3">
-                <div className="flex items-center rounded-lg border border-forest-900/10 bg-[#FBF8F1] p-0.5">
+                <div className="flex items-center rounded-lg border border-ink/10 bg-card-cream p-0.5">
                   <button onClick={() => setViewMode('grid')}
-                    className={`rounded-md p-1.5 transition-all ${viewMode === 'grid' ? 'bg-white text-forest-900 shadow-sm' : 'text-forest-900/40 hover:text-forest-900'}`}>
+                    className={`rounded-md p-1.5 transition-all ${viewMode === 'grid' ? 'bg-cream-50 text-ink shadow-sm' : 'text-muted hover:text-ink'}`}>
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>
                   </button>
                   <button onClick={() => setViewMode('list')}
-                    className={`rounded-md p-1.5 transition-all ${viewMode === 'list' ? 'bg-white text-forest-900 shadow-sm' : 'text-forest-900/40 hover:text-forest-900'}`}>
+                    className={`rounded-md p-1.5 transition-all ${viewMode === 'list' ? 'bg-cream-50 text-ink shadow-sm' : 'text-muted hover:text-ink'}`}>
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
                   </button>
                 </div>
                 <select value={sort} onChange={(e) => updateParams({ sort: e.target.value, page: '1' })}
-                  className="rounded-xl border border-forest-900/10 bg-[#FBF8F1] px-4 py-2 text-xs text-forest-900 outline-none focus:border-terracotta-500">
-                  <option value="created_at">Newest</option>
+                  className="rounded-xl border border-ink/10 bg-card-cream px-4 py-2 text-xs text-ink outline-none focus:border-terracotta-500">
+                  <option value="created_at">Featured</option>
                   <option value="price">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
                   <option value="name">Name: A-Z</option>
                 </select>
+                <button onClick={() => setSidebarOpen(true)} className="lg:hidden btn-font rounded-xl border border-ink/10 bg-card-cream px-4 py-2 text-xs font-semibold text-ink">
+                  <svg className="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm4 6a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm2 6a1 1 0 011-1h4a1 1 0 110 2h-4a1 1 0 01-1-1z" /></svg>
+                  Filters
+                </button>
               </div>
             </div>
 
             {loading ? (
               <div className="flex min-h-[40vh] items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-2 border-forest-900/20 border-t-terracotta-500" />
+                <div className="h-12 w-12 animate-spin rounded-full border-2 border-ink/20 border-t-terracotta-500" />
               </div>
             ) : products.length === 0 ? (
               <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-                <p className="font-heading text-2xl font-semibold text-forest-900 italic">No products found</p>
-                <p className="mt-1 text-sm text-forest-900/50">Try adjusting your search or filters.</p>
+                <p className="font-heading text-2xl font-semibold text-ink italic">No products found</p>
+                <p className="mt-1 text-sm text-muted">Try adjusting your search or filters.</p>
               </div>
             ) : (
               <>
-                <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'}`}>
                   {products.map(product => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="mt-10 flex items-center justify-center gap-1">
+                  <div className="mt-12 flex items-center justify-center gap-2">
                     <button disabled={page <= 1} onClick={() => updateParams({ page: String(page - 1) })}
-                      className="btn-font rounded-lg border border-forest-900/10 bg-[#FBF8F1] px-2 sm:px-3 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5 disabled:opacity-30">← <span className="hidden sm:inline">Prev</span></button>
+                      className="btn-font rounded-lg border border-ink/10 bg-card-cream px-4 py-2 text-xs font-semibold text-muted transition-all hover:bg-ink/5 disabled:opacity-30">‹ Prev</button>
                     {Array.from({ length: Math.min(totalPages <= 5 ? totalPages : 3, totalPages) }, (_, i) => {
                       let p
                       if (totalPages <= 5) p = i + 1
@@ -303,11 +261,11 @@ export default function Products() {
                       else p = page - 2 + i
                       return (
                         <button key={p} onClick={() => updateParams({ page: String(p) })}
-                          className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[11px] sm:text-xs font-semibold transition-all ${page === p ? 'bg-terracotta-500 text-cream-50 shadow-sm shadow-terracotta-500/30' : 'border border-forest-900/10 bg-[#FBF8F1] text-forest-900/60 hover:bg-forest-900/5 hover:text-forest-900'}`}>{p}</button>
+                          className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold transition-all ${page === p ? 'bg-terracotta-500 text-cream-50 shadow-sm' : 'border border-ink/10 bg-card-cream text-muted hover:bg-ink/5 hover:text-ink'}`}>{p}</button>
                       )
                     })}
                     <button disabled={page >= totalPages} onClick={() => updateParams({ page: String(page + 1) })}
-                      className="btn-font rounded-lg border border-forest-900/10 bg-[#FBF8F1] px-2 sm:px-3 py-2 text-xs font-semibold text-forest-900 transition-all hover:bg-forest-900/5 disabled:opacity-30"><span className="hidden sm:inline">Next</span> →</button>
+                      className="btn-font rounded-lg border border-ink/10 bg-card-cream px-4 py-2 text-xs font-semibold text-muted transition-all hover:bg-ink/5 disabled:opacity-30">Next ›</button>
                   </div>
                 )}
               </>
