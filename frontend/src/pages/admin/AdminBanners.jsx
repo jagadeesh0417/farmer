@@ -125,28 +125,33 @@ export default function AdminBanners() {
     catch (err) { toast.error(err.message) }
   }
 
+  const applyImage = (type, url, publicId) => {
+    setForm(prev => {
+      const next = { ...prev, [`${type}Image`]: url, [`${type}PublicId`]: publicId }
+      IMAGE_TYPES.forEach(t => {
+        if (t.key !== type && !next[`${t.key}Image`]) {
+          next[`${t.key}Image`] = url
+          next[`${t.key}PublicId`] = publicId
+        }
+      })
+      return next
+    })
+  }
+
   const handleImageUpload = async (e, type) => {
     const file = e.target.files[0]
     if (!file) return
     setActiveUpload(type)
     try {
       const result = await api.uploadImage(file, 'haifarmer/banners')
-      setForm(prev => ({
-        ...prev,
-        [`${type}Image`]: result.url,
-        [`${type}PublicId`]: result.publicId,
-      }))
+      applyImage(type, result.url, result.publicId)
       toast.success(`${type} image uploaded`)
     } catch (err) { toast.error(err.message) }
     finally { setActiveUpload(null) }
   }
 
   const setGeneratedImage = (type, url, publicId) => {
-    setForm(prev => ({
-      ...prev,
-      [`${type}Image`]: url,
-      [`${type}PublicId`]: publicId,
-    }))
+    applyImage(type, url, publicId)
   }
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" /></div>
