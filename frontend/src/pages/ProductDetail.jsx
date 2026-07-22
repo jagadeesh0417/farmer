@@ -259,7 +259,7 @@ export default function ProductDetail() {
         {relatedProducts.length > 0 && (
           <div className="mt-12">
             <h3 className="font-heading text-xl font-bold text-ink mb-6">You may also like</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {relatedProducts.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 2} />)}
             </div>
           </div>

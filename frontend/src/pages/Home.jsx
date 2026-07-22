@@ -197,11 +197,11 @@ export default function Home() {
             <div className="relative w-full">
               <style>{`
                 @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-                .carousel-track { display: flex; gap: 1rem; width: max-content; animation: scroll-left 80s linear infinite; }
+                .carousel-track { display: flex; gap: 1.25rem; width: max-content; animation: scroll-left 80s linear infinite; }
                 .carousel-track:hover { animation-play-state: paused; }
-                .carousel-track > * { width: 200px; flex-shrink: 0; }
-                @media (min-width: 640px) { .carousel-track > * { width: 220px; } }
-                @media (min-width: 1024px) { .carousel-track > * { width: 240px; } }
+                .carousel-track > * { width: 320px; flex-shrink: 0; }
+                @media (min-width: 640px) { .carousel-track > * { width: 340px; } }
+                @media (min-width: 1024px) { .carousel-track > * { width: 360px; } }
               `}</style>
               <div className="carousel-track">
                 {[...products, ...products].map((product, i) => (
@@ -364,12 +364,12 @@ export default function Home() {
             <Link to="/products?category=millets" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-[20px] bg-[#FAF3E8] h-[640px] animate-pulse" />)}
             </div>
           ) : milletProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {milletProducts.slice(0, 6).map(product => (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {milletProducts.slice(0, 8).map(product => (
                 <ProductCard key={product.id || product._id} product={product} />
               ))}
             </div>
@@ -393,12 +393,12 @@ export default function Home() {
             <Link to="/products?category=lentils-beans" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-[20px] bg-[#FAF3E8] h-[640px] animate-pulse" />)}
             </div>
           ) : grainProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {grainProducts.slice(0, 6).map(product => (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {grainProducts.slice(0, 8).map(product => (
                 <ProductCard key={product.id || product._id} product={product} />
               ))}
             </div>
@@ -511,12 +511,12 @@ export default function Home() {
                   </Link>
                   <div className="lg:col-span-2">
                     {isLoading ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
+                      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-[20px] bg-[#FAF3E8] h-[640px] animate-pulse" />)}
                       </div>
                     ) : catProducts && catProducts.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {catProducts.slice(0, 6).map(product => (
+                      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {catProducts.slice(0, 8).map(product => (
                           <ProductCard key={product.id || product._id} product={product} />
                         ))}
                       </div>
