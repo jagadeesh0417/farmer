@@ -246,7 +246,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Our Story video */}
+      {/* 5. 9:16 Vertical Videos — Reels */}
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="font-heading">Stories from the Soil</h2>
+              <p className="text-sm text-muted mt-0.5">Short videos from our tribal communities</p>
+            </div>
+            <a href={`https://www.youtube-nocookie.com/embed/${HOME_ASSETS.youtube.videoId}`} target="_blank" rel="noopener noreferrer"
+              className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
+          </div>
+          <div className="flex gap-3 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+            {HOME_ASSETS.reels.map((reel, i) => (
+              <div key={i} className="flex-shrink-0 w-[200px] sm:w-[220px] lg:w-[240px]">
+                <div className="aspect-[9/16] rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
+                  {reel.src ? (
+                    <video muted loop playsInline preload="none"
+                      className="h-full w-full object-cover"
+                      poster={reel.poster}
+                      onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                      onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
+                      onTouchStart={(e) => {
+                        const v = e.currentTarget
+                        v.paused ? v.play().catch(() => {}) : v.pause()
+                      }}>
+                      <source src={reel.src} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <>
+                      <img src={reel.poster} alt={reel.alt} loading="lazy" className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm">
+                          <svg className="h-5 w-5 text-ink ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                    <p className="text-xs font-medium text-white drop-shadow-sm line-clamp-1">{reel.alt}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Our Story video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
@@ -277,7 +324,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Combos */}
+      {/* 7. Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
@@ -306,7 +353,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. YouTube video */}
+      {/* 8. YouTube video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -327,7 +374,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Millets */}
+      {/* 9. Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
@@ -356,7 +403,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. Lentils & Beans */}
+      {/* 10. Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
@@ -385,7 +432,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. About Farmers */}
+      {/* 11. About Farmers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -440,7 +487,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. Shop by Category */}
+      {/* 12. Shop by Category */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -517,7 +564,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 12. Values strip */}
+      {/* 13. Values strip */}
       <section className="py-5 bg-off-white border-t border-border">
         <div className="section-container">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">

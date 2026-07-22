@@ -44,6 +44,29 @@ export const HOME_ASSETS = {
     alt: 'Pure Forest Honey collection — raw, unfiltered, straight from tribal beekeepers',
   },
 
+  reels: [
+    {
+      src: '',
+      poster: `${BASE}/video-poster.svg`,
+      alt: 'Tribal farmer sharing wisdom about millet cultivation',
+    },
+    {
+      src: '',
+      poster: `${BASE}/video-poster.svg`,
+      alt: 'Forest honey harvesting process — traditional methods',
+    },
+    {
+      src: '',
+      poster: `${BASE}/video-poster.svg`,
+      alt: 'Natural spices being sun-dried by tribal communities',
+    },
+    {
+      src: '',
+      poster: `${BASE}/video-poster.svg`,
+      alt: 'Traditional millet processing — from farm to table',
+    },
+  ],
+
   newsletter: {
     bg: `${BASE}/newsletter-bg.svg`,
     alt: '',
