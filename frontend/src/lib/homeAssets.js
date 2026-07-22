@@ -1,32 +1,24 @@
 const BASE = '/assets'
 
+const BANNER = {
+  desktop: `${BASE}/main-banner.png`,
+  mobile: `${BASE}/main-banner.png`,
+}
+
 export const HOME_ASSETS = {
   hero: [
-    {
-      desktop: `${BASE}/main-banner.png`,
-      mobile: `${BASE}/main-banner.png`,
-      alt: 'Pure forest honey and natural produce from tribal communities',
-    },
-    {
-      desktop: `${BASE}/hero-2.svg`,
-      mobile: `${BASE}/hero-2.svg`,
-      alt: 'Forest honey being collected from traditional beehives',
-    },
-    {
-      desktop: `${BASE}/hero-3.svg`,
-      mobile: `${BASE}/hero-3.svg`,
-      alt: 'Freshly harvested organic spices and grains',
-    },
+    { ...BANNER, alt: 'Pure forest honey and natural produce from tribal communities' },
+    { ...BANNER, alt: 'Forest honey being collected from traditional beehives' },
+    { ...BANNER, alt: 'Freshly harvested organic spices and grains' },
   ],
 
   adBanner: {
-    desktop: `${BASE}/ad-banner.svg`,
-    mobile: `${BASE}/ad-banner.svg`,
+    ...BANNER,
     alt: 'Free delivery on all orders over ₹999 — special offer banner',
   },
 
   videoSection: {
-    poster: `${BASE}/video-poster.svg`,
+    poster: BANNER.desktop,
     alt: 'HaiFarmer brand film — from forest to your home',
     src: '',
     type: 'video/mp4',
@@ -34,41 +26,24 @@ export const HOME_ASSETS = {
 
   youtube: {
     videoId: 'dQw4w9WgXcQ',
-    poster: `${BASE}/youtube-poster.svg`,
+    poster: BANNER.desktop,
     alt: 'HaiFarmer farm to table journey — YouTube video',
   },
 
   leftBanner: {
-    desktop: `${BASE}/left-banner.svg`,
-    mobile: `${BASE}/left-banner.svg`,
+    ...BANNER,
     alt: 'Pure Forest Honey collection — raw, unfiltered, straight from tribal beekeepers',
   },
 
   reels: [
-    {
-      src: '',
-      poster: `${BASE}/video-poster.svg`,
-      alt: 'Tribal farmer sharing wisdom about millet cultivation',
-    },
-    {
-      src: '',
-      poster: `${BASE}/video-poster.svg`,
-      alt: 'Forest honey harvesting process — traditional methods',
-    },
-    {
-      src: '',
-      poster: `${BASE}/video-poster.svg`,
-      alt: 'Natural spices being sun-dried by tribal communities',
-    },
-    {
-      src: '',
-      poster: `${BASE}/video-poster.svg`,
-      alt: 'Traditional millet processing — from farm to table',
-    },
+    { ...BANNER, src: '', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
+    { ...BANNER, src: '', alt: 'Forest honey harvesting process — traditional methods' },
+    { ...BANNER, src: '', alt: 'Natural spices being sun-dried by tribal communities' },
+    { ...BANNER, src: '', alt: 'Traditional millet processing — from farm to table' },
   ],
 
   newsletter: {
-    bg: `${BASE}/newsletter-bg.svg`,
+    bg: BANNER.desktop,
     alt: '',
   },
 }

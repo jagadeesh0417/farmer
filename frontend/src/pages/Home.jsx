@@ -131,7 +131,7 @@ export default function Home() {
       {/* 1. Hero slider */}
       <section className="relative bg-green-800 overflow-hidden">
         {DEMO_MODE && (
-          <img src="/demo/hero/hero-bg.svg" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+          <img src="/assets/main-banner.png" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
         )}
         <div className="relative min-h-[65vh] flex items-center">
           {HERO_SLIDES.map((slide, i) => {
@@ -548,7 +548,7 @@ export default function Home() {
               <div key={cid}>
                 <div className="grid lg:grid-cols-3 gap-4">
                   <Link to={`/products?category=${catName}`} className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
-                    <img src={cat.image_url ? getImageUrl(cat.image_url) : '/assets/left-banner.svg'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                    <img src={cat.image_url ? getImageUrl(cat.image_url) : '/assets/main-banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
                       <h3 className="font-heading text-xl font-bold text-white">{cat.name}</h3>
