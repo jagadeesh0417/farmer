@@ -131,16 +131,16 @@ export default function Home() {
       {/* 1. Hero slider */}
       <section className="relative bg-green-800 overflow-hidden">
         {DEMO_MODE && (
-          <img src="/assets/main-banner.png" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+          <img src="/assets/main-banner.png" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
         )}
-        <div className="relative min-h-[65vh] flex items-center">
+        <div className="relative min-h-[55vh] sm:min-h-[60vh] lg:min-h-[65vh] flex items-center">
           {HERO_SLIDES.map((slide, i) => {
             const asset = getHeroAsset(i)
             return (
               <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === heroIdx ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <picture>
                   <source srcSet={asset.desktop} media="(min-width: 768px)" />
-                  <img src={asset.mobile} alt={asset.alt} loading={i === 0 ? 'eager' : 'lazy'} className="absolute inset-0 h-full w-full object-cover" />
+                  <img src={asset.mobile} alt={asset.alt} loading={i === 0 ? 'eager' : 'lazy'} className="absolute inset-0 h-full w-full object-cover object-center" />
                 </picture>
                 <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 to-green-800/70" />
               </div>
@@ -168,10 +168,10 @@ export default function Home() {
       {/* 2. Advertisement banner — cinematic strip */}
       <section className="py-6 lg:py-8 bg-white">
         <div className="section-container">
-          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[3/1] lg:aspect-[4/1]">
+          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[3/1] lg:aspect-[4/1]">
             <picture>
               <source srcSet={HOME_ASSETS.adBanner.desktop} media="(min-width: 768px)" />
-              <img src={HOME_ASSETS.adBanner.mobile} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+              <img src={HOME_ASSETS.adBanner.mobile} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
             </picture>
             <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 to-green-800/80" />
             <div className="relative z-10 flex items-center justify-between h-full px-6 lg:px-10">
@@ -286,7 +286,7 @@ export default function Home() {
                 <div className="aspect-[9/16] rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
                   {reel.src ? (
                     <video muted loop playsInline preload="none"
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover object-center"
                       poster={reel.poster}
                       onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
                       onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
@@ -298,7 +298,7 @@ export default function Home() {
                     </video>
                   ) : (
                     <>
-                      <img src={reel.poster} alt={reel.alt} loading="lazy" className="h-full w-full object-cover" />
+                      <img src={reel.poster} alt={reel.alt} loading="lazy" className="h-full w-full object-cover object-center" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm">
                           <svg className="h-5 w-5 text-ink ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -331,12 +331,12 @@ export default function Home() {
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
               {HOME_ASSETS.videoSection.src ? (
-                <video controls poster={HOME_ASSETS.videoSection.poster} className="h-full w-full object-cover" preload="none">
+                <video controls poster={HOME_ASSETS.videoSection.poster} className="h-full w-full object-cover object-center" preload="none">
                   <source src={HOME_ASSETS.videoSection.src} type={HOME_ASSETS.videoSection.type} />
                 </video>
               ) : (
                 <>
-                  <img src={HOME_ASSETS.videoSection.poster} alt={HOME_ASSETS.videoSection.alt} loading="lazy" className="h-full w-full object-cover" />
+                  <img src={HOME_ASSETS.videoSection.poster} alt={HOME_ASSETS.videoSection.alt} loading="lazy" className="h-full w-full object-cover object-center" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-green-600/90 flex items-center justify-center transition-transform group-hover:scale-110">
                       <svg className="h-5 w-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
@@ -548,7 +548,7 @@ export default function Home() {
               <div key={cid}>
                 <div className="grid lg:grid-cols-3 gap-4">
                   <Link to={`/products?category=${catName}`} className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
-                    <img src={cat.image_url ? getImageUrl(cat.image_url) : '/assets/main-banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                    <img src={cat.image_url ? getImageUrl(cat.image_url) : '/assets/main-banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
                       <h3 className="font-heading text-xl font-bold text-white">{cat.name}</h3>
