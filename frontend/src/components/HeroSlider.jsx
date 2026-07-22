@@ -43,7 +43,7 @@ const FALLBACK_BANNER = {
 }
 
 export default function HeroSlider({ banners = [], interval = 5000 }) {
-  const slides = slides.length > 0 ? banners : [FALLBACK_BANNER]
+  const slides = banners.length > 0 ? banners : [FALLBACK_BANNER]
   const [index, setIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [paused, setPaused] = useState(false)
