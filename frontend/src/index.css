@@ -5,36 +5,37 @@
   --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-btn: "Poppins", ui-sans-serif, system-ui, sans-serif;
 
-  --color-green-600: #4A7B3D;
-  --color-green-700: #3A6630;
-  --color-green-800: #2D5A27;
-  --color-green-50: #F0F5EE;
-  --color-green-100: #E2EDDE;
-  --color-green-200: #C5D9BE;
-  --color-white: #FFFFFF;
-  --color-off-white: #F9F9F9;
-  --color-sand: #F5F1E8;
-  --color-sand-100: #EDE8DC;
-  --color-ink: #242424;
-  --color-muted: #6B6B6B;
-  --color-muted-light: #8C8C8C;
-  --color-border: #E5E5E5;
-  --color-border-light: #F0F0F0;
-  --color-sale: #D44A3A;
-  --color-sale-light: #FFF5F3;
+  --color-green-600: #D97745;
+  --color-green-700: #C05E2E;
+  --color-green-800: #A74B1F;
+  --color-green-50: #F8F4EE;
+  --color-green-100: #FFF6F0;
+  --color-green-200: #EADBC8;
+  --color-green-500: #D97745;
+  --color-white: #FFFDF9;
+  --color-off-white: #F8F4EE;
+  --color-sand: #F8F4EE;
+  --color-sand-100: #EADBC8;
+  --color-ink: #8B5E3C;
+  --color-muted: #8B5E3C;
+  --color-muted-light: #A78350;
+  --color-border: #EADBC8;
+  --color-border-light: #F8F4EE;
+  --color-sale: #D97745;
+  --color-sale-light: #FFF6F0;
   --color-gold-500: #C9A24C;
   --color-gold-600: #B89239;
   --color-gold-100: #F8F3E3;
 
-  --color-brand-50: #F0F5EE;
-  --color-brand-100: #E2EDDE;
-  --color-brand-200: #C5D9BE;
+  --color-brand-50: #F8F4EE;
+  --color-brand-100: #FFF6F0;
+  --color-brand-200: #EADBC8;
   --color-brand-300: #C9A24C;
-  --color-brand-400: #6B6B6B;
-  --color-brand-500: #4A7B3D;
-  --color-brand-600: #3A6630;
-  --color-brand-700: #2D5A27;
-  --color-brand-800: #242424;
+  --color-brand-400: #8B5E3C;
+  --color-brand-500: #D97745;
+  --color-brand-600: #C05E2E;
+  --color-brand-700: #A74B1F;
+  --color-brand-800: #8B5E3C;
 }
 
 :root { color-scheme: light; }
@@ -43,8 +44,8 @@ html, body, #root { min-height: 100%; }
 html, body { overflow-x: hidden; }
 
 body {
-  background-color: #FFFFFF;
-  color: #242424;
+  background-color: #FFFDF9;
+  color: #8B5E3C;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: var(--font-sans);
@@ -98,7 +99,7 @@ img, video, canvas, svg { max-width: 100%; }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid #4A7B3D;
+  outline: 2px solid #D97745;
   outline-offset: 2px;
   border-radius: 4px;
 }
