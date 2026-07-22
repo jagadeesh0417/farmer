@@ -129,34 +129,19 @@ export default function Home() {
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Hero slider */}
-      <section className="relative bg-green-800 overflow-hidden">
-        {DEMO_MODE && (
-          <img src="/assets/main-banner.png" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
-        )}
+      <section className="relative overflow-hidden rounded-none">
         <div className="relative min-h-[55vh] sm:min-h-[60vh] lg:min-h-[65vh] flex items-center">
-          {HERO_SLIDES.map((slide, i) => {
+          {HERO_SLIDES.map((_, i) => {
             const asset = getHeroAsset(i)
             return (
               <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === heroIdx ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <picture>
                   <source srcSet={asset.desktop} media="(min-width: 768px)" />
-                  <img src={asset.mobile} alt={asset.alt} loading={i === 0 ? 'eager' : 'lazy'} className="absolute inset-0 h-full w-full object-cover object-center" />
+                  <img src={asset.mobile} alt={asset.alt} loading={i === 0 ? 'eager' : 'lazy'} className="absolute inset-0 h-full w-full object-cover object-center transition-none" />
                 </picture>
-                <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 to-green-800/70" />
               </div>
             )
           })}
-          <div className="relative z-10 section-container">
-            <div className="max-w-xl">
-              <p className="text-green-200 text-[11px] font-semibold tracking-[0.12em] uppercase mb-3">Rooted in Tradition</p>
-              <h1 className="text-white">{HERO_SLIDES[heroIdx].title}</h1>
-              <p className="mt-3 text-sm text-white/70 max-w-lg">{HERO_SLIDES[heroIdx].sub}</p>
-              <Link to="/products" className="mt-5 inline-flex items-center gap-2 bg-green-600 text-white px-7 py-3 rounded-lg text-sm font-semibold hover:bg-green-500 transition-colors">
-                {HERO_SLIDES[heroIdx].cta}
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </Link>
-            </div>
-          </div>
         </div>
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {HERO_SLIDES.map((_, i) => (
@@ -166,23 +151,13 @@ export default function Home() {
       </section>
 
       {/* 2. Advertisement banner — cinematic strip */}
-      <section className="py-6 lg:py-8 bg-white">
+      <section className="py-4 sm:py-5 lg:py-6 bg-white">
         <div className="section-container">
-          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[3/1] lg:aspect-[4/1]">
+          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
             <picture>
               <source srcSet={HOME_ASSETS.adBanner.desktop} media="(min-width: 768px)" />
-              <img src={HOME_ASSETS.adBanner.mobile} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+              <img src={HOME_ASSETS.adBanner.mobile} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-none" />
             </picture>
-            <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 to-green-800/80" />
-            <div className="relative z-10 flex items-center justify-between h-full px-6 lg:px-10">
-              <div>
-                <p className="text-green-200 text-[10px] font-semibold tracking-[0.12em] uppercase">Special Offer</p>
-                <h2 className="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold text-white">Free Delivery on orders above ₹999</h2>
-              </div>
-              <span className="inline-flex items-center gap-2 bg-white text-green-700 px-5 py-2.5 rounded-lg text-xs font-semibold transition-all group-hover:bg-green-50 group-hover:-translate-y-0.5 shrink-0">
-                Shop Now →
-              </span>
-            </div>
           </Link>
         </div>
       </section>
