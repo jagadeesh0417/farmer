@@ -197,7 +197,7 @@ export default function Home() {
                 Array.from({ length: 8 }).map((_, i) => <div key={i} className="lifestyle-card bg-white/80 animate-pulse rounded-xl" />)
               ) : products.length > 0 ? (
                 products.slice(0, 20).map((product, i) => (
-                  <LifestyleCard key={product.id || product._id} product={product}
+                  <LifestyleCard key={product.id || product._id} product={product} priority={i < 4}
                     headline={i % 3 === 0 ? 'Support your vitality with nature\'s purity' : undefined} />
                 ))
               ) : (

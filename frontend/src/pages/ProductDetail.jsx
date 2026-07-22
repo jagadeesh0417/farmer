@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SeoHead from '../components/SeoHead'
-import { formatPrice, getImageUrl } from '../lib/utils'
+import { formatPrice, getImageUrl, getImageProps, getImageSizes } from '../lib/utils'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { useCart } from '../contexts/CartContext'
 import ProductCard from '../components/ProductCard'
@@ -19,12 +19,9 @@ const CERTIFICATIONS = [
 ]
 
 const VALUES_ROW = [
-  { label: 'Made in India' },
-  { label: 'Eco-Friendly' },
-  { label: 'Ethical Practices' },
-  { label: '100% Natural' },
-  { label: 'Non-GMO' },
-  { label: 'Certified Organic' },
+  { label: 'Made in India' }, { label: 'Eco-Friendly' },
+  { label: 'Ethical Practices' }, { label: '100% Natural' },
+  { label: 'Non-GMO' }, { label: 'Certified Organic' },
 ]
 
 export default function ProductDetail() {
@@ -38,6 +35,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1)
   const [accordion, setAccordion] = useState('benefits')
   const [relatedProducts, setRelatedProducts] = useState([])
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -47,7 +45,6 @@ export default function ProductDetail() {
         const data = await getProductBySlug(slug)
         setProduct(data)
         if (data?.product_variants?.length) setSelectedVariant(data.product_variants[0])
-
         const { getProducts } = await import('../lib/productService')
         const related = await getProducts(1, 4, data?.category || null, null, 'created_at', false)
         setRelatedProducts((related?.data || []).filter(p => p.id !== data?.id))
@@ -73,7 +70,7 @@ export default function ProductDetail() {
   )
 
   const images = product.galleryImages?.length ? product.galleryImages : (product.images?.length ? product.images : [product.image_url])
-  const mainImgSrc = getImageUrl(images[selectedImg], settings?.placeholder_image)
+  const mainImgProps = getImageProps(images[selectedImg], { width: 900, sizes: getImageSizes([1024, 768]), priority: true })
   const price = selectedVariant?.price ?? product.base_price ?? product.price
   const mrp = selectedVariant?.mrp ?? product.mrp ?? price
   const savings = mrp - price
@@ -92,9 +89,8 @@ export default function ProductDetail() {
     <div className="bg-white min-h-screen">
       <SeoHead title={product.name} description={product.description || product.tagline} ogImage={images[0]} />
 
-      {/* Breadcrumb */}
       <div className="border-b border-border">
-        <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8 lg:px-10">
+        <div className="section-container py-3">
           <div className="flex items-center gap-2 text-xs text-muted">
             <Link to="/" className="hover:text-green-600">Home</Link>
             <span>/</span>
@@ -106,23 +102,28 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-        {/* Two-column */}
+      <div className="section-container py-8 lg:py-12">
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
           {/* Gallery */}
           <div>
-            <div className="bg-off-white rounded-xl overflow-hidden border border-border relative">
-              <img src={mainImgSrc} alt={product.name} className="w-full aspect-[1/1] object-cover object-center" />
+            <button onClick={() => setLightboxOpen(true)} className="bg-off-white rounded-xl overflow-hidden border border-border relative w-full block cursor-zoom-in">
+              <img src={mainImgProps.src} alt={product.name} loading="eager" fetchpriority="high"
+                srcSet={mainImgProps.srcSet} sizes={mainImgProps.sizes}
+                className="w-full aspect-[4/5] object-cover object-center" />
               <span className="absolute top-3 left-3 text-xs text-muted bg-white/80 border border-border rounded px-2 py-0.5">{selectedImg + 1} / {images.length}</span>
-            </div>
+              <span className="absolute top-3 right-3 text-xs text-muted bg-white/80 border border-border rounded px-2 py-0.5">🔍</span>
+            </button>
             {images.length > 1 && (
               <div className="flex gap-2 mt-3 overflow-x-auto hide-scrollbar">
-                {images.map((img, i) => (
-                  <button key={i} onClick={() => setSelectedImg(i)}
-                    className={`shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden bg-white transition-all ${selectedImg === i ? 'border-green-600' : 'border-border opacity-60 hover:opacity-100'}`}>
-                    <img src={getImageUrl(img, settings?.placeholder_image)} alt="" className="w-full h-full object-cover object-center" />
-                  </button>
-                ))}
+                {images.map((img, i) => {
+                  const thumbProps = getImageProps(img, { width: 120, sizes: '64px' })
+                  return (
+                    <button key={i} onClick={() => setSelectedImg(i)}
+                      className={`shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden bg-white transition-all ${selectedImg === i ? 'border-green-600' : 'border-border opacity-60 hover:opacity-100'}`}>
+                      <img src={thumbProps.src} alt="" loading="lazy" className="w-full h-full object-cover object-center" />
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -133,14 +134,12 @@ export default function ProductDetail() {
             <h1 className="font-heading text-3xl sm:text-4xl font-bold text-ink tracking-tight">{product.name}</h1>
             {product.tagline && <p className="text-sm text-muted leading-relaxed">{product.tagline}</p>}
 
-            {/* Key Benefits */}
             <div className="flex flex-wrap gap-4">
               {KEY_BENEFITS.map(b => (
                 <div key={b.label} className="flex items-center gap-1.5 text-xs text-muted"><span>{b.icon}</span><span>{b.label}</span></div>
               ))}
             </div>
 
-            {/* Variant selector */}
             {product.product_variants?.length > 0 && (
               <div>
                 <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted mb-2">Select Size Pack</p>
@@ -170,14 +169,12 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Price block */}
             <div className="flex items-baseline gap-2">
               <span className="font-heading text-2xl font-bold text-ink">{formatPrice(price)}</span>
               {mrp > price && <span className="text-sm text-muted-light line-through">{formatPrice(mrp)}</span>}
               {savings > 0 && <span className="text-sm font-semibold text-sale bg-sale-light px-2 py-0.5 rounded">Save {formatPrice(savings)}/-</span>}
             </div>
 
-            {/* Quantity + Buttons */}
             <div className="flex gap-3 items-center">
               <div className="flex items-center rounded-lg border border-border bg-white">
                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="flex items-center justify-center w-10 h-10 text-muted hover:text-green-600 transition-colors">−</button>
@@ -194,7 +191,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Accordion tabs */}
+        {/* Accordion */}
         <div className="mt-12 border-t border-border">
           {[
             { key: 'benefits', label: 'Benefits', content: 'Wild forest honey is packed with natural antioxidants, antibacterial properties, and essential vitamins. It supports immunity, aids digestion, and provides sustained energy. Sourced from pristine forests, it retains all its natural goodness without any processing.' },
@@ -236,14 +233,12 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Values row */}
         <div className="mt-8 flex flex-wrap gap-4">
           {VALUES_ROW.map(v => (
             <span key={v.label} className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] border border-border rounded px-2.5 py-1">{v.label}</span>
           ))}
         </div>
 
-        {/* Brand story band */}
         <div className="mt-12 bg-sand rounded-xl overflow-hidden">
           <div className="grid lg:grid-cols-2">
             <div className="p-8 lg:p-10 flex flex-col justify-center">
@@ -264,11 +259,29 @@ export default function ProductDetail() {
           <div className="mt-12">
             <h3 className="font-heading text-xl font-bold text-ink mb-6">You may also like</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {relatedProducts.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
+              {relatedProducts.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 2} />)}
             </div>
           </div>
         )}
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <button onClick={() => setLightboxOpen(false)} className="absolute top-4 right-4 text-white/80 hover:text-white z-10" aria-label="Close">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); setSelectedImg(prev => (prev - 1 + images.length) % images.length) }} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10 disabled:opacity-30" disabled={images.length <= 1} aria-label="Previous">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); setSelectedImg(prev => (prev + 1) % images.length) }} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10 disabled:opacity-30" disabled={images.length <= 1} aria-label="Next">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
+          <img src={getImageUrl(images[selectedImg])} alt={product.name}
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">{selectedImg + 1} / {images.length}</div>
+        </div>
+      )}
     </div>
   )
 }

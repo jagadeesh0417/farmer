@@ -38,7 +38,7 @@ export default function Combos() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-10">
+      <div className="section-container py-10">
         {loading ? (
           <div className="flex min-h-[40vh] items-center justify-center">
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-green-600" />

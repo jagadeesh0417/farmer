@@ -104,7 +104,7 @@ export default function Products() {
 
       {/* Breadcrumb + Header */}
       <div className="bg-white border-b border-border">
-        <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8 lg:px-10">
+        <div className="section-container py-3">
           <div className="flex items-center gap-2 text-xs text-muted">
             <Link to="/" className="hover:text-green-600">Home</Link>
             <span>/</span>
@@ -116,7 +116,7 @@ export default function Products() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-8">
+      <div className="section-container py-8">
         <div className="flex gap-8">
           {/* Filter sidebar */}
           <aside className={`${sidebarOpen ? 'fixed inset-0 z-50 flex' : 'hidden'} lg:relative lg:inset-auto lg:z-auto lg:block lg:w-60 lg:flex-shrink-0`}>

@@ -74,6 +74,20 @@ export default function AdminProductForm() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
+    for (const file of files) {
+      const img = await new Promise(resolve => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const image = new Image()
+          image.onload = () => resolve(image)
+          image.src = reader.result
+        }
+        reader.readAsDataURL(file)
+      })
+      if (img.width < 1600 && img.height < 1600) {
+        toast.warn(`"${file.name}" is ${img.width}×${img.height} — minimum 1600px recommended for sharp product images`)
+      }
+    }
     try {
       toast.info('Uploading images...')
       const results = await api.uploadMultiple(files, 'haifarmer/products')

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
-import { formatPrice, getImageUrl } from '../lib/utils'
+import { formatPrice, getImageUrl, getImageProps, getImageSizes } from '../lib/utils'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 
 function slugify(name) {
@@ -12,7 +12,7 @@ function calculateDiscountedPrice(price, discountPercent) {
   return discountPercent ? Number((price - price * discountPercent / 100).toFixed(2)) : price
 }
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, priority }) {
   const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection } = useCart()
   const { settings } = useSiteSettings()
 
@@ -32,6 +32,11 @@ export default function ProductCard({ product }) {
   const isInCart = Boolean(cartItem)
   const cartQuantity = cartItem?.quantity || selection.quantity || 1
   const imageUrl = getImageUrl(product.image_url || product.images?.[0], settings?.placeholder_image)
+  const imgProps = getImageProps(product.image_url || product.images?.[0], {
+    width: 600,
+    sizes: getImageSizes([1280, 768, 480]),
+    priority,
+  })
 
   const categoryTag = product.category_tag || product.harvest_type || product.badge || product.category_name || (product.category?.name) || ''
   const descriptor = product.tagline || (product.description ? product.description.slice(0, 80) + (product.description.length > 80 ? '…' : '') : '')
@@ -66,7 +71,6 @@ export default function ProductCard({ product }) {
 
   return (
     <Link to={`/products/${slugify(product.name)}`} className="group relative flex h-full flex-col bg-white rounded-xl border border-border transition-all duration-200 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
-      {/* Badge */}
       {isBestSeller && (
         <span className="absolute left-3 top-3 z-10 rounded-full bg-green-600 px-3 py-1 text-[11px] font-semibold uppercase text-white shadow-sm">Best Seller</span>
       )}
@@ -74,48 +78,44 @@ export default function ProductCard({ product }) {
         <span className="absolute left-3 top-3 z-10 rounded-full bg-sale px-3 py-1 text-[11px] font-semibold uppercase text-white shadow-sm">{discountPercent}% Off</span>
       )}
 
-      {/* Image */}
-      <div className="aspect-[1/1] overflow-hidden rounded-t-xl bg-white">
-        <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+      <div className="aspect-[4/5] overflow-hidden rounded-t-xl bg-white relative">
+        <div className="absolute inset-0 bg-border/20 animate-pulse skeleton" />
+        <img src={imgProps.src} alt={product.name} loading={imgProps.loading} fetchpriority={imgProps.fetchpriority}
+          srcSet={imgProps.srcSet} sizes={imgProps.sizes}
+          className="relative h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105 z-10"
           onError={(e) => { if (e.currentTarget.dataset.fallbackApplied !== 'true') { e.currentTarget.dataset.fallbackApplied = 'true'; e.currentTarget.src = settings?.placeholder_image || '/placeholder.jpg' } }} />
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1 px-5 pb-5">
-        {/* Category tag */}
+      <div className="flex flex-col flex-1 px-4 pb-4 pt-3">
         {categoryTag && (
-          <span className="text-[12px] font-medium text-green-600 uppercase tracking-[0.08em]">{categoryTag}</span>
+          <span className="text-[11px] font-medium text-green-600 uppercase tracking-[0.08em]">{categoryTag}</span>
         )}
 
-        {/* Product name */}
-        <h3 className="mt-1 text-lg font-bold text-ink leading-snug line-clamp-2 group-hover:text-green-600 transition-colors">{product.name}</h3>
+        <h3 className="mt-1 text-base font-bold text-ink leading-snug line-clamp-1 group-hover:text-green-600 transition-colors">{product.name}</h3>
 
-        {/* Descriptor */}
         {descriptor && (
-          <p className="mt-0.5 text-[13px] text-muted line-clamp-1">{descriptor}</p>
+          <p className="mt-0.5 text-[12px] text-muted line-clamp-1">{descriptor}</p>
         )}
 
-        {/* Rating */}
         {rating > 0 && (
           <div className="mt-1.5 flex items-center gap-1.5">
             <div className="flex text-green-600">
               {[1, 2, 3, 4, 5].map(s => (
-                <span key={s} className={`text-[13px] ${s <= Math.round(rating) ? 'text-green-600' : 'text-border'}`}>★</span>
+                <span key={s} className={`text-[12px] ${s <= Math.round(rating) ? 'text-green-600' : 'text-border'}`}>★</span>
               ))}
             </div>
-            <span className="text-[12px] text-muted">({reviewCount})</span>
+            <span className="text-[11px] text-muted">({reviewCount})</span>
           </div>
         )}
 
-        {/* Variant selector */}
         {hasVariants && (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {variants.map(v => {
               const vid = v.id || v._id
               const isSelected = vid === selectedVariantId
               return (
                 <button key={vid} type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVariantChange(vid) }}
-                  className={`px-3.5 py-1.5 rounded-md text-[13px] font-semibold transition-all border ${isSelected ? 'bg-green-600 text-white border-green-600' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'}`}>
+                  className={`px-3 py-1 rounded-md text-[12px] font-semibold transition-all border ${isSelected ? 'bg-green-600 text-white border-green-600' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'}`}>
                   {v.weight_label || v.weightLabel || v.name || v.unit}
                 </button>
               )
@@ -123,28 +123,26 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        {/* Price */}
         <div className="mt-2 flex items-baseline gap-2 flex-wrap">
-          <span className="text-xl font-bold text-ink">{formatPrice(price)}</span>
+          <span className="text-lg font-bold text-ink">{formatPrice(price)}</span>
           {mrp > price && (
             <>
-              <span className="text-[13px] text-muted-light line-through">{formatPrice(mrp)}</span>
-              <span className="text-[12px] font-semibold text-sale">Save {formatPrice(savings)}/-</span>
+              <span className="text-[12px] text-muted-light line-through">{formatPrice(mrp)}</span>
+              <span className="text-[11px] font-semibold text-sale">Save {formatPrice(savings)}/-</span>
             </>
           )}
         </div>
 
-        {/* Add to cart / quantity stepper */}
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-3">
           {isInCart ? (
             <div className="flex items-center justify-between rounded-lg border border-border bg-white overflow-hidden">
-              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }} className="flex items-center justify-center w-11 h-11 text-muted hover:bg-green-50 hover:text-green-600 transition-colors disabled:opacity-50" disabled={cartQuantity <= 1}>−</button>
-              <span className="min-w-[2.5rem] text-center text-sm font-semibold text-ink">{cartQuantity} <span className="text-[12px] text-muted font-normal">in cart</span></span>
-              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }} className="flex items-center justify-center w-11 h-11 text-muted hover:bg-green-50 hover:text-green-600 transition-colors">+</button>
+              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }} className="flex items-center justify-center w-10 h-10 text-muted hover:bg-green-50 hover:text-green-600 transition-colors disabled:opacity-50" disabled={cartQuantity <= 1}>−</button>
+              <span className="min-w-[2.5rem] text-center text-sm font-semibold text-ink">{cartQuantity} <span className="text-[11px] text-muted font-normal">in cart</span></span>
+              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }} className="flex items-center justify-center w-10 h-10 text-muted hover:bg-green-50 hover:text-green-600 transition-colors">+</button>
             </div>
           ) : (
             <button onClick={handleAddToCart}
-              className="w-full rounded-lg bg-green-600 px-5 py-3.5 text-[13px] font-semibold uppercase text-white transition-all hover:bg-green-700 active:scale-[0.98]">
+              className="w-full rounded-lg bg-green-600 px-5 py-3 text-[12px] font-semibold uppercase text-white transition-all hover:bg-green-700 active:scale-[0.98]">
               Add to Cart
             </button>
           )}
