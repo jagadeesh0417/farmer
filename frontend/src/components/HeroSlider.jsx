@@ -31,7 +31,19 @@ function BannerImage({ banner, priority }) {
   )
 }
 
+const FALLBACK_BANNER = {
+  _id: 'fallback',
+  title: '',
+  subtitle: '',
+  buttonText: '',
+  redirectLink: '/products',
+  desktopImage: '/assets/main-banner.png',
+  tabletImage: '/assets/main-banner.png',
+  mobileImage: '/assets/main-banner.png',
+}
+
 export default function HeroSlider({ banners = [], interval = 5000 }) {
+  const slides = slides.length > 0 ? banners : [FALLBACK_BANNER]
   const [index, setIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [paused, setPaused] = useState(false)
@@ -42,20 +54,20 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
     setDirection(dir)
     setIndex((prev) => {
       let next = i
-      if (next < 0) next = banners.length - 1
-      if (next >= banners.length) next = 0
+      if (next < 0) next = slides.length - 1
+      if (next >= slides.length) next = 0
       return next
     })
-  }, [banners.length])
+  }, [slides.length])
 
   const next = useCallback(() => goTo(index + 1, 1), [goTo, index])
   const prev = useCallback(() => goTo(index - 1, -1), [goTo, index])
 
   useEffect(() => {
-    if (banners.length <= 1 || paused) return
+    if (slides.length <= 1 || paused) return
     const timer = setInterval(next, interval)
     return () => clearInterval(timer)
-  }, [banners.length, interval, next, paused])
+  }, [slides.length, interval, next, paused])
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.changedTouches[0].screenX
@@ -70,9 +82,7 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
     }
   }
 
-  if (!banners.length) return null
-
-  const current = banners[index]
+  const current = slides[index]
   const hasText = current.title || current.subtitle || current.buttonText
 
   const LinkWrapper = ({ children, className }) => {
@@ -101,7 +111,7 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {banners.map((banner, i) => {
+      {slides.map((banner, i) => {
         const active = i === index
         return (
           <div
@@ -147,7 +157,7 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
         )
       })}
 
-      {banners.length > 1 && (
+      {slides.length > 1 && (
         <>
           <button
             onClick={prev}
@@ -169,7 +179,7 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
           </button>
 
           <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-            {banners.map((_, i) => (
+            {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i, i > index ? 1 : -1)}
