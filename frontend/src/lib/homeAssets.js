@@ -20,8 +20,8 @@ export const HOME_ASSETS = {
   ],
 
   adBanner: {
-    desktop: `${BASE}/ad-banner.svg`,
-    mobile: `${BASE}/ad-banner.svg`,
+    desktop: `${BASE}/ad-banner.png`,
+    mobile: `${BASE}/ad-banner.png`,
     alt: 'Free delivery on all orders over ₹999 — special offer banner',
   },
 
