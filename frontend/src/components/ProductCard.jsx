@@ -71,11 +71,11 @@ export default function ProductCard({ product, priority }) {
 
   return (
     <Link to={`/products/${slugify(product.name)}`} className="group relative flex h-full flex-col bg-white rounded-xl border border-border transition-all duration-200 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
-      {isBestSeller && (
-        <span className="absolute left-3 top-3 z-10 rounded-full bg-green-600 px-3 py-1 text-[11px] font-semibold uppercase text-white shadow-sm">Best Seller</span>
+      {isSale && (
+        <span className="absolute left-3 top-3 z-10 rounded-full bg-sale px-2.5 py-1 text-[10px] font-bold uppercase text-white shadow-sm">{formatPrice(savings)} off</span>
       )}
-      {isSale && !isBestSeller && (
-        <span className="absolute left-3 top-3 z-10 rounded-full bg-sale px-3 py-1 text-[11px] font-semibold uppercase text-white shadow-sm">{discountPercent}% Off</span>
+      {isBestSeller && (
+        <span className="absolute right-3 top-3 z-10 rounded-full bg-green-600 px-2.5 py-1 text-[10px] font-bold uppercase text-white shadow-sm">Best Seller</span>
       )}
 
       <div className="aspect-[4/5] overflow-hidden rounded-t-xl bg-white relative">
