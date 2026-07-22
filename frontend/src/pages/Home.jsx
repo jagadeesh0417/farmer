@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
+import LifestyleCard from '../components/LifestyleCard'
 import BundleCard from '../components/BundleCard'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
@@ -11,10 +12,9 @@ import { formatPrice, getImageUrl } from '../lib/utils'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS, getHeroAsset } from '../lib/homeAssets'
 
-
 const HERO_SLIDES = [
   { title: 'Pure Food from the Heart of the Forest', sub: 'Wild-harvested millets, honey, and spices sourced directly from tribal communities.', cta: 'Shop Now' },
-  { title: 'Nature\'s Finest, Direct to Your Door', sub: 'Chemical-free produce grown with traditional wisdom. Taste the difference.', cta: 'Explore Products' },
+  { title: 'Nature\'s Finest, Direct to Your Door', sub: 'Chemical-free produce grown with traditional wisdom.', cta: 'Explore Products' },
   { title: 'Support Tribal Farmers, Eat Pure', sub: 'Every purchase supports indigenous farming communities across India.', cta: 'Meet Our Farmers' },
 ]
 
@@ -26,6 +26,8 @@ const VALUES = [
   { label: 'Non-GMO', icon: '🌾' },
   { label: 'Farm Fresh', icon: '🌱' },
 ]
+
+const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 'Super Saver Combos', 'Shop By Goal']
 
 export default function Home() {
   const { cartItems } = useCart()
@@ -42,7 +44,15 @@ export default function Home() {
   const [milletProducts, setMilletProducts] = useState([])
   const [grainProducts, setGrainProducts] = useState([])
   const [farmers, setFarmers] = useState([])
+  const [activeTab, setActiveTab] = useState('All Products')
+  const carouselRef = useRef(null)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+
+  const scrollCarousel = useCallback((dir) => {
+    if (!carouselRef.current) return
+    const amt = dir > 0 ? 300 : -300
+    carouselRef.current.scrollBy({ left: amt, behavior: 'smooth' })
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -73,7 +83,6 @@ export default function Home() {
     return () => { cancelled = true; clearInterval(id) }
   }, [])
 
-  // Fetch categories
   useEffect(() => {
     let cancelled = false
     api.getCategories().then(data => {
@@ -85,14 +94,12 @@ export default function Home() {
     return () => { cancelled = true }
   }, [])
 
-  // Fetch products for active category
   useEffect(() => {
     if (!activeCategory) return
     const cat = categories.find(c => (c.id || c._id) === activeCategory)
     if (!cat) return
     const catName = cat.slug || cat.name?.toLowerCase()
     if (categoryProducts[catName]?.length) return
-
     setCatLoading(prev => ({ ...prev, [catName]: true }))
     api.getProducts({ category: catName, limit: 8 }).then(r => {
       const data = r?.data || []
@@ -102,15 +109,13 @@ export default function Home() {
     })
   }, [activeCategory, categories])
 
-  const bestSellers = products.filter(p => p.is_best_seller || p.totalSold > 10 || p.isFeatured).slice(0, 6)
-
   return (
     <div className="bg-white">
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Hero slider */}
       <section className="relative bg-green-800 overflow-hidden">
-        <div className="relative min-h-[70vh] flex items-center">
+        <div className="relative min-h-[65vh] flex items-center">
           {HERO_SLIDES.map((slide, i) => {
             const asset = getHeroAsset(i)
             return (
@@ -123,118 +128,133 @@ export default function Home() {
               </div>
             )
           })}
-          <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full">
-            <div className="max-w-2xl">
+          <div className="relative z-10 section-container">
+            <div className="max-w-xl">
               <p className="text-green-200 text-[11px] font-semibold tracking-[0.12em] uppercase mb-3">Rooted in Tradition</p>
-              <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight">{HERO_SLIDES[heroIdx].title}</h1>
-              <p className="mt-4 text-sm text-white/70 max-w-lg">{HERO_SLIDES[heroIdx].sub}</p>
-              <Link to="/products" className="mt-6 inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-lg text-sm font-semibold hover:bg-green-500 transition-colors">
+              <h1 className="text-white">{HERO_SLIDES[heroIdx].title}</h1>
+              <p className="mt-3 text-sm text-white/70 max-w-lg">{HERO_SLIDES[heroIdx].sub}</p>
+              <Link to="/products" className="mt-5 inline-flex items-center gap-2 bg-green-600 text-white px-7 py-3 rounded-lg text-sm font-semibold hover:bg-green-500 transition-colors">
                 {HERO_SLIDES[heroIdx].cta}
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
               </Link>
             </div>
           </div>
         </div>
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {HERO_SLIDES.map((_, i) => (
-            <button key={i} onClick={() => setHeroIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === heroIdx ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/60'}`} aria-label={`Slide ${i + 1}`} />
+            <button key={i} onClick={() => setHeroIdx(i)} className={`w-2 h-2 rounded-full transition-all ${i === heroIdx ? 'bg-white w-5' : 'bg-white/40 hover:bg-white/60'}`} aria-label={`Slide ${i + 1}`} />
           ))}
         </div>
       </section>
 
-      {/* 2. Advertisement banner */}
-      <section className="py-8 lg:py-10 bg-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <Link to="/products" className="group relative block rounded-2xl overflow-hidden min-h-[200px] lg:min-h-[280px]">
+      {/* 2. Advertisement banner — cinematic strip */}
+      <section className="py-6 lg:py-8 bg-white">
+        <div className="section-container">
+          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[3/1] lg:aspect-[4/1]">
             <picture>
               <source srcSet={HOME_ASSETS.adBanner.desktop} media="(min-width: 768px)" />
               <img src={HOME_ASSETS.adBanner.mobile} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
             </picture>
             <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 to-green-800/80" />
-            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between p-8 lg:p-12 h-full">
-              <div className="text-center lg:text-left">
+            <div className="relative z-10 flex items-center justify-between h-full px-6 lg:px-10">
+              <div>
                 <p className="text-green-200 text-[10px] font-semibold tracking-[0.12em] uppercase">Special Offer</p>
-                <h2 className="mt-2 font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">Free Delivery<br /><span className="text-green-200">on orders above ₹999</span></h2>
+                <h2 className="mt-1 text-xl sm:text-2xl lg:text-3xl font-bold text-white">Free Delivery on orders above ₹999</h2>
               </div>
-              <div className="mt-4 lg:mt-0">
-                <span className="inline-flex items-center gap-2 bg-white text-green-700 px-6 py-3 rounded-lg text-sm font-semibold transition-all group-hover:bg-green-50 group-hover:-translate-y-0.5">
-                  Shop Now →
-                </span>
-              </div>
+              <span className="inline-flex items-center gap-2 bg-white text-green-700 px-5 py-2.5 rounded-lg text-xs font-semibold transition-all group-hover:bg-green-50 group-hover:-translate-y-0.5 shrink-0">
+                Shop Now →
+              </span>
             </div>
           </Link>
         </div>
       </section>
 
-      {/* 3. Groceries — all products (auto-scrolling carousel) */}
-      <section className="py-14 lg:py-18 bg-off-white overflow-hidden">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Groceries</h2>
-              <p className="text-sm text-muted mt-1">Everyday essentials straight from nature</p>
+      {/* 3. Tall lifestyle product carousel */}
+      <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
+        <div className="section-container">
+          {/* Filter tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {CAROUSEL_TABS.map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all tracking-wide ${
+                  activeTab === tab ? 'bg-green-600 text-white shadow-sm' : 'bg-white text-ink/60 hover:text-green-600 border border-border'
+                }`}>
+                {tab === 'All Products' ? 'All Products' : tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Carousel with arrows */}
+          <div className="relative">
+            <button onClick={() => scrollCarousel(-1)} className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Previous">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button onClick={() => scrollCarousel(1)} className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Next">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <div ref={carouselRef} className="flex gap-3.5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+              {loading ? (
+                Array.from({ length: 8 }).map((_, i) => <div key={i} className="lifestyle-card bg-white/80 animate-pulse rounded-xl" />)
+              ) : products.length > 0 ? (
+                products.slice(0, 20).map((product, i) => (
+                  <LifestyleCard key={product.id || product._id} product={product}
+                    headline={i % 3 === 0 ? 'Support your vitality with nature\'s purity' : undefined} />
+                ))
+              ) : (
+                <div className="flex items-center justify-center w-full py-20 text-sm text-muted">No products yet</div>
+              )}
             </div>
-            <Link to="/products" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Groceries — auto-scrolling carousel */}
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="font-heading">Groceries</h2>
+              <p className="text-sm text-muted mt-0.5">Everyday essentials</p>
+            </div>
+            <Link to="/products" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-              {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-80 animate-pulse" />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
             </div>
           ) : products.length > 0 ? (
             <div className="relative w-full">
               <style>{`
-                @keyframes scroll-left {
-                  0% { transform: translateX(0); }
-                  100% { transform: translateX(-50%); }
-                }
-                .carousel-track {
-                  display: flex;
-                  gap: 1.25rem;
-                  width: max-content;
-                  animation: scroll-left 80s linear infinite;
-                }
-                .carousel-track:hover {
-                  animation-play-state: paused;
-                }
-                .carousel-track > * {
-                  width: 220px;
-                  flex-shrink: 0;
-                }
-                @media (min-width: 640px) {
-                  .carousel-track > * { width: 240px; }
-                }
-                @media (min-width: 1024px) {
-                  .carousel-track > * { width: 260px; }
-                }
+                @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+                .carousel-track { display: flex; gap: 1rem; width: max-content; animation: scroll-left 80s linear infinite; }
+                .carousel-track:hover { animation-play-state: paused; }
+                .carousel-track > * { width: 200px; flex-shrink: 0; }
+                @media (min-width: 640px) { .carousel-track > * { width: 220px; } }
+                @media (min-width: 1024px) { .carousel-track > * { width: 240px; } }
               `}</style>
               <div className="carousel-track">
                 {[...products, ...products].map((product, i) => (
-                  <div key={`${product.id || product._id}-${i}`} className="h-full">
-                    <ProductCard product={product} />
-                  </div>
+                  <div key={`${product.id || product._id}-${i}`} className="h-full"><ProductCard product={product} /></div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-16 bg-white rounded-xl border border-border">
-              <p className="text-base text-muted">No products available yet.</p>
-              <p className="text-sm text-muted-light mt-1">Check back soon for our fresh harvest!</p>
+            <div className="text-center py-12 bg-off-white rounded-xl border border-border">
+              <p className="text-sm text-muted">No products available yet.</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* 4. Our Story video */}
-      <section className="py-14 lg:py-18 bg-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
+      {/* 5. Our Story video */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
               <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Our Story</span>
-              <h2 className="mt-2 font-heading text-2xl sm:text-3xl font-bold text-ink">From the Forest to Your Home</h2>
-              <p className="mt-3 text-sm text-muted leading-relaxed">Watch how we work with tribal farmers to bring you the purest, most natural products. Every step of our journey is rooted in respect for nature and tradition.</p>
-              <Link to="/about" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">
-                Learn More →
-              </Link>
+              <h2 className="mt-1">From the Forest to Your Home</h2>
+              <p className="mt-2 text-sm text-muted leading-relaxed">Watch how we work with tribal farmers to bring you the purest, most natural products.</p>
+              <Link to="/about" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">Learn More →</Link>
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
               {HOME_ASSETS.videoSection.src ? (
@@ -245,11 +265,11 @@ export default function Home() {
                 <>
                   <img src={HOME_ASSETS.videoSection.poster} alt={HOME_ASSETS.videoSection.alt} loading="lazy" className="h-full w-full object-cover" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-green-600/90 flex items-center justify-center transition-transform group-hover:scale-110">
-                      <svg className="h-6 w-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    <div className="w-14 h-14 rounded-full bg-green-600/90 flex items-center justify-center transition-transform group-hover:scale-110">
+                      <svg className="h-5 w-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                     </div>
                   </div>
-                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-white/80 bg-black/40 px-3 py-1 rounded-full">Brand film coming soon</p>
+                  <p className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-white/80 bg-black/40 px-3 py-1 rounded-full">Brand film coming soon</p>
                 </>
               )}
             </div>
@@ -257,42 +277,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Combos */}
-      <section className="py-14 lg:py-18 bg-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="flex items-center justify-between mb-8">
+      {/* 6. Combos */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Value Combos</h2>
-              <p className="text-sm text-muted mt-1">Save big with curated product bundles from tribal farms</p>
+              <h2 className="font-heading">Value Combos</h2>
+              <p className="text-sm text-muted mt-0.5">Curated bundles, best savings</p>
             </div>
-            <Link to="/combos" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/combos" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-64 animate-pulse" />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-56 animate-pulse" />)}
             </div>
           ) : bundles.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {bundles.slice(0, 3).map(bundle => (
                 <BundleCard key={bundle._id || bundle.id} bundle={bundle} compact />
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No combos available yet. Check back soon!</p>
-              <Link to="/products" className="mt-3 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
+            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+              <p className="text-sm text-muted">No combos available yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* 6. YouTube video */}
-      <section className="py-14 lg:py-18 bg-off-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="text-center mb-8">
+      {/* 7. YouTube video */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="text-center mb-6">
             <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Watch & Learn</span>
-            <h2 className="mt-2 font-heading text-2xl sm:text-3xl font-bold text-ink">From Farm to Table</h2>
-            <p className="text-sm text-muted mt-1 max-w-md mx-auto">See how traditional farming methods preserve nature and nourish communities.</p>
+            <h2 className="mt-1">From Farm to Table</h2>
+            <p className="text-sm text-muted mt-0.5 max-w-md mx-auto">See how traditional farming nourishes communities.</p>
           </div>
           <div className="aspect-video rounded-xl overflow-hidden bg-green-50 max-w-4xl mx-auto">
             <div className="relative h-full w-full" style={{ padding: '56.25% 0 0 0' }}>
@@ -307,76 +327,73 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Millets */}
-      <section className="py-14 lg:py-18 bg-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="flex items-center justify-between mb-8">
+      {/* 8. Millets */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
-              <h2 className="mt-1 font-heading text-2xl sm:text-3xl font-bold text-ink">Millets</h2>
-              <p className="text-sm text-muted mt-1">Rainwater-fed, chemical-free millets straight from tribal farms</p>
+              <h2 className="mt-0.5">Millets</h2>
             </div>
-            <Link to="/products?category=millets" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/products?category=millets" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-80 animate-pulse" />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
             </div>
           ) : milletProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {milletProducts.slice(0, 6).map(product => (
                 <ProductCard key={product.id || product._id} product={product} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No millet products available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse all products →</Link>
+            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+              <p className="text-sm text-muted">No millet products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* 8. Grains */}
-      <section className="py-14 lg:py-18 bg-off-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="flex items-center justify-between mb-8">
+      {/* 9. Lentils & Beans */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
-              <h2 className="mt-1 font-heading text-2xl sm:text-3xl font-bold text-ink">Lentils & Beans</h2>
-              <p className="text-sm text-muted mt-1">Traditional protein-packed legumes from indigenous farms</p>
+              <h2 className="mt-0.5">Lentils & Beans</h2>
             </div>
-            <Link to="/products?category=lentils-beans" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/products?category=lentils-beans" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-80 animate-pulse" />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
             </div>
           ) : grainProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {grainProducts.slice(0, 6).map(product => (
                 <ProductCard key={product.id || product._id} product={product} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No grain products available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse all products →</Link>
+            <div className="text-center py-10 bg-white rounded-xl border border-border">
+              <p className="text-sm text-muted">No grain products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* 9. About Farmers */}
-      <section className="py-14 lg:py-18 bg-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="text-center mb-10">
+      {/* 10. About Farmers */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="text-center mb-8">
             <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Our Heroes</span>
-            <h2 className="mt-2 font-heading text-2xl sm:text-3xl font-bold text-ink">Meet Our Tribal Farmers</h2>
-            <p className="text-sm text-muted mt-1 max-w-lg mx-auto">Every product tells a story of dedication, tradition, and harmony with nature.</p>
+            <h2 className="mt-1">Meet Our Tribal Farmers</h2>
           </div>
           {farmers.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {farmers.slice(0, 4).map(farmer => (
                 <Link key={farmer._id || farmer.id} to={`/farmers/${farmer.qrCode || farmer.code || farmer._id}`}
                   className="group rounded-xl border border-border bg-off-white overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
@@ -387,37 +404,35 @@ export default function Home() {
                       <div className="flex h-full items-center justify-center text-green-600/40 text-5xl">👨‍🌾</div>
                     )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-heading text-base font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
+                  <div className="p-3">
+                    <h3 className="font-heading text-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
                     {farmer.village && <p className="text-xs text-muted mt-0.5">{farmer.village}{farmer.district ? `, ${farmer.district}` : ''}</p>}
-                    <p className="text-xs text-muted mt-1 line-clamp-2">{farmer.bio || farmer.products || 'Traditional tribal farmer'}</p>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { name: 'Rama Devi', village: 'Araku Valley', products: 'Millets, Honey', bio: 'Third-generation tribal farmer practicing traditional millet cultivation' },
-                { name: 'Lakshmi Naidu', village: 'Paderu', products: 'Spices, Tamarind', bio: 'Forest spice gatherer and organic turmeric farmer' },
-                { name: 'Sanya Bai', village: 'Chintapalli', products: 'Honey, Medicinal Herbs', bio: 'Trained in sustainable forest honey harvesting' },
-                { name: 'Mohan Rao', village: 'Maredumilli', products: 'Lentils, Millets', bio: 'Leads a collective of 25 tribal farming families' },
+                { name: 'Rama Devi', village: 'Araku Valley' },
+                { name: 'Lakshmi Naidu', village: 'Paderu' },
+                { name: 'Sanya Bai', village: 'Chintapalli' },
+                { name: 'Mohan Rao', village: 'Maredumilli' },
               ].map((farmer, i) => (
                 <Link key={i} to="/farmers"
                   className="group rounded-xl border border-border bg-off-white overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
                   <div className="aspect-[1/1] overflow-hidden bg-green-100 flex items-center justify-center text-green-600/40 text-5xl">👨‍🌾</div>
-                  <div className="p-4">
-                    <h3 className="font-heading text-base font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
+                  <div className="p-3">
+                    <h3 className="font-heading text-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
                     <p className="text-xs text-muted mt-0.5">{farmer.village}</p>
-                    <p className="text-xs text-muted mt-1 line-clamp-2">{farmer.bio}</p>
                   </div>
                 </Link>
               ))}
             </div>
           )}
-          <div className="mt-10 text-center">
+          <div className="mt-8 text-center">
             <Link to="/farmers"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
+              className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
               Meet All Our Farmers
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </Link>
@@ -425,20 +440,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. Shop by Category — pills */}
-      <section className="py-14 lg:py-18 bg-off-white">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="text-center mb-10">
+      {/* 11. Shop by Category */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="text-center mb-8">
             <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Shop by</span>
-            <h2 className="mt-2 font-heading text-2xl sm:text-3xl font-bold text-ink">Category</h2>
-            <p className="text-sm text-muted mt-1 max-w-md mx-auto">Discover pure, wild-harvested goodness across our range</p>
+            <h2 className="mt-1">Category</h2>
           </div>
-
-          {/* Category pills */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
             {categories.length === 0 ? (
               <div className="flex gap-2">
-                {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 w-24 rounded-full bg-border animate-pulse" />)}
+                {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-9 w-20 rounded-full bg-border animate-pulse" />)}
               </div>
             ) : (
               categories.map(cat => {
@@ -446,8 +458,8 @@ export default function Home() {
                 const isActive = cid === activeCategory
                 return (
                   <button key={cid} onClick={() => setActiveCategory(cid)}
-                    className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all border ${
-                      isActive ? 'bg-green-600 text-white border-green-600 shadow-md' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
+                    className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
+                      isActive ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
                     }`}>
                     {cat.name}
                   </button>
@@ -455,56 +467,46 @@ export default function Home() {
               })
             )}
           </div>
-
-          {/* Active category product showcase */}
           {categories.map(cat => {
             const cid = cat.id || cat._id
             if (cid !== activeCategory) return null
             const catName = cat.slug || cat.name?.toLowerCase()
             const catProducts = categoryProducts[catName]
             const isLoading = catLoading[catName]
-
             return (
               <div key={cid}>
-                <div className="grid lg:grid-cols-3 gap-6">
-                  {/* Category banner */}
-                  <Link to={`/products?category=${catName}`} className="group relative rounded-xl overflow-hidden min-h-[280px] lg:min-h-full flex flex-col justify-end p-6 lg:col-span-1">
+                <div className="grid lg:grid-cols-3 gap-4">
+                  <Link to={`/products?category=${catName}`} className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
                     <img src={cat.image_url ? getImageUrl(cat.image_url) : '/assets/left-banner.svg'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
-                      <h3 className="font-heading text-2xl font-bold text-white">{cat.name}</h3>
-                      {cat.description && <p className="mt-1 text-sm text-white/70">{cat.description}</p>}
-                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white group-hover:underline">
-                        Shop {cat.name} →
-                      </span>
+                      <h3 className="font-heading text-xl font-bold text-white">{cat.name}</h3>
+                      {cat.description && <p className="mt-1 text-sm text-white/70 line-clamp-1">{cat.description}</p>}
+                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
                     </div>
                   </Link>
-
-                  {/* Product grid */}
                   <div className="lg:col-span-2">
                     {isLoading ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-                        {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-80 animate-pulse" />)}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
                       </div>
                     ) : catProducts && catProducts.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {catProducts.slice(0, 6).map(product => (
                           <ProductCard key={product.id || product._id} product={product} />
                         ))}
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center h-full min-h-[200px] bg-white rounded-xl border border-border">
+                      <div className="flex items-center justify-center h-full min-h-[180px] bg-white rounded-xl border border-border">
                         <p className="text-sm text-muted">No products in this category yet.</p>
                       </div>
                     )}
                   </div>
                 </div>
-
-                {/* View All link */}
                 {catProducts && catProducts.length > 6 && (
-                  <div className="mt-6 text-center">
+                  <div className="mt-5 text-center">
                     <Link to={`/products?category=${catName}`}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">
+                      className="inline-flex items-center gap-2 text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">
                       View All {cat.name} Products →
                     </Link>
                   </div>
@@ -515,15 +517,13 @@ export default function Home() {
         </div>
       </section>
 
-
-
       {/* 12. Values strip */}
-      <section className="py-6 bg-off-white border-t border-border">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+      <section className="py-5 bg-off-white border-t border-border">
+        <div className="section-container">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {VALUES.map(v => (
-              <div key={v.label} className="flex items-center gap-2 text-sm text-muted">
-                <span className="text-base">{v.icon}</span>
+              <div key={v.label} className="flex items-center gap-1.5 text-sm text-muted">
+                <span className="text-sm">{v.icon}</span>
                 <span className="text-[11px] font-medium">{v.label}</span>
               </div>
             ))}

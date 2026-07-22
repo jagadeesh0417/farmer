@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..1000;1,9..40,300..1000&family=Fraunces:opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-heading: "Poppins", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-btn: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-btn: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 
   --color-green-600: #D97745;
   --color-green-700: #C05E2E;
@@ -49,18 +50,31 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
 }
 
 h1, h2, h3, h4, h5, h6, .heading-font {
   font-family: var(--font-heading);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
+  line-height: 1.1;
 }
+
+h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.6rem, 3.5vw, 2.6rem); }
+h3 { font-size: clamp(1.2rem, 2.5vw, 1.8rem); }
 
 button, input, select, textarea { outline: 2px solid transparent; outline-offset: 2px; }
 img, video, canvas, svg { max-width: 100%; }
 .heading-font { font-family: var(--font-heading); }
 .btn-font { font-family: var(--font-btn); }
+
+/* Tighter container defaults */
+.section-container {
+  @apply mx-auto w-full px-4 sm:px-6 lg:px-[3vw] max-w-[1640px];
+}
 
 /* Announcement bar scrolling */
 @keyframes marqueeScroll {
@@ -115,3 +129,28 @@ img, video, canvas, svg { max-width: 100%; }
 
 /* Accordion for PDP */
 .accordion-content { overflow: hidden; transition: max-height 0.3s ease; }
+
+/* Carousel scroll snap */
+.carousel-snap { scroll-snap-type: x mandatory; }
+.carousel-snap > * { scroll-snap-align: start; }
+
+/* Lifestyle card styles */
+.lifestyle-card {
+  aspect-ratio: 9/16;
+  width: 220px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+.lifestyle-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+@media (min-width: 640px) {
+  .lifestyle-card { width: 240px; }
+}
+@media (min-width: 1024px) {
+  .lifestyle-card { width: 260px; }
+}
