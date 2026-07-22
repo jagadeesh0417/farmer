@@ -6,6 +6,7 @@ import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
+import { getComboBundles as getSupabaseComboBundles } from '../lib/productService'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS, getHeroAsset } from '../lib/homeAssets'
@@ -49,7 +50,11 @@ export default function Home() {
       try {
         const [productsData, bundlesData, milletData, grainData, farmersData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
-          api.getBundles({ limit: 6 }).then(r => r.data || r || []).catch(() => []),
+          api.getBundles({ combo: 'true' }).then(async r => {
+            let data = r?.data || r || []
+            if (!data || data.length === 0) data = await getSupabaseComboBundles().catch(() => [])
+            return data
+          }).catch(() => []),
           api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
@@ -252,13 +257,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Super Saver Combos */}
+      {/* 5. Combos */}
       <section className="py-14 lg:py-18 bg-white">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Super Saver Combos</h2>
-              <p className="text-sm text-muted mt-1">Curated bundles for the best value</p>
+              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Value Combos</h2>
+              <p className="text-sm text-muted mt-1">Save big with curated product bundles from tribal farms</p>
             </div>
             <Link to="/combos" className="text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
