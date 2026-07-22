@@ -51,9 +51,9 @@ export default function BundleCard({ bundle, compact }) {
   if (compact) {
     return (
       <div className="w-full rounded-xl border border-border bg-white overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 group">
-        <Link to={`/combos/${slug}`} className="relative block overflow-hidden bg-white">
+        <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-t-xl bg-white">
           <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
-            className="aspect-[4/3] w-full object-cover transition duration-500"
+            className="aspect-[1/1] w-full object-cover object-center transition duration-500"
             loading="lazy"
             onError={(e) => { e.target.src = settings?.placeholder_image || 'https://placehold.co/600x400?text=Combo' }} />
           {discountPct > 0 && (
@@ -108,9 +108,9 @@ export default function BundleCard({ bundle, compact }) {
             <span className="rounded-full bg-green-50 px-3 py-1 text-[10px] font-semibold uppercase text-green-600">Best Value</span>
             <span className="text-[11px] text-muted">{productCount} Products</span>
           </div>
-          <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-lg border border-border bg-white">
+          <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-xl bg-white">
             <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
-              className="h-60 w-full object-cover transition duration-500"
+              className="aspect-[1/1] w-full object-cover object-center transition duration-500"
               onError={(e) => { e.target.src = settings?.placeholder_image || 'https://placehold.co/600x400?text=Combo' }} />
             {productCount > 0 && (
               <span className="absolute top-3 left-3 rounded-full bg-ink/80 px-2.5 py-0.5 text-[9px] font-semibold text-white shadow-sm">{productCount} Products</span>

@@ -75,8 +75,8 @@ export default function ProductCard({ product }) {
       )}
 
       {/* Image */}
-      <div className="aspect-[1/1] bg-white flex items-center justify-center p-6">
-        <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+      <div className="aspect-[1/1] overflow-hidden rounded-t-xl bg-white">
+        <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           onError={(e) => { if (e.currentTarget.dataset.fallbackApplied !== 'true') { e.currentTarget.dataset.fallbackApplied = 'true'; e.currentTarget.src = settings?.placeholder_image || '/placeholder.jpg' } }} />
       </div>
 

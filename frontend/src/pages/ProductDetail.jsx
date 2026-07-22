@@ -112,7 +112,7 @@ export default function ProductDetail() {
           {/* Gallery */}
           <div>
             <div className="bg-off-white rounded-xl overflow-hidden border border-border relative">
-              <img src={mainImgSrc} alt={product.name} className="w-full h-[400px] sm:h-[500px] object-contain p-8" />
+              <img src={mainImgSrc} alt={product.name} className="w-full aspect-[1/1] object-cover object-center" />
               <span className="absolute top-3 left-3 text-xs text-muted bg-white/80 border border-border rounded px-2 py-0.5">{selectedImg + 1} / {images.length}</span>
             </div>
             {images.length > 1 && (
@@ -120,7 +120,7 @@ export default function ProductDetail() {
                 {images.map((img, i) => (
                   <button key={i} onClick={() => setSelectedImg(i)}
                     className={`shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden bg-white transition-all ${selectedImg === i ? 'border-green-600' : 'border-border opacity-60 hover:opacity-100'}`}>
-                    <img src={getImageUrl(img, settings?.placeholder_image)} alt="" className="w-full h-full object-contain p-1" />
+                    <img src={getImageUrl(img, settings?.placeholder_image)} alt="" className="w-full h-full object-cover object-center" />
                   </button>
                 ))}
               </div>
