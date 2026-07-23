@@ -143,51 +143,52 @@ export default function ProductDetail() {
 
             {product.product_variants?.length > 0 && (
               <div>
-                <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted mb-2">Select Size Pack</p>
-                <div className="flex flex-wrap gap-2">
-                  {product.product_variants.map(v => {
-                    const active = selectedVariant?.id === v.id
-                    const vPrice = v.price || price
-                    const vMrp = v.mrp || mrp
-                    const vSavings = vMrp - vPrice
-                    const isBestSeller = v.isBestSeller || (v.name?.toLowerCase().includes('500'))
-                    return (
-                      <button key={v.id} onClick={() => setSelectedVariant(v)}
-                        className={`rounded-lg border-2 px-4 py-3 text-left transition-all min-w-[120px] ${
-                          active ? 'border-green-600 bg-green-50' : 'border-border bg-white hover:border-green-300'
-                        }`}>
-                        <span className={`text-sm font-semibold ${active ? 'text-green-700' : 'text-ink'}`}>{v.weight_label || v.name}</span>
-                        <div className="flex items-baseline gap-1 mt-0.5">
-                          <span className={`text-sm font-bold ${active ? 'text-green-700' : 'text-ink'}`}>{formatPrice(vPrice)}</span>
-                          {vMrp > vPrice && <span className="text-[10px] text-muted-light line-through">{formatPrice(vMrp)}</span>}
-                        </div>
-                        {vSavings > 0 && <span className="text-[9px] font-semibold text-sale">Save {formatPrice(vSavings)}/-</span>}
-                        {isBestSeller && <span className="ml-1 text-[8px] font-semibold text-green-600 bg-green-100 px-1 rounded">Best Seller</span>}
-                      </button>
-                    )
-                  })}
+                <label htmlFor="variant-select" className="text-[10px] font-semibold tracking-[0.1em] uppercase text-muted mb-2 block">Select Size Pack</label>
+                <div className="relative">
+                  <select
+                    id="variant-select"
+                    value={selectedVariant?.id || ''}
+                    onChange={(e) => {
+                      const v = product.product_variants.find(x => String(x.id) === e.target.value)
+                      if (v) setSelectedVariant(v)
+                    }}
+                    className="appearance-none h-[56px] w-full rounded-full border-2 border-[#222] bg-white px-5 pr-12 font-product text-[18px] font-semibold text-[#111] outline-none focus:border-[#0E9F3E]"
+                  >
+                    {product.product_variants.map(v => {
+                      const vPrice = v.price || price
+                      const label = `${v.weight_label || v.name || 'Default'} — ${formatPrice(vPrice)}`
+                      return (
+                        <option key={v.id} value={v.id}>
+                          {label}
+                        </option>
+                      )
+                    })}
+                  </select>
+                  <svg className="pointer-events-none absolute right-5 top-1/2 h-6 w-6 -translate-y-1/2 text-[#222]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </div>
               </div>
             )}
 
-            <div className="flex items-baseline gap-2">
-              <span className="font-heading text-2xl font-bold text-ink">{formatPrice(price)}</span>
-              {mrp > price && <span className="text-sm text-muted-light line-through">{formatPrice(mrp)}</span>}
-              {savings > 0 && <span className="text-sm font-semibold text-sale bg-sale-light px-2 py-0.5 rounded">Save {formatPrice(savings)}/-</span>}
+            <div className="flex items-baseline gap-3">
+              <span className="font-product text-3xl font-bold text-ink">{formatPrice(price)}</span>
+              {mrp > price && <span className="font-product text-xl text-muted-light line-through">{formatPrice(mrp)}</span>}
+              {savings > 0 && <span className="font-product text-sm font-semibold text-sale bg-sale-light px-2 py-0.5 rounded">Save {formatPrice(savings)}</span>}
             </div>
 
             <div className="flex gap-3 items-center">
               <div className="flex items-center rounded-lg border border-border bg-white">
-                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="flex items-center justify-center w-10 h-10 text-muted hover:text-green-600 transition-colors">−</button>
-                <span className="min-w-[2.5rem] text-center text-sm font-semibold text-ink">{quantity}</span>
-                <button onClick={() => setQuantity(q => q + 1)} className="flex items-center justify-center w-10 h-10 text-muted hover:text-green-600 transition-colors">+</button>
+                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="flex items-center justify-center w-10 h-10 text-muted hover:text-green-600 transition-colors font-product">−</button>
+                <span className="min-w-[2.5rem] text-center text-sm font-semibold text-ink font-product">{quantity}</span>
+                <button onClick={() => setQuantity(q => q + 1)} className="flex items-center justify-center w-10 h-10 text-muted hover:text-green-600 transition-colors font-product">+</button>
               </div>
-              {inCartQty > 0 && <span className="text-xs text-muted">({inCartQty} in cart)</span>}
+              {inCartQty > 0 && <span className="text-xs text-muted font-product">({inCartQty} in cart)</span>}
             </div>
 
             <div className="flex gap-3">
-              <button onClick={handleAddToCart} className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors active:scale-[0.98]">Add to Cart</button>
-              <button className="flex-1 bg-ink text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-ink/80 transition-colors active:scale-[0.98]">Buy it Now</button>
+              <button onClick={handleAddToCart} className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors active:scale-[0.98] font-product">Add to Cart</button>
+              <button className="flex-1 bg-ink text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-ink/80 transition-colors active:scale-[0.98] font-product">Buy it Now</button>
             </div>
           </div>
         </div>

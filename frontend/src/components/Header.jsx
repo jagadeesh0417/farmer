@@ -79,7 +79,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1 font-menu">
             <NavLink to="/" end className={({ isActive }) => `px-3 py-2 text-[12px] font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Home</NavLink>
             <NavLink to="/products" className={({ isActive }) => `px-3 py-2 text-[12px] font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Products</NavLink>
             <NavLink to="/combos" className={({ isActive }) => `px-3 py-2 text-[12px] font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Combos</NavLink>
@@ -142,7 +142,7 @@ export default function Header() {
             <span className="font-heading text-lg font-bold text-ink">Menu</span>
             <button onClick={() => setMenuOpen(false)} className="p-1 text-muted hover:text-ink"><CloseIcon className="h-5 w-5" /></button>
           </div>
-          <div className="flex-1 overflow-y-auto p-5 space-y-1">
+          <div className="flex-1 overflow-y-auto p-5 space-y-1 font-menu">
             <NavLink to="/" end onClick={closeAll} className={({ isActive }) => `block rounded-lg px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Home</NavLink>
             <NavLink to="/products" onClick={closeAll} className={({ isActive }) => `block rounded-lg px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Products</NavLink>
             <NavLink to="/combos" onClick={closeAll} className={({ isActive }) => `block rounded-lg px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Combos</NavLink>

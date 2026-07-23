@@ -10,7 +10,7 @@ export default function Footer() {
   const email = settings?.email || settings?.contact_email || ''
 
   return (
-    <footer className="bg-white border-t border-border">
+    <footer className="bg-white border-t border-border font-menu">
       {/* Social + Links */}
       <div className="section-container py-10">
         <div className="flex flex-wrap items-center justify-center gap-4 mb-8">

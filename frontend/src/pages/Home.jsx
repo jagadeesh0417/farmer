@@ -12,7 +12,7 @@ import { getComboBundles as getSupabaseComboBundles } from '../lib/productServic
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
 import { DEMO_MODE } from '../lib/withDemoFallback'
-import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory, demoBanners } from '../lib/demoData'
+import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
@@ -38,7 +38,6 @@ export default function Home() {
   const [catLoading, setCatLoading] = useState({})
   const [activeCategory, setActiveCategory] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [banners, setBanners] = useState([])
   const [milletProducts, setMilletProducts] = useState([])
   const [grainProducts, setGrainProducts] = useState([])
   const [farmers, setFarmers] = useState([])
@@ -56,7 +55,7 @@ export default function Home() {
     let cancelled = false
     async function load() {
       try {
-        const [productsData, bundlesData, milletData, grainData, farmersData, bannersData] = await Promise.all([
+        const [productsData, bundlesData, milletData, grainData, farmersData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
           api.getBundles({ combo: 'true' }).then(async r => {
             let data = r?.data || r || []
@@ -66,7 +65,6 @@ export default function Home() {
           api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
-          api.getBanners({ position: 'hero' }).then(r => Array.isArray(r) ? r : r?.data || []).catch(() => []),
         ])
         if (cancelled) return
         setProducts(DEMO_MODE && productsData.length === 0 ? demoProducts : productsData)
@@ -76,8 +74,6 @@ export default function Home() {
         setGrainProducts(DEMO_MODE && grainData.length === 0 ? demoProductsByCategory('lentils-beans') : grainData)
         const finalFarmers = Array.isArray(farmersData) ? farmersData : farmersData?.data || []
         setFarmers(DEMO_MODE && finalFarmers.length === 0 ? demoFarmers : finalFarmers)
-        const finalBanners = Array.isArray(bannersData) ? bannersData : bannersData?.data || []
-        setBanners(DEMO_MODE && finalBanners.length === 0 ? demoBanners : finalBanners)
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
@@ -126,7 +122,7 @@ export default function Home() {
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Hero slider */}
-      <HeroSlider banners={banners} />
+      <HeroSlider banners={HOME_ASSETS.hero} />
 
       {/* 2. Advertisement banner — cinematic strip */}
       <section className="py-4 sm:py-5 lg:py-6 bg-white">

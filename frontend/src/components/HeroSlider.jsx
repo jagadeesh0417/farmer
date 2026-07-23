@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import { getImageUrl } from '../lib/utils'
 import { cld } from '../lib/cloudinary'
-
-function isExternal(url) {
-  return /^https?:\/\//i.test(url)
-}
 
 function BannerImage({ banner, priority }) {
   const desktop = banner.desktopImage || banner.image
@@ -31,19 +26,8 @@ function BannerImage({ banner, priority }) {
   )
 }
 
-const FALLBACK_BANNER = {
-  _id: 'fallback',
-  title: '',
-  subtitle: '',
-  buttonText: '',
-  redirectLink: '/products',
-  desktopImage: '/assets/main-banner.png',
-  tabletImage: '/assets/main-banner.png',
-  mobileImage: '/assets/main-banner.png',
-}
-
 export default function HeroSlider({ banners = [], interval = 5000 }) {
-  const slides = banners.length > 0 ? banners : [FALLBACK_BANNER]
+  const slides = banners.length > 0 ? banners : []
   const [index, setIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [paused, setPaused] = useState(false)
@@ -82,26 +66,7 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
     }
   }
 
-  const current = slides[index]
-  const hasText = current.title || current.subtitle || current.buttonText
-
-  const LinkWrapper = ({ children, className }) => {
-    if (!current.redirectLink) return <div className={className}>{children}</div>
-    const external = isExternal(current.redirectLink)
-    if (external) {
-      return (
-        <a
-          href={current.redirectLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={className}
-        >
-          {children}
-        </a>
-      )
-    }
-    return <Link to={current.redirectLink} className={className}>{children}</Link>
-  }
+  if (!slides.length) return null
 
   return (
     <section
@@ -121,38 +86,7 @@ export default function HeroSlider({ banners = [], interval = 5000 }) {
             } ${direction > 0 ? 'translate-x-full' : '-translate-x-full'}`}
             style={{ transform: active ? 'translateX(0)' : undefined }}
           >
-            <LinkWrapper className="block h-full w-full">
-              <BannerImage banner={banner} priority={i === 0} />
-              {hasText && (
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
-              )}
-              {hasText && (
-                <div className="absolute inset-0 flex items-center">
-                  <div className="section-container">
-                    <div className="max-w-xl animate-fade-up">
-                      {banner.subtitle && (
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/80">
-                          {banner.subtitle}
-                        </p>
-                      )}
-                      {banner.title && (
-                        <h2 className="font-heading text-3xl font-bold text-white sm:text-4xl lg:text-5xl leading-tight">
-                          {banner.title}
-                        </h2>
-                      )}
-                      {banner.buttonText && (
-                        <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5">
-                          {banner.buttonText}
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </LinkWrapper>
+            <BannerImage banner={banner} priority={i === 0} />
           </div>
         )
       })}
