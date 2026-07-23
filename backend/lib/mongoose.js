@@ -21,13 +21,14 @@ export async function connectDB() {
   }
   const uri = process.env.MONGODB_URI
   const dbName = getDbName(uri)
-  const opts = { serverSelectionTimeoutMS: 10000, bufferCommands: false }
+  const opts = { serverSelectionTimeoutMS: 10000 }
   if (dbName) opts.dbName = dbName
   cached.promise = mongoose.connect(uri, opts).then(conn => {
     cached.conn = conn
     cached.error = null
     return conn
   }).catch(err => {
+    console.error('MongoDB connection error:', err.message)
     cached.conn = null
     cached.error = err.message
     cached.promise = null
