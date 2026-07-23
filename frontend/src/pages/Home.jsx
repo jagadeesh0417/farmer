@@ -190,18 +190,16 @@ export default function Home() {
               {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
             </div>
           ) : products.length > 0 ? (
-            <div className="relative w-full">
-              <style>{`
-                @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-                .carousel-track { display: flex; gap: 1.25rem; width: max-content; animation: scroll-left 80s linear infinite; }
-                .carousel-track:hover { animation-play-state: paused; }
-                .carousel-track > * { width: 320px; flex-shrink: 0; }
-                @media (min-width: 640px) { .carousel-track > * { width: 340px; } }
-                @media (min-width: 1024px) { .carousel-track > * { width: 360px; } }
-              `}</style>
-              <div className="carousel-track">
-                {[...products, ...products].map((product, i) => (
-                  <div key={`${product.id || product._id}-${i}`} className="h-full"><ProductCard product={product} /></div>
+            <div className="relative">
+              <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </button>
+              <div id="groceries-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+                {products.map((product, i) => (
+                  <div key={product.id || product._id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[320px]"><ProductCard product={product} /></div>
                 ))}
               </div>
             </div>
