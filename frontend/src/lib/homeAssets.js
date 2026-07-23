@@ -1,8 +1,6 @@
-const BASE = '/assets'
-
 const BANNER = {
-  desktop: `${BASE}/main-banner.png`,
-  mobile: `${BASE}/main-banner.png`,
+  desktop: `/hero-banner.png`,
+  mobile: `/hero-banner.png`,
 }
 
 export const HOME_ASSETS = {
