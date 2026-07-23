@@ -29,17 +29,12 @@ export default function ProductCard({ product, priority }) {
   const isInCart = Boolean(cartItem)
   const cartQuantity = cartItem?.quantity || selection.quantity || 1
   const productImage = product.image_url || product.images?.[0]
-  const imageUrl = getImageUrl(productImage, settings?.placeholder_image)
   const fallbackSrc = generatePlaceholder('product', product.name)
   const imgProps = getImageProps(productImage, {
-    width: 600,
+    width: 400,
     sizes: getImageSizes([1280, 768, 480]),
     priority,
   })
-
-  const rating = product.rating ?? 0
-  const reviewCount = product.reviewCount ?? 0
-  const isBestSeller = product.isBestSeller || product.is_best_seller || product.totalSold > 50 || false
 
   useEffect(() => {
     if (selectedVariant && !selection.variantId) {
@@ -67,20 +62,15 @@ export default function ProductCard({ product, priority }) {
   const variantLabel = (v) => v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
 
   return (
-    <div className="group mx-auto w-full max-w-[360px] rounded-[20px] bg-[#FAF3E8] p-5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-transform duration-300 hover:-translate-y-1">
+    <div className="group flex h-full w-full flex-col rounded-2xl bg-[#FAF3E8] p-4">
       <Link to={`/products/${slugify(product.name)}`} className="relative block">
         {discountPercent > 0 && (
-          <span className="absolute left-0 top-0 z-10 rounded-full bg-[#FFC107] px-3 py-1 text-caption font-bold text-[#111] font-product">
+          <span className="absolute left-1 top-1 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
             {discountPercent}% OFF
           </span>
         )}
-        {isBestSeller && (
-          <span className="absolute right-0 top-0 z-10 rounded-full bg-[#0E9F3E] px-3 py-1 text-micro font-bold text-white font-product">
-            Best Seller
-          </span>
-        )}
 
-        <div className="relative flex h-[320px] w-[320px] max-w-full items-center justify-center overflow-hidden rounded-[20px] bg-[#FAF3E8] mx-auto">
+        <div className="relative mx-auto flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-[#F0E6D3] p-4">
           <img
             src={imgProps.src}
             alt={product.name}
@@ -88,76 +78,65 @@ export default function ProductCard({ product, priority }) {
             fetchPriority={imgProps.fetchpriority}
             srcSet={imgProps.srcSet}
             sizes={imgProps.sizes}
-            className="h-[260px] w-[260px] rounded-[20px] object-contain transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { if (e.currentTarget.dataset.fallbackApplied !== 'true') { e.currentTarget.dataset.fallbackApplied = 'true'; e.currentTarget.src = fallbackSrc } }}
           />
         </div>
       </Link>
 
-      <div className="mt-[18px]">
+      <div className="mt-3 flex flex-1 flex-col">
         <Link to={`/products/${slugify(product.name)}`}>
-          <h3 className="line-clamp-2 min-h-[2.6em] font-product text-product-name font-semibold leading-[1.3] text-[#111]">
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-semibold leading-tight text-[#1a1a1a]">
             {product.name}
           </h3>
         </Link>
 
-        {rating > 0 && (
-          <div className="mt-2 flex items-center gap-1.5">
-            <div className="flex items-center gap-0.5">
-              {[1, 2, 3, 4, 5].map(s => (
-                <span key={s} className={`text-body-sm leading-none ${s <= Math.round(rating) ? 'text-amber-500' : 'text-gray-300'}`}>★</span>
-              ))}
-            </div>
-            <span className="font-product text-caption text-gray-500">({reviewCount})</span>
-          </div>
-        )}
-
-        <div className="mt-[14px] flex items-baseline gap-3">
-          <span className="font-product text-price-lg font-bold text-black">{formatPrice(price)}</span>
+        <div className="mt-2 flex items-baseline justify-center gap-2">
+          <span className="font-product text-body font-bold text-[#1a1a1a]">{formatPrice(price)}</span>
           {mrp > price && (
-            <span className="font-product text-price font-medium text-gray-500 line-through">{formatPrice(mrp)}</span>
+            <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(mrp)}</span>
           )}
         </div>
 
         {hasVariants && (
-          <div className="mt-[18px] flex flex-wrap gap-2">
-            {variants.map(v => {
-              const vid = v.id || v._id
-              const isSelected = vid === selectedVariantId
-              return (
-                <button
-                  key={vid}
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVariantChange(vid) }}
-                  className={`px-4 py-2 rounded-full text-btn font-semibold border-2 transition-all font-product ${
-                    isSelected
-                      ? 'bg-[#0E9F3E] border-[#0E9F3E] text-white'
-                      : 'bg-white border-[#222] text-[#111] hover:border-[#0E9F3E] hover:text-[#0E9F3E]'
-                  }`}
-                >
-                  {variantLabel(v)}
-                </button>
-              )
-            })}
+          <div className="relative mt-3">
+            <select
+              value={selectedVariantId || ''}
+              onChange={(e) => handleVariantChange(e.target.value)}
+              aria-label="Select variant"
+              className="h-10 w-full appearance-none rounded-full border-2 border-[#222] bg-white px-4 pr-10 text-center font-product text-caption font-semibold text-[#1a1a1a] outline-none transition-colors focus:border-[#0E9F3E]"
+            >
+              {variants.map(v => {
+                const vid = v.id || v._id
+                return (
+                  <option key={vid} value={vid}>
+                    {variantLabel(v)}
+                  </option>
+                )
+              })}
+            </select>
+            <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#222]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         )}
 
-        <div className="mt-[18px]">
+        <div className="mt-auto pt-3">
           {isInCart ? (
-            <div className="flex h-[56px] w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white px-2">
+            <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-11 w-11 items-center justify-center rounded-full text-body-lg font-semibold text-[#111] transition hover:bg-[#FAF3E8] disabled:opacity-50 font-product"
+                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
                 disabled={cartQuantity <= 1}
               >
                 −
               </button>
-              <span className="font-product text-body font-semibold text-[#111]">{cartQuantity}</span>
+              <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-11 w-11 items-center justify-center rounded-full text-body-lg font-semibold text-[#111] transition hover:bg-[#FAF3E8] font-product"
+                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product"
               >
                 +
               </button>
@@ -165,7 +144,7 @@ export default function ProductCard({ product, priority }) {
           ) : (
             <button
               onClick={handleAddToCart}
-              className="h-[56px] w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]"
+              className="h-10 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]"
             >
               Add to Cart
             </button>
