@@ -84,6 +84,18 @@
 html, body, #root { min-height: 100%; }
 html, body { overflow-x: hidden; }
 
+img {
+  border-radius: 12px;
+}
+
+img.rounded-none,
+img[src*=".svg"],
+header img,
+nav img,
+footer img {
+  border-radius: 0;
+}
+
 body {
   background-color: #FFFDF9;
   color: #8B5E3C;
