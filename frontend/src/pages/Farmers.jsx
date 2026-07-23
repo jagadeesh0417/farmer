@@ -35,8 +35,8 @@ export default function Farmers() {
         <div className="relative min-h-[35vh] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-r from-green-800/80 to-green-800/40" />
           <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full text-center">
-            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-white/80">Our Farmers</span>
-            <h1 className="mt-4 font-heading text-4xl sm:text-5xl font-bold text-white tracking-tight">Meet Our Farmers</h1>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-micro font-semibold tracking-[0.12em] uppercase text-white/80">Our Farmers</span>
+            <h1 className="mt-4 font-heading text-h1 font-bold text-white tracking-tight">Meet Our Farmers</h1>
             <p className="mt-3 text-white/60 max-w-xl mx-auto">The dedicated farmers who grow your food with love and care, using traditional methods passed down through generations.</p>
           </div>
         </div>
@@ -45,8 +45,8 @@ export default function Farmers() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 py-12">
         {farmers.length === 0 ? (
           <div className="flex min-h-[30vh] flex-col items-center justify-center text-center">
-            <p className="text-lg font-semibold text-ink">No farmer profiles available yet</p>
-            <p className="mt-1 text-sm text-muted">Check back soon as we onboard more tribal farmers.</p>
+            <p className="text-body-lg font-semibold text-ink">No farmer profiles available yet</p>
+            <p className="mt-1 text-body-sm text-muted">Check back soon as we onboard more tribal farmers.</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -59,9 +59,9 @@ export default function Farmers() {
                   <img src={generatePlaceholder('farmer', farmer.name)} alt={farmer.name} className="h-48 w-full object-cover flex-shrink-0" />
                 )}
                 <div className="flex flex-col flex-1 p-5">
-                  <h3 className="font-heading text-lg font-bold text-ink">{farmer.name}</h3>
-                  {farmer.location && <p className="mt-1 text-sm text-muted">{farmer.location}</p>}
-                  {farmer.bio && <p className="mt-auto pt-3 text-sm text-muted leading-relaxed">{farmer.bio}</p>}
+                  <h3 className="font-heading text-h3 font-bold text-ink">{farmer.name}</h3>
+                  {farmer.location && <p className="mt-1 text-body-sm text-muted">{farmer.location}</p>}
+                  {farmer.bio && <p className="mt-auto pt-3 text-body-sm text-muted leading-relaxed">{farmer.bio}</p>}
                 </div>
               </div>
             ))}

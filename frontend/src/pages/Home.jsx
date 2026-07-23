@@ -143,7 +143,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-2 mb-8">
             {CAROUSEL_TABS.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all tracking-wide ${
+                className={`px-4 py-2 rounded-full text-caption font-semibold transition-all tracking-wide ${
                   activeTab === tab ? 'bg-green-600 text-white shadow-sm' : 'bg-white text-ink/60 hover:text-green-600 border border-border'
                 }`}>
                 {tab === 'All Products' ? 'All Products' : tab}
@@ -168,7 +168,7 @@ export default function Home() {
                     headline={i % 3 === 0 ? 'Support your vitality with nature\'s purity' : undefined} />
                 ))
               ) : (
-                <div className="flex items-center justify-center w-full py-20 text-sm text-muted">No products yet</div>
+                <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No products yet</div>
               )}
             </div>
           </div>
@@ -180,10 +180,10 @@ export default function Home() {
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-heading">Groceries</h2>
-              <p className="text-sm text-muted mt-0.5">Everyday essentials</p>
+              <h2 className="font-heading text-h2 font-bold text-ink">Groceries</h2>
+              <p className="text-body-sm text-muted mt-0.5">Everyday essentials</p>
             </div>
-            <Link to="/products" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/products" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -207,7 +207,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No products available yet.</p>
+              <p className="text-body-sm text-muted">No products available yet.</p>
             </div>
           )}
         </div>
@@ -218,11 +218,11 @@ export default function Home() {
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-heading">Stories from the Soil</h2>
-              <p className="text-sm text-muted mt-0.5">Short videos from our tribal communities</p>
+              <h2 className="font-heading text-h2 font-bold text-ink">Stories from the Soil</h2>
+              <p className="text-body-sm text-muted mt-0.5">Short videos from our tribal communities</p>
             </div>
             <a href={`https://www.youtube-nocookie.com/embed/${HOME_ASSETS.youtube.videoId}`} target="_blank" rel="noopener noreferrer"
-              className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
+              className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
           </div>
           <div className="flex gap-3 overflow-x-auto hide-scrollbar carousel-snap pb-2">
             {(DEMO_MODE ? demoStories.map(s => ({
@@ -257,9 +257,9 @@ export default function Home() {
                   )}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
                     {DEMO_MODE && reel.duration && (
-                      <span className="inline-block rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white mb-1">{reel.duration}</span>
+                      <span className="inline-block rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-micro font-medium text-white mb-1">{reel.duration}</span>
                     )}
-                    <p className="text-xs font-medium text-white drop-shadow-sm line-clamp-1">{reel.alt}</p>
+                    <p className="text-caption font-medium text-white drop-shadow-sm line-clamp-1">{reel.alt}</p>
                   </div>
                 </div>
               </div>
@@ -273,10 +273,10 @@ export default function Home() {
         <div className="section-container">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
-              <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Our Story</span>
-              <h2 className="mt-1">From the Forest to Your Home</h2>
-              <p className="mt-2 text-sm text-muted leading-relaxed">Watch how we work with tribal farmers to bring you the purest, most natural products.</p>
-              <Link to="/about" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">Learn More →</Link>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Story</span>
+              <h2 className="mt-1 text-h2 font-bold">From the Forest to Your Home</h2>
+              <p className="mt-2 text-body-sm text-muted leading-relaxed">Watch how we work with tribal farmers to bring you the purest, most natural products.</p>
+              <Link to="/about" className="mt-4 inline-flex items-center gap-2 text-body-sm font-semibold text-green-600 hover:text-green-700 transition-colors">Learn More →</Link>
             </div>
             <div className="aspect-video rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
               {HOME_ASSETS.videoSection.src ? (
@@ -304,10 +304,10 @@ export default function Home() {
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-heading">Value Combos</h2>
-              <p className="text-sm text-muted mt-0.5">Curated bundles, best savings</p>
+              <h2 className="font-heading text-h2 font-bold text-ink">Value Combos</h2>
+              <p className="text-body-sm text-muted mt-0.5">Curated bundles, best savings</p>
             </div>
-            <Link to="/combos" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/combos" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -321,8 +321,8 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No combos available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
+              <p className="text-body-sm text-muted">No combos available yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
             </div>
           )}
         </div>
@@ -332,9 +332,9 @@ export default function Home() {
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
-            <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Watch & Learn</span>
-            <h2 className="mt-1">From Farm to Table</h2>
-            <p className="text-sm text-muted mt-0.5 max-w-md mx-auto">See how traditional farming nourishes communities.</p>
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Watch & Learn</span>
+            <h2 className="mt-1 text-h2 font-bold">From Farm to Table</h2>
+            <p className="text-body-sm text-muted mt-0.5 max-w-md mx-auto">See how traditional farming nourishes communities.</p>
           </div>
           <div className="aspect-video rounded-xl overflow-hidden bg-green-50 max-w-4xl mx-auto">
             <div className="relative h-full w-full" style={{ padding: '56.25% 0 0 0' }}>
@@ -354,10 +354,10 @@ export default function Home() {
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
-              <h2 className="mt-0.5">Millets</h2>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
             </div>
-            <Link to="/products?category=millets" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/products?category=millets" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -371,8 +371,8 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No millet products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+              <p className="text-body-sm text-muted">No millet products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
             </div>
           )}
         </div>
@@ -383,10 +383,10 @@ export default function Home() {
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
-              <h2 className="mt-0.5">Lentils & Beans</h2>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
             </div>
-            <Link to="/products?category=lentils-beans" className="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <Link to="/products?category=lentils-beans" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -400,8 +400,8 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-10 bg-white rounded-xl border border-border">
-              <p className="text-sm text-muted">No grain products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+              <p className="text-body-sm text-muted">No grain products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
             </div>
           )}
         </div>
@@ -411,8 +411,8 @@ export default function Home() {
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
-            <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Our Heroes</span>
-            <h2 className="mt-1">Meet Our Tribal Farmers</h2>
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Heroes</span>
+            <h2 className="mt-1 text-h2 font-bold">Meet Our Tribal Farmers</h2>
           </div>
           {farmers.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -430,8 +430,8 @@ export default function Home() {
                     )}
                   </div>
                   <div className="flex flex-col flex-1 p-3 mt-auto">
-                    <h3 className="font-heading text-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
-                    {farmer.village && <p className="text-xs text-muted mt-0.5">{farmer.village}{farmer.district ? `, ${farmer.district}` : ''}</p>}
+                    <h3 className="font-heading text-body-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
+                    {farmer.village && <p className="text-caption text-muted mt-0.5">{farmer.village}{farmer.district ? `, ${farmer.district}` : ''}</p>}
                   </div>
                 </Link>
               ))}
@@ -443,8 +443,8 @@ export default function Home() {
                   className="group flex flex-col rounded-xl border border-border bg-off-white overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
                   <img src={farmer.image || generatePlaceholder('farmer-card')} alt={farmer.name} className="h-48 w-full object-cover flex-shrink-0" />
                   <div className="flex flex-col flex-1 p-3 mt-auto">
-                    <h3 className="font-heading text-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
-                    <p className="text-xs text-muted mt-0.5">{farmer.village || farmer.location}</p>
+                    <h3 className="font-heading text-body-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
+                    <p className="text-caption text-muted mt-0.5">{farmer.village || farmer.location}</p>
                   </div>
                 </Link>
               ))}
@@ -452,7 +452,7 @@ export default function Home() {
           )}
           <div className="mt-8 text-center">
             <Link to="/farmers"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
+              className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
               Meet All Our Farmers
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </Link>
@@ -464,8 +464,8 @@ export default function Home() {
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
-            <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-green-600">Shop by</span>
-            <h2 className="mt-1">Category</h2>
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Shop by</span>
+            <h2 className="mt-1 text-h2 font-bold">Category</h2>
           </div>
           <div className="flex flex-wrap justify-center gap-2 mb-8">
             {categories.length === 0 ? (
@@ -478,7 +478,7 @@ export default function Home() {
                 const isActive = cid === activeCategory
                 return (
                   <button key={cid} onClick={() => setActiveCategory(cid)}
-                    className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
+                    className={`px-4 py-2 rounded-full text-caption font-semibold transition-all border ${
                       isActive ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
                     }`}>
                     {cat.name}
@@ -500,9 +500,9 @@ export default function Home() {
                     <img src={cat.image_url ? getImageUrl(cat.image_url) : '/assets/main-banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
-                      <h3 className="font-heading text-xl font-bold text-white">{cat.name}</h3>
-                      {cat.description && <p className="mt-1 text-sm text-white/70 line-clamp-1">{cat.description}</p>}
-                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
+                      <h3 className="font-heading text-h3 font-bold text-white">{cat.name}</h3>
+                      {cat.description && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{cat.description}</p>}
+                      <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
                     </div>
                   </Link>
                   <div className="lg:col-span-2">
@@ -518,7 +518,7 @@ export default function Home() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-full min-h-[180px] bg-white rounded-xl border border-border">
-                        <p className="text-sm text-muted">No products in this category yet.</p>
+                        <p className="text-body-sm text-muted">No products in this category yet.</p>
                       </div>
                     )}
                   </div>
@@ -526,7 +526,7 @@ export default function Home() {
                 {catProducts && catProducts.length > 6 && (
                   <div className="mt-5 text-center">
                     <Link to={`/products?category=${catName}`}
-                      className="inline-flex items-center gap-2 text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">
+                      className="inline-flex items-center gap-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">
                       View All {cat.name} Products →
                     </Link>
                   </div>
@@ -542,9 +542,9 @@ export default function Home() {
         <div className="section-container">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {VALUES.map(v => (
-              <div key={v.label} className="flex items-center gap-1.5 text-sm text-muted">
-                <span className="text-sm">{v.icon}</span>
-                <span className="text-[11px] font-medium">{v.label}</span>
+              <div key={v.label} className="flex items-center gap-1.5 text-body-sm text-muted">
+                <span className="text-body-sm">{v.icon}</span>
+                <span className="text-caption font-medium">{v.label}</span>
               </div>
             ))}
           </div>
@@ -557,7 +557,7 @@ export default function Home() {
         aria-label="Shopping cart">
         <CartIcon className="h-6 w-6" />
         {cartCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-sale px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">{cartCount}</span>
+          <span className="absolute -right-1 -top-1 rounded-full bg-sale px-2 py-0.5 text-micro font-bold text-white shadow-sm">{cartCount}</span>
         )}
       </button>
     </div>

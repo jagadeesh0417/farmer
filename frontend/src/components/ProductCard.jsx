@@ -70,12 +70,12 @@ export default function ProductCard({ product, priority }) {
     <div className="group mx-auto w-full max-w-[360px] rounded-[20px] bg-[#FAF3E8] p-5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-transform duration-300 hover:-translate-y-1">
       <Link to={`/products/${slugify(product.name)}`} className="relative block">
         {discountPercent > 0 && (
-          <span className="absolute left-0 top-0 z-10 rounded-full bg-[#FFC107] px-3 py-1 text-[16px] font-bold text-[#111] font-product">
+          <span className="absolute left-0 top-0 z-10 rounded-full bg-[#FFC107] px-3 py-1 text-caption font-bold text-[#111] font-product">
             {discountPercent}% OFF
           </span>
         )}
         {isBestSeller && (
-          <span className="absolute right-0 top-0 z-10 rounded-full bg-[#0E9F3E] px-3 py-1 text-[12px] font-bold text-white font-product">
+          <span className="absolute right-0 top-0 z-10 rounded-full bg-[#0E9F3E] px-3 py-1 text-micro font-bold text-white font-product">
             Best Seller
           </span>
         )}
@@ -96,7 +96,7 @@ export default function ProductCard({ product, priority }) {
 
       <div className="mt-[18px]">
         <Link to={`/products/${slugify(product.name)}`}>
-          <h3 className="line-clamp-2 min-h-[2.6em] font-product text-[26px] font-semibold leading-[1.3] text-[#111]">
+          <h3 className="line-clamp-2 min-h-[2.6em] font-product text-product-name font-semibold leading-[1.3] text-[#111]">
             {product.name}
           </h3>
         </Link>
@@ -105,17 +105,17 @@ export default function ProductCard({ product, priority }) {
           <div className="mt-2 flex items-center gap-1.5">
             <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map(s => (
-                <span key={s} className={`text-[14px] leading-none ${s <= Math.round(rating) ? 'text-amber-500' : 'text-gray-300'}`}>★</span>
+                <span key={s} className={`text-body-sm leading-none ${s <= Math.round(rating) ? 'text-amber-500' : 'text-gray-300'}`}>★</span>
               ))}
             </div>
-            <span className="font-product text-[12px] text-gray-500">({reviewCount})</span>
+            <span className="font-product text-caption text-gray-500">({reviewCount})</span>
           </div>
         )}
 
         <div className="mt-[14px] flex items-baseline gap-3">
-          <span className="font-product text-[32px] font-bold text-black">{formatPrice(price)}</span>
+          <span className="font-product text-price-lg font-bold text-black">{formatPrice(price)}</span>
           {mrp > price && (
-            <span className="font-product text-[24px] font-medium text-gray-500 line-through">{formatPrice(mrp)}</span>
+            <span className="font-product text-price font-medium text-gray-500 line-through">{formatPrice(mrp)}</span>
           )}
         </div>
 
@@ -129,7 +129,7 @@ export default function ProductCard({ product, priority }) {
                   key={vid}
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleVariantChange(vid) }}
-                  className={`px-4 py-2 rounded-full text-[14px] font-semibold border-2 transition-all font-product ${
+                  className={`px-4 py-2 rounded-full text-btn font-semibold border-2 transition-all font-product ${
                     isSelected
                       ? 'bg-[#0E9F3E] border-[#0E9F3E] text-white'
                       : 'bg-white border-[#222] text-[#111] hover:border-[#0E9F3E] hover:text-[#0E9F3E]'
@@ -144,20 +144,20 @@ export default function ProductCard({ product, priority }) {
 
         <div className="mt-[18px]">
           {isInCart ? (
-            <div className="flex h-[62px] w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white px-2">
+            <div className="flex h-[56px] w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white px-2">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-12 w-12 items-center justify-center rounded-full text-[24px] font-semibold text-[#111] transition hover:bg-[#FAF3E8] disabled:opacity-50 font-product"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-body-lg font-semibold text-[#111] transition hover:bg-[#FAF3E8] disabled:opacity-50 font-product"
                 disabled={cartQuantity <= 1}
               >
                 −
               </button>
-              <span className="font-product text-[22px] font-semibold text-[#111]">{cartQuantity}</span>
+              <span className="font-product text-body font-semibold text-[#111]">{cartQuantity}</span>
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-12 w-12 items-center justify-center rounded-full text-[24px] font-semibold text-[#111] transition hover:bg-[#FAF3E8] font-product"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-body-lg font-semibold text-[#111] transition hover:bg-[#FAF3E8] font-product"
               >
                 +
               </button>
@@ -165,7 +165,7 @@ export default function ProductCard({ product, priority }) {
           ) : (
             <button
               onClick={handleAddToCart}
-              className="h-[62px] w-full rounded-full bg-[#0E9F3E] font-product text-[28px] font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]"
+              className="h-[56px] w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]"
             >
               Add to Cart
             </button>

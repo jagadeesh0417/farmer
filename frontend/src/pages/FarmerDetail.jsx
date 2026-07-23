@@ -31,9 +31,9 @@ export default function FarmerDetail() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-12 text-center bg-white">
         <img src={generatePlaceholder('farmer', 'Farmer')} alt="" className="w-24 h-24 rounded-full mb-4" />
-        <h2 className="font-heading text-2xl font-bold text-ink">Farmer Not Found</h2>
-        <p className="mt-2 text-sm text-muted">{error || 'This QR code is no longer valid'}</p>
-        <Link to="/" className="mt-6 rounded-lg bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700 transition">Go Home</Link>
+        <h2 className="font-heading text-h2 font-bold text-ink">Farmer Not Found</h2>
+        <p className="mt-2 text-body-sm text-muted">{error || 'This QR code is no longer valid'}</p>
+        <Link to="/" className="mt-6 rounded-lg bg-green-600 px-6 py-3 text-body-sm font-semibold text-white hover:bg-green-700 transition">Go Home</Link>
       </div>
     )
   }
@@ -48,8 +48,8 @@ export default function FarmerDetail() {
         <div className="relative min-h-[25vh] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-r from-green-800/80 to-green-800/40" />
           <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full text-center">
-            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-white/80">Our Farmers</span>
-            <h1 className="mt-4 font-heading text-3xl sm:text-4xl font-bold text-white tracking-tight">{farmer.name}</h1>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-micro font-semibold tracking-[0.12em] uppercase text-white/80">Our Farmers</span>
+            <h1 className="mt-4 font-heading text-h1 font-bold text-white tracking-tight">{farmer.name}</h1>
             {farmer.village && (
               <p className="mt-2 text-white/60">{[farmer.village, farmer.district, farmer.state].filter(Boolean).join(', ')}</p>
             )}
@@ -68,9 +68,9 @@ export default function FarmerDetail() {
           <div className="p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
-                <h1 className="font-heading text-2xl font-bold text-ink">{farmer.name}</h1>
+                <h1 className="font-heading text-h2 font-bold text-ink">{farmer.name}</h1>
                 {farmer.village && (
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="mt-1 text-body-sm text-muted">
                     {[farmer.village, farmer.district, farmer.state].filter(Boolean).join(', ')}
                   </p>
                 )}
@@ -78,48 +78,48 @@ export default function FarmerDetail() {
               {qr?.qrImage && (
                 <div className="shrink-0 text-center">
                   <img src={qr.qrImage} alt="Farmer QR" className="mx-auto w-20 h-20 rounded-lg border border-border" />
-                  <p className="mt-1 text-[10px] text-muted">Scan to verify</p>
+                  <p className="mt-1 text-micro text-muted">Scan to verify</p>
                 </div>
               )}
             </div>
 
             {farmer.bio && (
               <div className="mt-6">
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">About</h3>
-                <p className="mt-2 text-sm text-ink leading-relaxed">{farmer.bio}</p>
+                <h3 className="text-caption font-semibold uppercase tracking-[0.1em] text-muted">About</h3>
+                <p className="mt-2 text-body-sm text-ink leading-relaxed">{farmer.bio}</p>
               </div>
             )}
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {farmer.products?.length > 0 && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">Products</h3>
-                  <p className="mt-1 text-sm text-ink">{Array.isArray(farmer.products) ? farmer.products.join(', ') : farmer.products}</p>
+                  <h3 className="text-caption font-semibold uppercase tracking-[0.1em] text-muted">Products</h3>
+                  <p className="mt-1 text-body-sm text-ink">{Array.isArray(farmer.products) ? farmer.products.join(', ') : farmer.products}</p>
                 </div>
               )}
               {farmer.quantity && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">Quantity</h3>
-                  <p className="mt-1 text-sm text-ink">{farmer.quantity}</p>
+                  <h3 className="text-caption font-semibold uppercase tracking-[0.1em] text-muted">Quantity</h3>
+                  <p className="mt-1 text-body-sm text-ink">{farmer.quantity}</p>
                 </div>
               )}
               {farmer.availability && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">Availability</h3>
-                  <p className="mt-1 text-sm text-ink">{farmer.availability}</p>
+                  <h3 className="text-caption font-semibold uppercase tracking-[0.1em] text-muted">Availability</h3>
+                  <p className="mt-1 text-body-sm text-ink">{farmer.availability}</p>
                 </div>
               )}
               {farmer.pickupDetails && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">Pickup Details</h3>
-                  <p className="mt-1 text-sm text-ink">{farmer.pickupDetails}</p>
+                  <h3 className="text-caption font-semibold uppercase tracking-[0.1em] text-muted">Pickup Details</h3>
+                  <p className="mt-1 text-body-sm text-ink">{farmer.pickupDetails}</p>
                 </div>
               )}
             </div>
 
             <div className="mt-8 flex gap-3">
-              <Link to="/products" className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition">Browse Products</Link>
-              <a href={`https://wa.me/91${farmer.phone}?text=Hello%20${farmer.name}%2C%20I%20saw%20your%20profile%20on%20HAiFarmer`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-green-600 bg-white px-6 py-2.5 text-sm font-semibold text-green-600 hover:bg-green-50 transition">Contact on WhatsApp</a>
+              <Link to="/products" className="rounded-lg bg-green-600 px-6 py-2.5 text-body-sm font-semibold text-white hover:bg-green-700 transition">Browse Products</Link>
+              <a href={`https://wa.me/91${farmer.phone}?text=Hello%20${farmer.name}%2C%20I%20saw%20your%20profile%20on%20HAiFarmer`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-green-600 bg-white px-6 py-2.5 text-body-sm font-semibold text-green-600 hover:bg-green-50 transition">Contact on WhatsApp</a>
             </div>
           </div>
         </div>

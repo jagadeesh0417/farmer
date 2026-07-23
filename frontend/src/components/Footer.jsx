@@ -31,26 +31,26 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <h3 className="font-heading text-lg font-bold text-ink">Fresh & Natural Products</h3>
-            <p className="text-sm text-muted mt-2 leading-relaxed">Pure forest-grown produce directly from tribal farmers. Chemical-free, no middlemen, farm to home.</p>
+            <h3 className="font-heading text-h4 font-bold text-ink">Fresh & Natural Products</h3>
+            <p className="text-body-sm text-muted mt-2 leading-relaxed">Pure forest-grown produce directly from tribal farmers. Chemical-free, no middlemen, farm to home.</p>
           </div>
           {/* Company */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Company</h3>
+            <h3 className="text-nav font-semibold tracking-[0.1em] uppercase text-ink mb-4">Company</h3>
             <ul className="space-y-2.5">
               {[{ label: 'About Us', to: '/about' }, { label: 'Blog', to: '/#journal' }, { label: 'Meet the Farmers', to: '/farmers' }, { label: 'Contact', to: '/#contact' }].map(item => (
-                <li key={item.label}><Link to={item.to} className="text-sm text-muted hover:text-green-600 transition-colors">{item.label}</Link></li>
+                <li key={item.label}><Link to={item.to} className="text-body-sm text-muted hover:text-green-600 transition-colors">{item.label}</Link></li>
               ))}
             </ul>
           </div>
 
           {/* Get in Touch */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-ink mb-4">Get in Touch</h3>
-            <div className="space-y-3 text-sm text-muted">
+            <h3 className="text-nav font-semibold tracking-[0.1em] uppercase text-ink mb-4">Get in Touch</h3>
+            <div className="space-y-3 text-body-sm text-muted">
               {email && <p>Email: <a href={`mailto:${email}`} className="hover:text-green-600 transition-colors">{email}</a></p>}
               <p>Phone: <a href={`tel:+91${phone}`} className="hover:text-green-600 transition-colors">+91-{phone}</a></p>
-              <p className="text-xs">Mon – Sat, 10 AM – 7 PM</p>
+              <p className="text-caption">Mon – Sat, 10 AM – 7 PM</p>
             </div>
           </div>
         </div>
@@ -59,10 +59,10 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-border">
         <div className="section-container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted">© 2026 HAiFarmer. All rights reserved.</p>
+          <p className="text-caption text-muted">© {year} HAiFarmer. All rights reserved.</p>
           <div className="flex items-center gap-3">
             {['Visa', 'Mastercard', 'UPI'].map(method => (
-              <span key={method} className="text-[10px] font-semibold text-muted uppercase border border-border rounded px-2 py-0.5">{method}</span>
+              <span key={method} className="text-micro font-semibold text-muted uppercase border border-border rounded px-2 py-0.5">{method}</span>
             ))}
           </div>
         </div>

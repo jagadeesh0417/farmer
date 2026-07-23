@@ -33,9 +33,9 @@ export default function Combos() {
         <div className="relative min-h-[40vh] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-r from-green-800/80 to-green-800/40" />
           <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full text-center">
-            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-white/80">Curated Bundles</span>
-            <h1 className="mt-4 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">Value Combos</h1>
-            <p className="mt-3 text-white/60 max-w-lg mx-auto">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-micro font-semibold tracking-[0.12em] uppercase text-white/80">Curated Bundles</span>
+            <h1 className="mt-4 font-heading text-h1 font-bold text-white tracking-tight">Value Combos</h1>
+            <p className="mt-3 text-body-sm text-white/60 max-w-lg mx-auto">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
           </div>
         </div>
       </section>
@@ -47,8 +47,8 @@ export default function Combos() {
           </div>
         ) : bundles.length === 0 ? (
           <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-            <p className="font-heading text-2xl font-semibold text-ink italic">No combos available</p>
-            <p className="mt-1 text-sm text-muted">Check back soon for exciting bundles!</p>
+            <p className="font-heading text-h2 font-semibold text-ink italic">No combos available</p>
+            <p className="mt-1 text-body-sm text-muted">Check back soon for exciting bundles!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

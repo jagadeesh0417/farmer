@@ -38,7 +38,7 @@ export default function BundleDetail() {
     <div className="flex min-h-screen items-center justify-center bg-white">
       <div className="text-center">
         <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-green-800/20 border-t-green-600" />
-        <p className="mt-4 font-heading text-lg text-green-800/40 italic">HAiFarmer</p>
+        <p className="mt-4 font-heading text-body-lg text-green-800/40 italic">HAiFarmer</p>
       </div>
     </div>
   )
@@ -46,8 +46,8 @@ export default function BundleDetail() {
   if (!bundle) return (
     <div className="flex min-h-[60vh] items-center justify-center bg-white">
       <div className="text-center">
-        <p className="font-heading text-2xl text-green-800/50 italic">Bundle not found</p>
-        <Link to="/combos" className="mt-4 btn-font inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-all">Back to Combos</Link>
+        <p className="font-heading text-h2 text-green-800/50 italic">Bundle not found</p>
+        <Link to="/combos" className="mt-4 btn-font inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-body-sm font-semibold text-white hover:bg-green-700 transition-all">Back to Combos</Link>
       </div>
     </div>
   )
@@ -72,7 +72,7 @@ export default function BundleDetail() {
       {/* Breadcrumb */}
       <div className="bg-green-50 border-b border-border">
         <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8 lg:px-10">
-          <div className="flex items-center gap-2 text-xs text-green-800/40">
+          <div className="flex items-center gap-2 text-caption text-green-800/40">
             <Link to="/" className="hover:text-green-600 transition-colors">Home</Link>
             <span>/</span>
             <Link to="/combos" className="hover:text-green-600 transition-colors">Combos</Link>
@@ -91,37 +91,37 @@ export default function BundleDetail() {
           </div>
           <div className="flex flex-col gap-6">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-xl bg-green-600/10 px-4 py-1.5 text-xs font-semibold tracking-[0.08em] uppercase text-green-600 mb-3">Best Value Bundle</span>
-              <h1 className="font-heading text-4xl font-bold text-ink sm:text-5xl tracking-tight">{bundle.name}</h1>
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-green-600/10 px-4 py-1.5 text-micro font-semibold tracking-[0.08em] uppercase text-green-600 mb-3">Best Value Bundle</span>
+              <h1 className="font-heading text-h1 font-bold text-ink tracking-tight">{bundle.name}</h1>
             </div>
 
             <div className="flex items-end gap-3">
-              {originalTotal > bundlePrice && <span className="font-heading text-xl text-green-800/30 line-through">{formatPrice(originalTotal)}</span>}
-              <span className="font-heading text-4xl font-bold text-ink">{formatPrice(bundlePrice)}</span>
-              <span className="text-sm text-green-800/40 mb-1">+ shipping</span>
+              {originalTotal > bundlePrice && <span className="font-heading text-price text-green-800/30 line-through">{formatPrice(originalTotal)}</span>}
+              <span className="font-heading text-price-lg font-bold text-ink">{formatPrice(bundlePrice)}</span>
+              <span className="text-body-sm text-green-800/40 mb-1">+ shipping</span>
             </div>
 
             {bundle.description && (
-              <p className="text-sm leading-relaxed text-green-800/60">{bundle.description}</p>
+              <p className="text-body-sm leading-relaxed text-green-800/60">{bundle.description}</p>
             )}
 
             <div className="flex flex-wrap gap-2">
-              <div className="rounded-xl bg-sage-300/20 px-4 py-2 text-xs font-semibold text-green-800 flex items-center gap-1.5">
+              <div className="rounded-xl bg-sage-300/20 px-4 py-2 text-caption font-semibold text-green-800 flex items-center gap-1.5">
                 <span className="text-green-600">✦</span> 100% Natural
               </div>
-              <div className="rounded-xl bg-sage-300/20 px-4 py-2 text-xs font-semibold text-green-800 flex items-center gap-1.5">
+              <div className="rounded-xl bg-sage-300/20 px-4 py-2 text-caption font-semibold text-green-800 flex items-center gap-1.5">
                 <span className="text-green-600">✦</span> Chemical Free
               </div>
-              <div className="rounded-xl bg-sage-300/20 px-4 py-2 text-xs font-semibold text-green-800 flex items-center gap-1.5">
+              <div className="rounded-xl bg-sage-300/20 px-4 py-2 text-caption font-semibold text-green-800 flex items-center gap-1.5">
                 <span className="text-green-600">✦</span> Direct from Farmers
               </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-ink mb-3">Includes:</h3>
+              <h3 className="text-body-sm font-semibold text-ink mb-3">Includes:</h3>
               <ul className="space-y-2">
                 {bundle.items?.map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-green-800/60">
+                  <li key={i} className="flex items-center gap-2 text-body-sm text-green-800/60">
                     <span className="text-green-600 font-bold">✓</span>
                     {item.variantName || item.product?.name || 'Product'} × {item.quantity}
                   </li>
@@ -130,7 +130,7 @@ export default function BundleDetail() {
             </div>
 
             <button onClick={async () => { if (isInCart) await removeFromCart(cartItem.id); else await addToCart({ bundle_id: bundle._id, quantity: 1, bundle }) }}
-              className={`btn-font w-full rounded-2xl py-4 text-base font-semibold tracking-[0.06em] uppercase text-white transition-all hover:-translate-y-1 shadow-xl btn-lift flex items-center justify-center gap-3 ${isInCart ? 'bg-green-800/80 hover:bg-green-800' : 'bg-green-600 hover:bg-green-700 shadow-green-600/25'}`}>
+              className={`btn-font w-full rounded-2xl py-4 text-body font-semibold tracking-[0.06em] uppercase text-white transition-all hover:-translate-y-1 shadow-xl btn-lift flex items-center justify-center gap-3 ${isInCart ? 'bg-green-800/80 hover:bg-green-800' : 'bg-green-600 hover:bg-green-700 shadow-green-600/25'}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.1 10.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H7.2"/></svg>
               {isInCart ? 'Remove from cart' : 'Add to cart'}
             </button>

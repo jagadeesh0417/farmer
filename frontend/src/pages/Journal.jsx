@@ -16,9 +16,9 @@ export default function Journal() {
         <div className="relative min-h-[35vh] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-r from-green-800/80 to-green-800/40" />
           <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 w-full text-center">
-            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-white/80">Journal</span>
-            <h1 className="mt-4 font-heading text-4xl sm:text-5xl font-bold text-white tracking-tight">Our Journal</h1>
-            <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">Stories, recipes, and insights from the world of natural farming.</p>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-micro font-semibold tracking-[0.12em] uppercase text-white/80">Journal</span>
+            <h1 className="mt-4 font-heading text-h1 font-bold text-white tracking-tight">Our Journal</h1>
+            <p className="mt-4 text-body-lg text-white/70 max-w-2xl mx-auto">Stories, recipes, and insights from the world of natural farming.</p>
           </div>
         </div>
       </section>
@@ -37,13 +37,13 @@ export default function Journal() {
                   {post.tag === 'Recipes' && '🍳'}
                 </div>
                 <div className="p-5">
-                  <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.1em] uppercase text-green-600 mb-2">
+                  <div className="flex items-center gap-2 text-micro font-semibold tracking-[0.1em] uppercase text-green-600 mb-2">
                     <span className="rounded-full bg-green-50 px-2.5 py-0.5">{post.tag}</span>
                     <span className="text-muted">{post.date}</span>
                   </div>
-                  <h2 className="font-heading text-base font-bold text-ink leading-snug">{post.title}</h2>
-                  <p className="mt-1.5 text-sm text-muted leading-relaxed">{post.excerpt}</p>
-                  <p className="mt-3 text-[11px] text-muted">By {post.author}</p>
+                  <h2 className="font-heading text-body font-bold text-ink leading-snug">{post.title}</h2>
+                  <p className="mt-1.5 text-body-sm text-muted leading-relaxed">{post.excerpt}</p>
+                  <p className="mt-3 text-caption text-muted">By {post.author}</p>
                 </div>
               </article>
             ))}
@@ -53,9 +53,9 @@ export default function Journal() {
 
       <section className="py-14 lg:py-18 bg-sand">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 text-center">
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-ink">Stay Connected</h2>
-          <p className="text-sm text-muted mt-2 max-w-md mx-auto">Follow us for the latest updates, recipes, and stories from tribal farmers.</p>
-          <Link to="/products" className="mt-6 inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">Explore Products →</Link>
+          <h2 className="font-heading text-h2 font-bold text-ink">Stay Connected</h2>
+          <p className="text-body-sm text-muted mt-2 max-w-md mx-auto">Follow us for the latest updates, recipes, and stories from tribal farmers.</p>
+          <Link to="/products" className="mt-6 inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">Explore Products →</Link>
         </div>
       </section>
     </div>

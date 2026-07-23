@@ -158,9 +158,9 @@ export default function Checkout() {
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-green-50 text-green-800/20">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-12 w-12"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.1 10.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H7.2"/></svg>
         </div>
-        <h2 className="font-heading text-2xl font-bold text-ink">Your cart is empty</h2>
+        <h2 className="font-heading text-h2 font-bold text-ink">Your cart is empty</h2>
         <p className="mt-2 text-green-800/50">Add some fresh products to get started!</p>
-        <Link to="/products" className="mt-6 btn-font inline-flex items-center gap-2 rounded-xl bg-green-600 px-8 py-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-white transition-all hover:bg-green-700 hover:-translate-y-1 shadow-xl shadow-green-600/20 btn-lift">Browse Products</Link>
+        <Link to="/products" className="mt-6 btn-font inline-flex items-center gap-2 rounded-xl bg-green-600 px-8 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white transition-all hover:bg-green-700 hover:-translate-y-1 shadow-xl shadow-green-600/20 btn-lift">Browse Products</Link>
       </div>
     )
   }
@@ -170,7 +170,7 @@ export default function Checkout() {
       {/* Breadcrumb */}
       <div className="bg-green-50 border-b border-border">
         <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8 lg:px-10">
-          <div className="flex items-center gap-2 text-xs text-green-800/40">
+          <div className="flex items-center gap-2 text-caption text-green-800/40">
             <Link to="/" className="hover:text-green-600 transition-colors">Home</Link>
             <span>/</span>
             <span className="text-green-800/70 font-medium">Checkout</span>
@@ -179,30 +179,30 @@ export default function Checkout() {
       </div>
 
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
-        <h1 className="font-heading mb-8 text-3xl font-bold text-ink sm:text-4xl tracking-tight">Secure Checkout</h1>
+        <h1 className="font-heading mb-8 text-h1 font-bold text-ink tracking-tight">Secure Checkout</h1>
         <div className="grid gap-8 lg:grid-cols-[1fr,420px]">
           <div className="space-y-6">
             {/* Delivery Details */}
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-              <h2 className="font-heading mb-4 text-lg font-bold text-ink">Delivery Details</h2>
+              <h2 className="font-heading mb-4 text-h3 font-bold text-ink">Delivery Details</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 <input value={delivery.name} onChange={e => setDelivery(d => ({ ...d, name: e.target.value }))} placeholder="Full Name *"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                 <input value={delivery.phone} onChange={e => setDelivery(d => ({ ...d, phone: e.target.value }))} placeholder="Phone *"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                 <div className="sm:col-span-2">
                   <textarea value={delivery.address} onChange={e => setDelivery(d => ({ ...d, address: e.target.value }))} placeholder="Delivery Address *" rows={2}
-                    className="w-full rounded-2xl border border-border bg-white px-4 py-2.5 text-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                    className="w-full rounded-2xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                 </div>
                 <input value={delivery.city} onChange={e => setDelivery(d => ({ ...d, city: e.target.value }))} placeholder="City"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                 <input value={delivery.pincode} onChange={e => setDelivery(d => ({ ...d, pincode: e.target.value }))} placeholder="Pincode"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
               </div>
             </div>
 
             {/* Cart Items */}
-            <h2 className="font-heading text-lg font-bold text-ink pl-1">Order Items ({cartItems.length})</h2>
+            <h2 className="font-heading text-h3 font-bold text-ink pl-1">Order Items ({cartItems.length})</h2>
             <div className="space-y-3">
               {cartItems.map(item => (
                 <div key={item.id} className="flex gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm hover:shadow-md transition-all">
@@ -210,13 +210,13 @@ export default function Checkout() {
                     className="h-20 w-20 rounded-xl object-cover" />
                   <div className="flex-1">
                     <h3 className="font-semibold text-ink">{getItemName(item)}</h3>
-                    {getItemVariantName(item) && <p className="text-xs text-green-800/40">{getItemVariantName(item)}</p>}
-                    <p className="mt-1 text-sm font-semibold text-green-600">{formatPrice(getItemPrice(item))}</p>
+                    {getItemVariantName(item) && <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>}
+                    <p className="mt-1 text-body-sm font-semibold text-green-600">{formatPrice(getItemPrice(item))}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">-</button>
-                      <span className="min-w-[2rem] text-center text-sm font-semibold text-ink">{item.quantity}</span>
+                      <span className="min-w-[2rem] text-center text-body-sm font-semibold text-ink">{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">+</button>
-                      <button onClick={() => removeFromCart(item.id)} className="ml-auto text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">Remove</button>
+                      <button onClick={() => removeFromCart(item.id)} className="ml-auto text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Remove</button>
                     </div>
                   </div>
                 </div>
@@ -226,8 +226,8 @@ export default function Checkout() {
 
           {/* Order Summary */}
           <div className="rounded-2xl border border-border bg-white p-6 shadow-sm h-fit sticky top-28">
-            <h2 className="font-heading mb-4 text-xl font-bold text-ink">Order Summary</h2>
-            <div className="space-y-3 text-sm">
+            <h2 className="font-heading mb-4 text-h2 font-bold text-ink">Order Summary</h2>
+            <div className="space-y-3 text-body-sm">
               <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(total)}</span></div>
               <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shippingCost === 0 ? 'text-green-800' : ''}`}>{shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}</span></div>
               <div className="my-3 border-t border-border" />
@@ -235,52 +235,52 @@ export default function Checkout() {
               {/* Coupon */}
               <div className="flex gap-2">
                 <input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="Coupon code"
-                  className="flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600" />
+                  className="flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600" />
                 <button onClick={handleApplyCoupon} disabled={couponLoading}
-                  className="btn-font rounded-xl border border-green-600/30 bg-green-600/10 px-5 py-2.5 text-xs font-semibold text-green-600 hover:bg-green-600 hover:text-white transition-all disabled:opacity-50">{couponLoading ? '...' : 'Apply'}</button>
+                  className="btn-font rounded-xl border border-green-600/30 bg-green-600/10 px-5 py-2.5 text-caption font-semibold text-green-600 hover:bg-green-600 hover:text-white transition-all disabled:opacity-50">{couponLoading ? '...' : 'Apply'}</button>
               </div>
-              {couponError && <p className="text-xs text-green-600">{couponError}</p>}
-              {couponDiscount > 0 && <p className="text-xs text-green-800 font-medium">Coupon discount: -{formatPrice(couponDiscount)}</p>}
+              {couponError && <p className="text-caption text-green-600">{couponError}</p>}
+              {couponDiscount > 0 && <p className="text-caption text-green-800 font-medium">Coupon discount: -{formatPrice(couponDiscount)}</p>}
 
               <div className="my-3 border-t border-border" />
-              <div className="flex justify-between text-lg"><span className="font-bold text-ink">Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
+              <div className="flex justify-between text-body-lg"><span className="font-bold text-ink">Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
             </div>
 
             {showRazorpay && showWhatsApp ? (
               <div className="mt-4 space-y-3">
                 <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0}
-                  className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
+                  className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
                   Pay with Razorpay
                 </button>
-                <div className="flex items-center gap-2"><span className="flex-1 border-t border-border"></span><span className="text-xs text-green-800/30">OR</span><span className="flex-1 border-t border-border"></span></div>
+                <div className="flex items-center gap-2"><span className="flex-1 border-t border-border"></span><span className="text-caption text-green-800/30">OR</span><span className="flex-1 border-t border-border"></span></div>
                 <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0}
-                  className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+                  className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
                   Pay via WhatsApp
                 </button>
               </div>
             ) : showRazorpay ? (
               <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0}
-                className="btn-font mt-6 w-full rounded-2xl bg-green-600 py-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
+                className="btn-font mt-6 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
                 Pay with Razorpay
               </button>
             ) : (
               <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0}
-                className="btn-font mt-6 w-full rounded-2xl bg-green-800 py-3.5 text-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+                className="btn-font mt-6 w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
                 {placing ? 'Placing Order...' : 'Place Order via WhatsApp'}
               </button>
             )}
 
-            <p className="mt-3 text-center text-xs text-green-800/30">
+            <p className="mt-3 text-center text-caption text-green-800/30">
               {paymentMethod === 'razorpay' ? 'Secure payment via Razorpay' : paymentMethod === 'whatsapp' ? 'You will be redirected to WhatsApp to confirm your order' : 'Choose your preferred payment method'}
             </p>
 
             {/* Trust badges */}
             <div className="mt-4 pt-4 border-t border-border">
               <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-semibold text-green-800">🔒 Secure Payment</p></div>
-                <div className="rounded-xl bg-white p-2"><p className="text-[10px] font-semibold text-green-800">🚚 Free Shipping</p></div>
+                <div className="rounded-xl bg-white p-2"><p className="text-micro font-semibold text-green-800">🔒 Secure Payment</p></div>
+                <div className="rounded-xl bg-white p-2"><p className="text-micro font-semibold text-green-800">🚚 Free Shipping</p></div>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { HomeIcon, ProductsIcon, CombosIcon, AboutIcon } from './Icons'
 
 export default function MobileBottomNav() {
-  const btn = 'flex flex-1 flex-col items-center justify-center rounded-xl py-2 text-[10px] font-semibold tracking-[0.06em] uppercase transition-all'
+  const btn = 'flex flex-1 flex-col items-center justify-center rounded-xl py-2 text-micro font-semibold tracking-[0.06em] uppercase transition-all'
   const activeBtn = 'bg-green-50 text-green-600'
   const inactiveBtn = 'text-muted hover:text-green-600 hover:bg-green-50'
 
