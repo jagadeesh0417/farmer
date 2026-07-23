@@ -3,6 +3,7 @@ const BANNER = {
   desktopImage: `/banner.png`,
   tabletImage: `/banner.png`,
   mobileImage: `/banner.png`,
+  poster: `/banner.png`,
 }
 
 export const HOME_ASSETS = {
@@ -36,10 +37,10 @@ export const HOME_ASSETS = {
   },
 
   reels: [
-    { ...BANNER, src: '', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
-    { ...BANNER, src: '', alt: 'Forest honey harvesting process — traditional methods' },
-    { ...BANNER, src: '', alt: 'Natural spices being sun-dried by tribal communities' },
-    { ...BANNER, src: '', alt: 'Traditional millet processing — from farm to table' },
+    { ...BANNER, src: '', duration: '2:34', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
+    { ...BANNER, src: '', duration: '3:12', alt: 'Forest honey harvesting process — traditional methods' },
+    { ...BANNER, src: '', duration: '4:05', alt: 'Natural spices being sun-dried by tribal communities' },
+    { ...BANNER, src: '', duration: '2:58', alt: 'Traditional millet processing — from farm to table' },
   ],
 
   newsletter: {

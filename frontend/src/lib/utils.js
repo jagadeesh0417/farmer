@@ -36,6 +36,7 @@ export function getImageUrl(path, fallback) {
   if (CLOUDINARY_REGEX.test(path)) return optimizeImage(path, 600)
   if (path.startsWith('http') && !path.includes('placehold.co')) return path
   if (path.startsWith('data:')) return path
+  if (path.startsWith('/')) return path
   const base = 'https://hnilmlhyqcgsbfbguuuz.supabase.co/storage/v1/object/public/images'
   return `${base}/${path}`
 }
