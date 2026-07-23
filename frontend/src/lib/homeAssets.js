@@ -1,8 +1,8 @@
 const BANNER = {
-  image: ``,
-  desktopImage: ``,
-  tabletImage: ``,
-  mobileImage: ``,
+  image: `/banner.png`,
+  desktopImage: `/banner.png`,
+  tabletImage: `/banner.png`,
+  mobileImage: `/banner.png`,
 }
 
 export const HOME_ASSETS = {
