@@ -1,6 +1,8 @@
 const BANNER = {
-  desktop: `/hero-banner.png`,
-  mobile: `/hero-banner.png`,
+  image: `/hero-banner.png`,
+  desktopImage: `/hero-banner.png`,
+  tabletImage: `/hero-banner.png`,
+  mobileImage: `/hero-banner.png`,
 }
 
 export const HOME_ASSETS = {
@@ -16,7 +18,7 @@ export const HOME_ASSETS = {
   },
 
   videoSection: {
-    poster: BANNER.desktop,
+    poster: BANNER.image,
     alt: 'HaiFarmer brand film — from forest to your home',
     src: '',
     type: 'video/mp4',
@@ -24,7 +26,7 @@ export const HOME_ASSETS = {
 
   youtube: {
     videoId: 'dQw4w9WgXcQ',
-    poster: BANNER.desktop,
+    poster: BANNER.image,
     alt: 'HaiFarmer farm to table journey — YouTube video',
   },
 
@@ -41,7 +43,7 @@ export const HOME_ASSETS = {
   ],
 
   newsletter: {
-    bg: BANNER.desktop,
+    bg: BANNER.image,
     alt: '',
   },
 }

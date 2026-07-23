@@ -88,7 +88,7 @@ export default function ProductCard({ product, priority }) {
             fetchPriority={imgProps.fetchpriority}
             srcSet={imgProps.srcSet}
             sizes={imgProps.sizes}
-            className="h-[260px] w-[260px] object-contain transition-transform duration-500 group-hover:scale-105"
+            className="h-[260px] w-[260px] rounded-[20px] object-contain transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { if (e.currentTarget.dataset.fallbackApplied !== 'true') { e.currentTarget.dataset.fallbackApplied = 'true'; e.currentTarget.src = fallbackSrc } }}
           />
         </div>
