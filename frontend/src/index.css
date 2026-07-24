@@ -63,6 +63,14 @@ html, body, #root { min-height: 100%; }
 html, body { overflow-x: hidden; }
 
 img {
+  border-radius: 12px;
+}
+
+header img,
+footer img,
+nav img,
+img[src*=".svg"],
+img[src*=".gif"] {
   border-radius: 0;
 }
 
