@@ -9,20 +9,20 @@
   --font-sans: "Eloquia", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-btn: "Eloquia", ui-sans-serif, system-ui, sans-serif;
 
-  --text-h1: clamp(2.25rem, 5.2vw, 3.87rem);
-  --text-h2: clamp(1.83rem, 3.9vw, 2.93rem);
-  --text-h3: clamp(1.49rem, 3.3vw, 2.13rem);
-  --text-h4: clamp(1.28rem, 2.55vw, 1.62rem);
-  --text-body-lg: 1.275rem;
-  --text-body: 1.125rem;
-  --text-body-sm: 0.975rem;
-  --text-caption: 0.915rem;
-  --text-micro: 0.8rem;
-  --text-nav: 0.85rem;
+  --text-h1: clamp(2.14rem, 4.94vw, 3.68rem);
+  --text-h2: clamp(1.74rem, 3.71vw, 2.78rem);
+  --text-h3: clamp(1.42rem, 3.14vw, 2.02rem);
+  --text-h4: clamp(1.22rem, 2.42vw, 1.54rem);
+  --text-body-lg: 1.21rem;
+  --text-body: 1.07rem;
+  --text-body-sm: 0.925rem;
+  --text-caption: 0.87rem;
+  --text-micro: 0.76rem;
+  --text-nav: 0.81rem;
   --text-product-name: clamp(1.15rem, 1.8vw, 1.5rem);
-  --text-price-lg: clamp(1.87rem, 3.23vw, 2.55rem);
-  --text-price: clamp(1.28rem, 1.87vw, 1.62rem);
-  --text-btn: 0.975rem;
+  --text-price-lg: clamp(1.78rem, 3.07vw, 2.42rem);
+  --text-price: clamp(1.22rem, 1.78vw, 1.54rem);
+  --text-btn: 0.925rem;
 
   --color-green-600: #005B57;
   --color-green-700: #004A47;
