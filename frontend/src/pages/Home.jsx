@@ -508,7 +508,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 13. About Farmers */}
+      {/* 13. Honey */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Nature's Sweetness</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Honey</h2>
+            </div>
+            <Link to="/products?category=honey" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {(() => {
+            const honeyProducts = products.filter(p => (p.category || '').toLowerCase() === 'honey' || (p.category_name || '').toLowerCase() === 'honey')
+            return honeyProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {honeyProducts.slice(0, 4).map(product => (
+                  <ProductCard key={product.id || product._id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+                <p className="text-body-sm text-muted">No honey products yet.</p>
+                <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+              </div>
+            )
+          })()}
+        </div>
+      </section>
+
+      {/* 14. Spices */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
+            </div>
+            <Link to="/products?category=spices" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {(() => {
+            const spiceProducts = products.filter(p => (p.category || '').toLowerCase() === 'spices' || (p.category_name || '').toLowerCase() === 'spices')
+            return spiceProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {spiceProducts.slice(0, 4).map(product => (
+                  <ProductCard key={product.id || product._id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+                <p className="text-body-sm text-muted">No spice products yet.</p>
+                <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+              </div>
+            )
+          })()}
+        </div>
+      </section>
+
+      {/* 15. About Farmers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -561,7 +617,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 14. Shop by Category */}
+      {/* 16. Shop by Category */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -638,7 +694,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 15. Values strip */}
+      {/* 17. Values strip */}
       <section className="py-5 bg-off-white border-t border-border">
         <div className="section-container">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
