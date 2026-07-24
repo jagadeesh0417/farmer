@@ -86,7 +86,7 @@ export default function ProductCard({ product, priority }) {
 
       <div className="mt-3 flex flex-1 flex-col">
         <Link to={`/products/${slugify(product.name)}`}>
-          <h3 className="line-clamp-2 text-center font-product text-body-sm font-semibold leading-tight text-[#1a1a1a]">
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold leading-tight text-[#1a1a1a]">
             {product.name}
           </h3>
         </Link>
