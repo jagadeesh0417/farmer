@@ -9,20 +9,20 @@
   --font-sans: "Eloquia", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-btn: "Eloquia", ui-sans-serif, system-ui, sans-serif;
 
-  --text-h1: clamp(2rem, 4.6vw, 3.45rem);
-  --text-h2: clamp(1.6rem, 3.45vw, 2.6rem);
-  --text-h3: clamp(1.3rem, 2.9vw, 1.875rem);
-  --text-h4: clamp(1.15rem, 2.3vw, 1.45rem);
-  --text-body-lg: 1.15rem;
-  --text-body: 1rem;
-  --text-body-sm: 0.9375rem;
-  --text-caption: 0.875rem;
-  --text-micro: 0.75rem;
-  --text-nav: 0.8125rem;
-  --text-product-name: clamp(0.9375rem, 1.4vw, 1.15rem);
-  --text-price-lg: clamp(1.7rem, 2.9vw, 2.3rem);
-  --text-price: clamp(1.15rem, 1.7vw, 1.45rem);
-  --text-btn: 0.9375rem;
+  --text-h1: clamp(2.3rem, 5.3vw, 3.95rem);
+  --text-h2: clamp(1.85rem, 4vw, 3rem);
+  --text-h3: clamp(1.5rem, 3.35vw, 2.15rem);
+  --text-h4: clamp(1.32rem, 2.65vw, 1.67rem);
+  --text-body-lg: 1.32rem;
+  --text-body: 1.15rem;
+  --text-body-sm: 1.075rem;
+  --text-caption: 1rem;
+  --text-micro: 0.875rem;
+  --text-nav: 0.9375rem;
+  --text-product-name: clamp(1.075rem, 1.6vw, 1.32rem);
+  --text-price-lg: clamp(1.95rem, 3.35vw, 2.65rem);
+  --text-price: clamp(1.32rem, 1.95vw, 1.67rem);
+  --text-btn: 1.075rem;
 
   --color-green-600: #005B57;
   --color-green-700: #004A47;
@@ -76,11 +76,11 @@ img[src*=".gif"] {
 
 body {
   background-color: #FFFFFF;
-  color: #0A0A0A;
+  color: #000000;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: var(--font-menu);
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--text-body);
   line-height: 1.6;
   letter-spacing: 0.01em;
