@@ -63,6 +63,15 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false
     async function load() {
+      if (DEMO_MODE) {
+        setProducts(demoProducts)
+        setBundles(demoCombos)
+        setMilletProducts(demoProductsByCategory('millets'))
+        setGrainProducts(demoProductsByCategory('lentils-beans'))
+        setFarmers(demoFarmers)
+        setLoading(false)
+        return
+      }
       try {
         const [productsData, bundlesData, milletData, grainData, farmersData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
@@ -76,13 +85,11 @@ export default function Home() {
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
         ])
         if (cancelled) return
-        setProducts(DEMO_MODE && productsData.length === 0 ? demoProducts : productsData)
-        const finalBundles = Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || []
-        setBundles(DEMO_MODE && finalBundles.length === 0 ? demoCombos : finalBundles)
-        setMilletProducts(DEMO_MODE && milletData.length === 0 ? demoProductsByCategory('millets') : milletData)
-        setGrainProducts(DEMO_MODE && grainData.length === 0 ? demoProductsByCategory('lentils-beans') : grainData)
-        const finalFarmers = Array.isArray(farmersData) ? farmersData : farmersData?.data || []
-        setFarmers(DEMO_MODE && finalFarmers.length === 0 ? demoFarmers : finalFarmers)
+        setProducts(productsData)
+        setBundles(Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || [])
+        setMilletProducts(milletData)
+        setGrainProducts(grainData)
+        setFarmers(Array.isArray(farmersData) ? farmersData : farmersData?.data || [])
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
