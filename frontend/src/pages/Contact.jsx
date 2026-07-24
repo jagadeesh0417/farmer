@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import SeoHead from '../components/SeoHead'
 
-const WHATSAPP_NUMBER = '9709704563'
+const WHATSAPP_NUMBER = '9848579053'
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
