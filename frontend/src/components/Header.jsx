@@ -162,9 +162,6 @@ export default function Header() {
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-            <button onClick={() => navigate('/account')} aria-label="Account" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
             <button onClick={() => navigate('/orders')} aria-label="Track order" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             </button>
@@ -180,9 +177,6 @@ export default function Header() {
           <div className="flex lg:hidden items-center gap-0">
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center p-2 text-muted hover:text-green-600">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            </button>
-            <button onClick={() => navigate('/account')} aria-label="Account" className="flex items-center justify-center p-2 text-muted hover:text-green-600">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </button>
             <button onClick={() => navigate('/checkout')} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600">
               <CartIcon className="h-5 w-5" />
