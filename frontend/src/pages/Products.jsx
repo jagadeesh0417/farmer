@@ -79,9 +79,9 @@ export default function Products() {
   }
 
   const FilterCheckbox = ({ label, count }) => (
-    <label className="flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-caption text-muted transition-colors hover:bg-green-50">
+    <label className="flex cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-caption text-muted transition-colors hover:bg-green-50">
       <div className="flex items-center gap-2.5">
-        <input type="checkbox" className="h-4 w-4 rounded border-border text-green-600 focus:ring-green-500/30 accent-green-600" />
+        <input type="checkbox" className="h-4 w-4 border-border text-green-600 focus:ring-green-500/30 accent-green-600" />
         {label}
       </div>
       {count != null && <span className="text-micro text-muted-light">({count})</span>}
@@ -89,7 +89,7 @@ export default function Products() {
   )
 
   const FilterRadio = ({ label }) => (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-1.5 text-caption text-muted transition-colors hover:bg-green-50">
+    <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-caption text-muted transition-colors hover:bg-green-50">
       <input type="radio" name="price" className="h-4 w-4 border-border text-green-600 focus:ring-green-500/30 accent-green-600" />
       {label}
     </label>
@@ -106,19 +106,19 @@ export default function Products() {
 
       {/* Breadcrumb + Header */}
       <div className="bg-white border-b border-border">
-        <div className="section-container py-3">
+        <div className="section-container py-4 lg:py-5">
           <div className="flex items-center gap-2 text-caption text-muted">
             <Link to="/" className="hover:text-green-600">Home</Link>
             <span>/</span>
             <Link to="/products" className="hover:text-green-600">All Products</Link>
             {catSlug && <><span>/</span><span className="text-ink font-medium">{catSlug}</span></>}
           </div>
-          <h1 className="font-heading text-h1 font-bold text-ink mt-3">{collectionTitle}</h1>
+          <h1 className="font-heading text-h2 lg:text-h1 font-bold text-ink mt-2">{collectionTitle}</h1>
           <p className="text-body-sm text-muted mt-1 max-w-xl">{collectionDesc}</p>
         </div>
       </div>
 
-      <div className="section-container py-8">
+      <div className="section-container py-8 lg:py-10">
         <div className="flex gap-8">
           {/* Filter sidebar */}
           <aside className={`${sidebarOpen ? 'fixed inset-0 z-50 flex' : 'hidden'} lg:relative lg:inset-auto lg:z-auto lg:block lg:w-60 lg:flex-shrink-0`}>
@@ -139,7 +139,7 @@ export default function Products() {
                   {BENEFITS.map(b => <FilterCheckbox key={b.label} label={b.label} count={b.count} />)}
                 </FilterSection>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="mt-6 w-full rounded-lg bg-green-600 text-white py-2.5 text-body-sm font-semibold lg:hidden">Apply</button>
+              <button onClick={() => setSidebarOpen(false)} className="mt-6 w-full bg-green-600 text-white py-2.5 text-body-sm font-semibold lg:hidden">Apply</button>
             </div>
           </aside>
 
@@ -149,12 +149,12 @@ export default function Products() {
             <div className="flex items-center justify-between mb-6">
               <p className="text-caption text-muted">Showing <span className="font-semibold text-ink">{products.length}</span> of <span className="font-semibold text-ink">{total}</span> products</p>
               <div className="flex items-center gap-3">
-                <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-caption font-semibold text-muted hover:text-ink flex items-center gap-1 border border-border rounded-lg px-3 py-1.5">
+                <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-caption font-semibold text-muted hover:text-ink flex items-center gap-1 border border-border px-3 py-1.5">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm4 6a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm2 6a1 1 0 011-1h4a1 1 0 110 2h-4a1 1 0 01-1-1z" /></svg>
                   Filters
                 </button>
                 <select value={sort} onChange={(e) => updateParams({ sort: e.target.value, page: '1' })}
-                  className="rounded-lg border border-border px-3 py-1.5 text-caption text-ink outline-none focus:border-green-600 bg-white">
+                  className="border border-border px-3 py-1.5 text-caption text-ink outline-none focus:border-green-600 bg-white">
                   <option value="created_at">Featured</option>
                   <option value="price">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
@@ -164,7 +164,7 @@ export default function Products() {
             </div>
 
             {loading ? (
-              <div className="flex min-h-[40vh] items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-green-600" /></div>
+              <div className="flex min-h-[40vh] items-center justify-center"><div className="h-10 w-10 animate-spin border-2 border-border border-t-green-600" /></div>
             ) : products.length === 0 ? (
               <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
                 <p className="text-body-lg font-semibold text-ink">No products found</p>
@@ -178,16 +178,16 @@ export default function Products() {
                 {totalPages > 1 && (
                   <div className="mt-10 flex items-center justify-center gap-2">
                     <button disabled={page <= 1} onClick={() => updateParams({ page: String(page - 1) })}
-                      className="rounded-lg border border-border px-3 py-1.5 text-caption font-semibold text-muted hover:bg-green-50 disabled:opacity-30">‹ Prev</button>
+                      className="border border-border px-3 py-1.5 text-caption font-semibold text-muted hover:bg-green-50 disabled:opacity-30">‹ Prev</button>
                     {Array.from({ length: Math.min(totalPages <= 5 ? totalPages : 3, totalPages) }, (_, i) => {
                       let p; if (totalPages <= 5) p = i + 1; else if (page <= 3) p = i + 1; else if (page >= totalPages - 2) p = totalPages - 4 + i; else p = page - 2 + i
                       return (
                         <button key={p} onClick={() => updateParams({ page: String(p) })}
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-caption font-semibold transition-all ${page === p ? 'bg-green-600 text-white' : 'border border-border text-muted hover:bg-green-50'}`}>{p}</button>
+                          className={`flex h-8 w-8 items-center justify-center text-caption font-semibold transition-all ${page === p ? 'bg-green-600 text-white' : 'border border-border text-muted hover:bg-green-50'}`}>{p}</button>
                       )
                     })}
                     <button disabled={page >= totalPages} onClick={() => updateParams({ page: String(page + 1) })}
-                      className="rounded-lg border border-border px-3 py-1.5 text-caption font-semibold text-muted hover:bg-green-50 disabled:opacity-30">Next ›</button>
+                      className="border border-border px-3 py-1.5 text-caption font-semibold text-muted hover:bg-green-50 disabled:opacity-30">Next ›</button>
                   </div>
                 )}
               </>
