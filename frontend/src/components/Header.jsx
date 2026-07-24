@@ -139,43 +139,35 @@ export default function Header() {
             <NavLink to="/about" className={({ isActive }) => `px-4 py-2 text-nav font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Our Story</NavLink>
           </nav>
 
-          {/* Center: Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0" onClick={closeAll}>
-            {logo ? (
-              <img src={logo} alt="HaiFarmer" loading="eager" className="h-10 lg:h-12 w-auto object-contain" />
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-full bg-green-600">
-                  <svg viewBox="0 0 32 32" fill="none" className="h-5 w-5 lg:h-6 lg:w-6 text-white">
-                    <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
-                    <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
-                  </svg>
-                </div>
-                <span className="font-heading text-h3 lg:text-h2 font-bold text-green-600 tracking-tight">HaiFarmer</span>
-              </div>
-            )}
-          </Link>
-
-          {/* Right: desktop links + icons */}
+          {/* Right: Logo + icons */}
           <div className="hidden lg:flex items-center gap-0 flex-1 justify-end">
-            <NavLink to="/farmers" className={({ isActive }) => `px-4 py-2 text-nav font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Farmers</NavLink>
-            <NavLink to="/journal" className={({ isActive }) => `px-4 py-2 text-nav font-medium transition-colors ${isActive ? 'text-green-600' : 'text-ink hover:text-green-600'}`}>Journal</NavLink>
-            <a href="https://organicindia.com/pages/store-locator" target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-nav font-medium text-ink hover:text-green-600 transition-colors">Store Locator</a>
+            <Link to="/" className="flex items-center gap-2 shrink-0 mr-4" onClick={closeAll}>
+              {logo ? (
+                <img src={logo} alt="HaiFarmer" loading="eager" className="h-10 lg:h-12 w-auto object-contain" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-full bg-green-600">
+                    <svg viewBox="0 0 32 32" fill="none" className="h-5 w-5 lg:h-6 lg:w-6 text-white">
+                      <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
+                      <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
+                    </svg>
+                  </div>
+                  <span className="font-heading text-h3 lg:text-h2 font-bold text-green-600 tracking-tight">HaiFarmer</span>
+                </div>
+              )}
+            </Link>
 
             <div className="w-px h-4 bg-border mx-2" />
 
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-
             <button onClick={() => navigate('/account')} aria-label="Account" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </button>
-
             <button onClick={() => navigate('/orders')} aria-label="Track order" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             </button>
-
             <button onClick={() => navigate('/checkout')} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <CartIcon className="h-5 w-5" />
               {totalItems > 0 && (
@@ -287,8 +279,6 @@ export default function Header() {
             <NavLink to="/products" onClick={closeAll} className={({ isActive }) => `block rounded-none px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>All Products</NavLink>
             <NavLink to="/combos" onClick={closeAll} className={({ isActive }) => `block rounded-none px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Combos</NavLink>
             <NavLink to="/about" onClick={closeAll} className={({ isActive }) => `block rounded-none px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Our Story</NavLink>
-            <NavLink to="/farmers" onClick={closeAll} className={({ isActive }) => `block rounded-none px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Farmers</NavLink>
-            <NavLink to="/journal" onClick={closeAll} className={({ isActive }) => `block rounded-none px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Journal</NavLink>
             <NavLink to="/contact" onClick={closeAll} className={({ isActive }) => `block rounded-none px-4 py-3 text-sm font-semibold ${isActive ? 'bg-green-50 text-green-600' : 'text-ink hover:bg-green-50 hover:text-green-600'}`}>Contact</NavLink>
 
             <div className="pt-4 border-t border-border mt-4">
