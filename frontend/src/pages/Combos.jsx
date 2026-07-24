@@ -18,7 +18,10 @@ export default function Combos() {
         let data = await api.getBundles({ combo: 'true' })
         if (!data || data.length === 0) data = await getSupabaseComboBundles().catch(() => [])
         setBundles(DEMO_MODE && (!data || data.length === 0) ? demoCombos : (data || []))
-      } catch (e) { console.error(e) }
+      } catch (e) {
+        console.error(e)
+        if (DEMO_MODE) setBundles(demoCombos)
+      }
       finally { setLoading(false) }
     }
     load()
