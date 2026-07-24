@@ -52,8 +52,8 @@ export default function BundleCard({ bundle, compact }) {
 
   if (compact) {
     return (
-      <div className="w-full rounded-xl border border-border bg-white overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 group">
-        <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-t-xl bg-white">
+      <div className="w-full border border-border bg-white overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 group">
+        <Link to={`/combos/${slug}`} className="relative block overflow-hidden bg-white">
           <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
             className="aspect-[1/1] w-full object-cover object-center transition duration-500"
             loading="lazy"
@@ -103,14 +103,14 @@ export default function BundleCard({ bundle, compact }) {
   }
 
   return (
-    <div className="w-full rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5">
+    <div className="w-full border border-border bg-white overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
         <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-2">
             <span className="rounded-full bg-green-50 px-3 py-1 text-caption font-semibold uppercase text-green-600">Best Value</span>
             <span className="text-nav text-muted">{productCount} Products</span>
           </div>
-          <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-xl bg-white">
+          <Link to={`/combos/${slug}`} className="relative block overflow-hidden bg-white">
             <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
               className="aspect-[1/1] w-full object-cover object-center transition duration-500"
               onError={(e) => { e.target.src = bundleFallback }} />

@@ -62,7 +62,7 @@ export default function ProductCard({ product, priority }) {
   const variantLabel = (v) => v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
 
   return (
-    <div className="group flex h-full w-full flex-col rounded-2xl bg-[#FAF3E8] p-4">
+    <div className="group flex h-full w-full flex-col bg-[#FAF3E8] p-4">
       <Link to={`/products/${slugify(product.name)}`} className="relative block">
         {discountPercent > 0 && (
           <span className="absolute left-1 top-1 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
@@ -70,7 +70,7 @@ export default function ProductCard({ product, priority }) {
           </span>
         )}
 
-        <div className="relative mx-auto flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-[#F0E6D3] p-4">
+        <div className="relative mx-auto flex aspect-square w-full items-center justify-center overflow-hidden bg-[#F0E6D3] p-4">
           <img
             src={imgProps.src}
             alt={product.name}
