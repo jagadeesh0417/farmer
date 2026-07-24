@@ -1,35 +1,13 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: 'Kefir';
-  src: url('/fonts/Kefir-DemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Eloquia';
-  src: url('/fonts/EloquiaText-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Eloquia';
-  src: url('/fonts/EloquiaText-Light.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 @theme {
-  --font-heading: "Kefir", ui-serif, Georgia, serif;
-  --font-product: "Eloquia", ui-sans-serif, system-ui, sans-serif;
-  --font-menu: "Eloquia", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Eloquia", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-btn: "Eloquia", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-product: "Mona Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-menu: "Mona Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Mona Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-btn: "Mona Sans", ui-sans-serif, system-ui, sans-serif;
 
   --text-h1: clamp(1.75rem, 4vw, 3rem);
   --text-h2: clamp(1.375rem, 3vw, 2.25rem);
@@ -46,37 +24,37 @@
   --text-price: clamp(1rem, 1.5vw, 1.25rem);
   --text-btn: 0.8125rem;
 
-  --color-green-600: #D97745;
-  --color-green-700: #C05E2E;
-  --color-green-800: #A74B1F;
-  --color-green-50: #F8F4EE;
-  --color-green-100: #FFF6F0;
-  --color-green-200: #EADBC8;
-  --color-green-500: #D97745;
-  --color-white: #FFFDF9;
-  --color-off-white: #F8F4EE;
-  --color-sand: #F8F4EE;
-  --color-sand-100: #EADBC8;
-  --color-ink: #8B5E3C;
-  --color-muted: #8B5E3C;
-  --color-muted-light: #A78350;
-  --color-border: #EADBC8;
-  --color-border-light: #F8F4EE;
-  --color-sale: #D97745;
-  --color-sale-light: #FFF6F0;
-  --color-gold-500: #C9A24C;
-  --color-gold-600: #B89239;
+  --color-green-600: #005B57;
+  --color-green-700: #004A47;
+  --color-green-800: #003A38;
+  --color-green-50: #E8F5F4;
+  --color-green-100: #D1EBE9;
+  --color-green-200: #A3D7D3;
+  --color-green-500: #007A75;
+  --color-white: #FFFFFF;
+  --color-off-white: #F8F8F8;
+  --color-sand: #F8F8F8;
+  --color-sand-100: #E8E8E8;
+  --color-ink: #1A1A1B;
+  --color-muted: #7A7A7A;
+  --color-muted-light: #A0A0A0;
+  --color-border: #E5E5E5;
+  --color-border-light: #F0F0F0;
+  --color-sale: #E02B2B;
+  --color-sale-light: #FFF0F0;
+  --color-gold-500: #B89239;
+  --color-gold-600: #A37D2F;
   --color-gold-100: #F8F3E3;
 
-  --color-brand-50: #F8F4EE;
-  --color-brand-100: #FFF6F0;
-  --color-brand-200: #EADBC8;
-  --color-brand-300: #C9A24C;
-  --color-brand-400: #8B5E3C;
-  --color-brand-500: #D97745;
-  --color-brand-600: #C05E2E;
-  --color-brand-700: #A74B1F;
-  --color-brand-800: #8B5E3C;
+  --color-brand-50: #E8F5F4;
+  --color-brand-100: #D1EBE9;
+  --color-brand-200: #A3D7D3;
+  --color-brand-300: #005B57;
+  --color-brand-400: #004A47;
+  --color-brand-500: #007A75;
+  --color-brand-600: #005B57;
+  --color-brand-700: #004A47;
+  --color-brand-800: #003A38;
 }
 
 :root { color-scheme: light; }
@@ -85,24 +63,16 @@ html, body, #root { min-height: 100%; }
 html, body { overflow-x: hidden; }
 
 img {
-  border-radius: 12px;
-}
-
-img.rounded-none,
-img[src*=".svg"],
-header img,
-nav img,
-footer img {
   border-radius: 0;
 }
 
 body {
-  background-color: #FFFDF9;
-  color: #8B5E3C;
+  background-color: #FFFFFF;
+  color: #1A1A1B;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: var(--font-menu);
-  font-weight: 300;
+  font-weight: 400;
   font-size: var(--text-body);
   line-height: 1.6;
   letter-spacing: 0.01em;
@@ -120,8 +90,8 @@ h2 { font-size: var(--text-h2); line-height: 1.15; letter-spacing: -0.01em; }
 h3 { font-size: var(--text-h3); line-height: 1.2; }
 h4 { font-size: var(--text-h4); line-height: 1.3; }
 
-.font-product { font-family: var(--font-product); font-weight: 600; }
-.font-menu { font-family: var(--font-menu); font-weight: 300; }
+.font-product { font-family: var(--font-product); font-weight: 500; }
+.font-menu { font-family: var(--font-menu); font-weight: 400; }
 
 .text-h1 { font-size: var(--text-h1); line-height: 1.1; letter-spacing: -0.02em; }
 .text-h2 { font-size: var(--text-h2); line-height: 1.15; letter-spacing: -0.01em; }
@@ -143,9 +113,8 @@ img, video, canvas, svg { max-width: 100%; }
 .heading-font { font-family: var(--font-heading); font-weight: 600; }
 .btn-font { font-family: var(--font-btn); font-weight: 600; }
 
-/* Tighter container defaults */
 .section-container {
-  @apply mx-auto w-full px-4 sm:px-6 lg:px-[3vw] max-w-[1640px];
+  @apply mx-auto w-full px-4 sm:px-6 lg:px-[3vw] max-w-[1500px];
 }
 
 /* Announcement bar scrolling */
@@ -183,22 +152,18 @@ img, video, canvas, svg { max-width: 100%; }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 .skeleton { background: linear-gradient(90deg, #F0F0F0 25%, #F9F9F9 50%, #F0F0F0 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; }
 
-/* Premium skeleton card */
-.skeleton-card { border-radius: 12px; background: linear-gradient(90deg, #F8F4EE 25%, #FFFDF9 50%, #F8F4EE 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; }
+.skeleton-card { border-radius: 0; background: linear-gradient(90deg, #F0F0F0 25%, #F9F9F9 50%, #F0F0F0 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; }
 
-/* Empty state illustration wrapper */
 .empty-state-illustration { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
 .empty-state-illustration svg { width: 80px; height: 80px; margin-bottom: 1rem; opacity: 0.5; }
-.empty-state-illustration p { color: #8B5E3C; font-size: 14px; font-weight: 500; }
+.empty-state-illustration p { color: #7A7A7A; font-size: 14px; font-weight: 500; }
 
-/* Focus styles */
 :focus-visible {
-  outline: 2px solid #D97745;
+  outline: 2px solid #005B57;
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -207,19 +172,16 @@ img, video, canvas, svg { max-width: 100%; }
   }
 }
 
-/* Accordion for PDP */
 .accordion-content { overflow: hidden; transition: max-height 0.3s ease; }
 
-/* Carousel scroll snap */
 .carousel-snap { scroll-snap-type: x mandatory; }
 .carousel-snap > * { scroll-snap-align: start; }
 
-/* Lifestyle card styles */
 .lifestyle-card {
   aspect-ratio: 9/16;
   width: 220px;
   flex-shrink: 0;
-  border-radius: 14px;
+  border-radius: 0;
   overflow: hidden;
   position: relative;
   transition: all 0.3s ease;

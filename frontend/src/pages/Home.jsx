@@ -25,6 +25,14 @@ const VALUES = [
   { label: 'Farm Fresh', icon: '🌱' },
 ]
 
+const HEALTH_CONCERNS = [
+  { label: 'Gut Health', category: 'millets', description: 'Support digestion with fibre-rich traditional grains and wholesome foods.' },
+  { label: 'Immunity', category: 'honey', description: 'Boost natural defences with pure wild honey and forest-sourced herbs.' },
+  { label: 'Heart Health', category: 'lentils-beans', description: 'Nourish your heart with protein-rich lentils, beans, and legumes.' },
+  { label: 'Daily Nutrition', category: 'spices', description: 'Essential nutrients and antioxidants from wild-harvested spices.' },
+  { label: 'Natural Energy', category: 'oils', description: 'Sustained vitality from cold-pressed oils and pure ghee.' },
+]
+
 const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 'Super Saver Combos', 'Shop By Goal']
 
 export default function Home() {
@@ -42,6 +50,7 @@ export default function Home() {
   const [grainProducts, setGrainProducts] = useState([])
   const [farmers, setFarmers] = useState([])
   const [activeTab, setActiveTab] = useState('All Products')
+  const [activeConcern, setActiveConcern] = useState('Gut Health')
   const carouselRef = useRef(null)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
@@ -297,15 +306,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Combos */}
+      {/* 7. Super Saver Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="font-heading text-h2 font-bold text-ink">Value Combos</h2>
-              <p className="text-body-sm text-muted mt-0.5">Curated bundles, best savings</p>
-            </div>
-            <Link to="/combos" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-8">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
+            <h2 className="mt-1 text-h2 font-bold">Super Saver Combos</h2>
+            <p className="text-body-sm text-muted mt-1 max-w-md mx-auto">Curated bundles with the best savings</p>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -323,10 +330,56 @@ export default function Home() {
               <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
             </div>
           )}
+          <div className="mt-8 text-center">
+            <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-none text-body-sm font-semibold hover:bg-green-700 transition-colors">
+              View All Combos
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* 8. YouTube video */}
+      {/* 8. Best Sellers */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="text-center mb-8">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Top Picks</span>
+            <h2 className="mt-1 text-h2 font-bold">Our Best Sellers</h2>
+            <p className="text-body-sm text-muted mt-1">Most loved products by our community</p>
+          </div>
+          {loading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-64 animate-pulse" />)}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="relative">
+              <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </button>
+              <div id="bestsellers-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+                {products.slice(0, 12).map((product) => (
+                  <div key={product.id || product._id} className="min-w-[220px] sm:min-w-[240px] lg:min-w-[260px]"><ProductCard product={product} /></div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No products available yet.</p>
+            </div>
+          )}
+          <div className="mt-8 text-center">
+            <Link to="/products" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
+              View All Products
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. YouTube video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -347,7 +400,57 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. Millets */}
+      {/* 10. Shop By Health Concern */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="text-center mb-8">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Shop By</span>
+            <h2 className="mt-1 text-h2 font-bold">Health Concern</h2>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {HEALTH_CONCERNS.map(concern => (
+              <button key={concern.label} onClick={() => setActiveConcern(concern.label)}
+                className={`px-4 py-2 rounded-full text-caption font-semibold transition-all border ${
+                  activeConcern === concern.label ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
+                }`}>
+                {concern.label}
+              </button>
+            ))}
+          </div>
+          {HEALTH_CONCERNS.map(concern => {
+            if (concern.label !== activeConcern) return null
+            const filtered = products.filter(p => {
+              const cat = (p.category || '').toLowerCase()
+              return cat === concern.category || cat.includes(concern.category)
+            })
+            return (
+              <div key={concern.label}>
+                <p className="text-body-sm text-muted text-center mb-6 max-w-lg mx-auto">{concern.description}</p>
+                {filtered.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {filtered.slice(0, 10).map(product => (
+                      <ProductCard key={product.id || product._id} product={product} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-off-white rounded-xl border border-border">
+                    <p className="text-body-sm text-muted">No products found for {concern.label}.</p>
+                    <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all products →</Link>
+                  </div>
+                )}
+                <div className="mt-6 text-center">
+                  <Link to={`/products?category=${concern.category}`}
+                    className="inline-flex items-center gap-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">
+                    View All {concern.label} Products →
+                  </Link>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* 11. Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
@@ -376,7 +479,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. Lentils & Beans */}
+      {/* 12. Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="flex items-center justify-between mb-6">
@@ -405,7 +508,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. About Farmers */}
+      {/* 13. About Farmers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -458,7 +561,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 12. Shop by Category */}
+      {/* 14. Shop by Category */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -535,7 +638,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 13. Values strip */}
+      {/* 15. Values strip */}
       <section className="py-5 bg-off-white border-t border-border">
         <div className="section-container">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
