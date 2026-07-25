@@ -93,7 +93,7 @@ export default function Home() {
         return
       }
       try {
-        const [productsData, bundlesData, milletData, grainData, farmersData] = await Promise.all([
+        const [productsData, bundlesData, milletData, grainData, farmersData, bannersData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
           api.getBundles({ combo: 'true' }).then(async r => {
             let data = r?.data || r || []
@@ -103,6 +103,7 @@ export default function Home() {
           api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
+          api.getAllBanners().then(r => Array.isArray(r) ? r : []).catch(() => []),
         ])
         if (cancelled) return
         setProducts(productsData)
@@ -110,6 +111,7 @@ export default function Home() {
         setMilletProducts(milletData)
         setGrainProducts(grainData)
         setFarmers(Array.isArray(farmersData) ? farmersData : farmersData?.data || [])
+        setBanners((bannersData || []).filter(b => b.isActive !== false))
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
@@ -690,7 +692,7 @@ export default function Home() {
               <div key={cid}>
                 <div className="grid lg:grid-cols-3 gap-4">
                   <Link to={`/products?category=${catName}`} className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
-                    <img src={cat.image_url ? getImageUrl(cat.image_url) : '/banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+                    <img src={cat.image_url || cat.image ? getImageUrl(cat.image_url || cat.image) : '/banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
                       <h3 className="font-heading text-h3 font-bold text-white">{cat.name}</h3>
