@@ -24,7 +24,12 @@ export function addItem(key, item) {
 export function updateItem(key, id, updates) {
   const items = load(key)
   const idx = items.findIndex(i => i._id === id)
-  if (idx === -1) return null
+  if (idx === -1) {
+    const entry = { ...updates, _id: id }
+    items.unshift(entry)
+    save(key, items)
+    return entry
+  }
   items[idx] = { ...items[idx], ...updates }
   save(key, items)
   return items[idx]

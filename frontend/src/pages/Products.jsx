@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { getProducts } from '../lib/productService'
 import { getCategories } from '../lib/productService'
 import { isDemoMode } from '../lib/withDemoFallback'
+import { getItems } from '../lib/demoStore'
 import { demoProducts } from '../lib/demoData'
 import SeoHead from '../components/SeoHead'
 import ProductCard from '../components/ProductCard'
@@ -46,8 +47,15 @@ export default function Products() {
       setLoading(true)
       try {
         const result = await getProducts(page, 50, catSlug || null, search || null, sort, false)
-        setProducts(isDemoMode() && (!result?.data || result.data.length === 0) ? demoProducts : (result?.data || []))
-        setTotal(isDemoMode() && (!result?.data || result.data.length === 0) ? demoProducts.length : (result?.total || 0))
+        if (isDemoMode()) {
+          const saved = getItems('products')
+          const merged = (!result?.data || result.data.length === 0) ? [...saved, ...demoProducts.filter(dp => !saved.some(s => s.name === dp.name))] : (result?.data || [])
+          setProducts(merged)
+          setTotal(merged.length)
+        } else {
+          setProducts(result?.data || [])
+          setTotal(result?.total || 0)
+        }
       } catch (e) { console.error(e) }
       finally { setLoading(false) }
     }

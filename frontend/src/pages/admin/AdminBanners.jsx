@@ -17,7 +17,6 @@ const emptyForm = {
   title: '',
   subtitle: '',
   buttonText: '',
-  redirectLink: '',
   order: 0,
   isActive: true,
   position: 'hero',
@@ -66,7 +65,6 @@ export default function AdminBanners() {
       title: b.title || '',
       subtitle: b.subtitle || '',
       buttonText: b.buttonText || '',
-      redirectLink: b.redirectLink || '',
       order: b.order || 0,
       isActive: b.isActive,
       position: b.position || 'hero',
@@ -85,9 +83,6 @@ export default function AdminBanners() {
     if (!form.desktopImage && !form.tabletImage && !form.mobileImage && !form.image) {
       return toast.error('At least one banner image is required')
     }
-    if (form.redirectLink && !form.redirectLink.startsWith('http://') && !form.redirectLink.startsWith('https://') && !form.redirectLink.startsWith('/')) {
-      return toast.error('Redirect link must be a valid URL or path')
-    }
     if (form.order < 0) return toast.error('Order must be 0 or greater')
 
     if (isDemoMode()) {
@@ -104,11 +99,7 @@ export default function AdminBanners() {
       return
     }
 
-    const payload = {
-      ...form,
-      startDate: form.startDate ? new Date(form.startDate).toISOString() : null,
-      endDate: form.endDate ? new Date(form.endDate).toISOString() : null,
-    }
+    const payload = { ...form }
 
     setSubmitting(true)
     try {
@@ -195,10 +186,7 @@ export default function AdminBanners() {
                 <input value={form.subtitle} onChange={e => setForm(prev => ({ ...prev, subtitle: e.target.value }))} placeholder="Subtitle (optional)" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <input value={form.buttonText} onChange={e => setForm(prev => ({ ...prev, buttonText: e.target.value }))} placeholder="Button text (optional)" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-                <input value={form.redirectLink} onChange={e => setForm(prev => ({ ...prev, redirectLink: e.target.value }))} placeholder="Button link" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-              </div>
+              <input value={form.buttonText} onChange={e => setForm(prev => ({ ...prev, buttonText: e.target.value }))} placeholder="Button text (optional)" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
 
               <input type="number" value={form.order} onChange={e => setForm(prev => ({ ...prev, order: Number(e.target.value) }))} placeholder="Display order" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
 
@@ -263,7 +251,7 @@ export default function AdminBanners() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-slate-900 text-sm">{b.title || 'Untitled'}</p>
-                        <p className="text-xs text-slate-500 truncate">{b.subtitle || b.redirectLink || ''}</p>
+                        <p className="text-xs text-slate-500 truncate">{b.subtitle || ''}</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button onClick={() => handleToggle(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{b.isActive ? 'On' : 'Off'}</button>
