@@ -1,4 +1,4 @@
-const SUPABASE_STORAGE = 'https://hnilmlhyqcgsbfbguuuz.supabase.co/storage/v1/object/public'
+const SUPABASE_STORAGE = 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public'
 
 export const HOME_ASSETS = {
   hero: [
