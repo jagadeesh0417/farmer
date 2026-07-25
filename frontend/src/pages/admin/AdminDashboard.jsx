@@ -5,6 +5,54 @@ import { formatPrice } from '../../lib/utils'
 import { cld } from '../../lib/cloudinary'
 import { toast } from 'react-toastify'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
+const demoStats = {
+  totalRevenue: 584720,
+  totalOrders: 1283,
+  todayOrders: 7,
+  pendingOrders: 12,
+  deliveredOrders: 1156,
+  cancelledOrders: 43,
+  totalCustomers: 892,
+  todayRevenue: 24560,
+}
+
+const demoSalesData = [
+  { _id: '2026-07-01', revenue: 28500 },
+  { _id: '2026-07-02', revenue: 31200 },
+  { _id: '2026-07-03', revenue: 27800 },
+  { _id: '2026-07-04', revenue: 35200 },
+  { _id: '2026-07-05', revenue: 40100 },
+  { _id: '2026-07-06', revenue: 36800 },
+  { _id: '2026-07-07', revenue: 29500 },
+  { _id: '2026-07-08', revenue: 33400 },
+  { _id: '2026-07-09', revenue: 41200 },
+  { _id: '2026-07-10', revenue: 38700 },
+  { _id: '2026-07-11', revenue: 42300 },
+  { _id: '2026-07-12', revenue: 35600 },
+  { _id: '2026-07-13', revenue: 39200 },
+  { _id: '2026-07-14', revenue: 44620 },
+]
+
+const demoBestSelling = [
+  { _id: 'dm-1', name: 'HaiFarmer Wild Honey', images: ['/demo/products/honey.svg'], basePrice: 399, totalSold: 284 },
+  { _id: 'dm-4', name: 'Miriyalu (Black Pepper)', images: ['/demo/products/pepper.svg'], basePrice: 129, totalSold: 196 },
+  { _id: 'dm-7', name: 'Korralu (Foxtail Millet)', images: ['/demo/products/foxtail-millet.svg'], basePrice: 149, totalSold: 173 },
+  { _id: 'dm-5', name: 'Natu Minapappu (Black Gram)', images: ['/demo/products/black-gram.svg'], basePrice: 179, totalSold: 152 },
+  { _id: 'dm-2', name: 'HaiFarmer Brown Sugar', images: ['/demo/products/jaggery.svg'], basePrice: 175, totalSold: 138 },
+]
+
+const demoRecentOrders = [
+  { _id: 'ord-1', orderNumber: 'HF-2026-0784', user: { fullName: 'Priya Sharma' }, guestInfo: null, items: [{ name: 'Wild Honey' }], total: 1199, status: 'delivered', createdAt: '2026-07-14T10:30:00Z' },
+  { _id: 'ord-2', orderNumber: 'HF-2026-0783', user: { fullName: 'Ravi Kumar' }, guestInfo: null, items: [{ name: 'Foxtail Millet' }], total: 598, status: 'shipped', createdAt: '2026-07-14T09:15:00Z' },
+  { _id: 'ord-3', orderNumber: 'HF-2026-0782', user: { fullName: 'Anita Desai' }, guestInfo: null, items: [{ name: 'Brown Sugar' }], total: 350, status: 'pending', createdAt: '2026-07-13T16:45:00Z' },
+  { _id: 'ord-4', orderNumber: 'HF-2026-0781', user: null, guestInfo: { name: 'Guest User' }, items: [{ name: 'Black Pepper' }], total: 258, status: 'delivered', createdAt: '2026-07-13T14:20:00Z' },
+  { _id: 'ord-5', orderNumber: 'HF-2026-0780', user: { fullName: 'Suresh Reddy' }, guestInfo: null, items: [{ name: 'Protein Box' }], total: 2499, status: 'cancelled', createdAt: '2026-07-12T11:00:00Z' },
+  { _id: 'ord-6', orderNumber: 'HF-2026-0779', user: { fullName: 'Lakshmi Devi' }, guestInfo: null, items: [{ name: 'Honey Combo' }], total: 1899, status: 'delivered', createdAt: '2026-07-12T08:30:00Z' },
+  { _id: 'ord-7', orderNumber: 'HF-2026-0778', user: null, guestInfo: { name: 'Vijay M' }, items: [{ name: 'Millet Pack' }], total: 799, status: 'shipped', createdAt: '2026-07-11T15:10:00Z' },
+]
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [recentOrders, setRecentOrders] = useState([])
@@ -13,6 +61,14 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (DEMO_MODE) {
+      setStats(demoStats)
+      setRecentOrders(demoRecentOrders)
+      setBestSelling(demoBestSelling)
+      setSalesData(demoSalesData)
+      setLoading(false)
+      return
+    }
     const load = async () => {
       let errors = 0
       const [s, orders, products, sales] = await Promise.all([
@@ -40,6 +96,8 @@ export default function AdminDashboard() {
     </div>
   )
 
+  const maxRev = salesData.length > 0 ? Math.max(...salesData.map(x => x.revenue)) : 1
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Dashboard</h1>
@@ -64,7 +122,7 @@ export default function AdminDashboard() {
                 <div key={d._id} className="flex items-center gap-3">
                   <span className="text-xs text-slate-500 w-20 shrink-0">{d._id}</span>
                   <div className="flex-1 bg-slate-100 rounded-full h-5 overflow-hidden">
-                    <div className="bg-brand-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (d.revenue / Math.max(...salesData.map(x => x.revenue))) * 100)}%` }} />
+                    <div className="bg-brand-500 h-full rounded-full transition-all" style={{ width: `${Math.min(100, (d.revenue / maxRev) * 100)}%` }} />
                   </div>
                   <span className="text-xs font-bold text-slate-700 w-20 text-right">{formatPrice(d.revenue)}</span>
                 </div>
@@ -79,7 +137,7 @@ export default function AdminDashboard() {
             <div className="space-y-3">
               {bestSelling.slice(0, 5).map(p => (
                 <div key={p._id} className="flex items-center gap-3">
-                  <img src={cld(p.images?.[0], 'f_auto,q_auto,w_200,c_fill')} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
+                  <img src={cld(p.images?.[0], 'f_auto,q_auto,w_200,c_fill')} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" onError={e => { e.target.style.display = 'none' }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900 truncate">{p.name}</p>
                     <p className="text-xs text-slate-500">{formatPrice(p.basePrice)}</p>

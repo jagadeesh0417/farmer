@@ -3,6 +3,16 @@ import { api } from '../../lib/api'
 import { formatPrice } from '../../lib/utils'
 import { toast } from 'react-toastify'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
+const demoOrders = [
+  { _id: 'ord-1', orderNumber: 'HF-2026-0784', user: { fullName: 'Priya Sharma', email: 'priya@example.com' }, guestInfo: null, items: [{ name: 'Wild Honey', variantName: '250g', quantity: 2, price: 399 }], total: 1199, subtotal: 1398, shippingCost: 0, couponDiscount: 199, paymentMethod: 'Razorpay', paymentStatus: 'paid', status: 'delivered', createdAt: '2026-07-14T10:30:00Z' },
+  { _id: 'ord-2', orderNumber: 'HF-2026-0783', user: { fullName: 'Ravi Kumar', email: 'ravi@example.com' }, guestInfo: null, items: [{ name: 'Foxtail Millet', variantName: '1kg', quantity: 2, price: 299 }], total: 598, subtotal: 598, shippingCost: 0, couponDiscount: 0, paymentMethod: 'COD', paymentStatus: 'pending', status: 'shipped', createdAt: '2026-07-14T09:15:00Z' },
+  { _id: 'ord-3', orderNumber: 'HF-2026-0782', user: { fullName: 'Anita Desai', email: 'anita@example.com' }, guestInfo: null, items: [{ name: 'Brown Sugar', variantName: '500g', quantity: 2, price: 175 }], total: 350, subtotal: 350, shippingCost: 0, couponDiscount: 0, paymentMethod: 'Razorpay', paymentStatus: 'paid', status: 'pending', createdAt: '2026-07-13T16:45:00Z' },
+  { _id: 'ord-4', orderNumber: 'HF-2026-0781', user: null, guestInfo: { name: 'Guest User', phone: '9876543210' }, items: [{ name: 'Black Pepper', variantName: '100g', quantity: 2, price: 129 }], total: 258, subtotal: 258, shippingCost: 0, couponDiscount: 0, paymentMethod: 'COD', paymentStatus: 'pending', status: 'delivered', createdAt: '2026-07-13T14:20:00Z' },
+  { _id: 'ord-5', orderNumber: 'HF-2026-0780', user: { fullName: 'Suresh Reddy', email: 'suresh@example.com' }, guestInfo: null, items: [{ name: 'Natural Protein Box', variantName: '', quantity: 1, price: 2499 }], total: 2499, subtotal: 2499, shippingCost: 0, couponDiscount: 0, paymentMethod: 'Razorpay', paymentStatus: 'failed', status: 'cancelled', createdAt: '2026-07-12T11:00:00Z' },
+]
+
 export default function AdminOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,6 +23,12 @@ export default function AdminOrders() {
 
   const load = async () => {
     setLoading(true)
+    if (DEMO_MODE) {
+      setOrders(statusFilter ? demoOrders.filter(o => o.status === statusFilter) : demoOrders)
+      setTotal(demoOrders.length)
+      setLoading(false)
+      return
+    }
     try {
       const params = { page, limit: 20 }
       if (statusFilter) params.status = statusFilter
@@ -28,6 +44,7 @@ export default function AdminOrders() {
   const handleStatusChange = async (id, status, currentStatus) => {
     if (status === currentStatus) return
     if (!confirm(`Change order status to "${status}"?`)) return
+    if (DEMO_MODE) { toast.success(`Order ${status} (demo)`); return }
     try { await api.updateOrderStatus(id, status); toast.success(`Order ${status}`); load() }
     catch (err) { toast.error(err.message) }
   }

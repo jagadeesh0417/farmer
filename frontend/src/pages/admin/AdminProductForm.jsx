@@ -3,7 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
+import { demoProducts, demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
+
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 export default function AdminProductForm() {
   const { id } = useParams()
@@ -25,6 +28,32 @@ export default function AdminProductForm() {
 
   useEffect(() => {
     const load = async () => {
+      if (DEMO_MODE) {
+        setCategories(demoCategories.map(c => ({ ...c, _id: c._id || c.id })))
+        if (isEdit) {
+          const product = demoProducts.find(p => p.id === id)
+          if (product) {
+            setForm({
+              name: product.name || '',
+              description: product.description || '',
+              tagline: product.tagline || '',
+              nutrition: product.nutrition || '',
+              basePrice: product.variants?.[0]?.price || '',
+              discountPercent: Math.round(product.discountPercent || 0),
+              category: '',
+              isActive: true,
+              isFeatured: product.isBestSeller || false,
+              isNewArrival: false,
+              images: product.image_url ? [product.image_url] : [],
+              cloudinaryPublicIds: [],
+              variants: product.variants?.length > 0 ? product.variants : form.variants,
+              seo: { metaTitle: product.name || '', metaDescription: product.description || '', keywords: [] },
+            })
+          }
+        }
+        setLoading(false)
+        return
+      }
       try {
         const cats = await api.getAllCategories()
         setCategories(cats || [])
@@ -76,6 +105,7 @@ export default function AdminProductForm() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
+    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
     for (const file of files) {
       const img = await new Promise(resolve => {
         const reader = new FileReader()
@@ -104,6 +134,7 @@ export default function AdminProductForm() {
   }
 
   const removeImage = (idx) => {
+    if (DEMO_MODE) { toast.success('Image removed (demo)'); return }
     const url = form.images[idx]
     api.deleteImage(url).catch(err => console.error('Failed to delete image from cloud:', err))
     setForm(prev => ({
@@ -118,6 +149,7 @@ export default function AdminProductForm() {
     if (!form.basePrice || Number(form.basePrice) <= 0) { toast.error('Base price must be greater than 0'); return }
     if (form.discountPercent < 0 || form.discountPercent > 100) { toast.error('Discount must be 0-100'); return }
     if (!form.variants.some(v => v.name?.trim() && Number(v.price) > 0)) { toast.error('At least one variant with name and price > 0 is required'); return }
+    if (DEMO_MODE) { toast.success(isEdit ? 'Product updated (demo)' : 'Product created (demo)'); navigate('/admin/products'); return }
     setSaving(true)
     try {
       const payload = {

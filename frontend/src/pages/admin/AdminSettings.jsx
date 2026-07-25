@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
 export default function AdminSettings() {
   const [settings, setSettings] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -12,6 +14,11 @@ export default function AdminSettings() {
 
   useEffect(() => {
     const load = async () => {
+      if (DEMO_MODE) {
+        setSettings({ siteName: 'HaiFarmer', tagline: 'Fresh from Forests, Straight to Your Home', supportEmail: 'support@haifarmer.com', supportPhone: '+919848579053', address: { street: '', city: '', state: 'India', pincode: '', country: 'India' }, social: { facebook: '', instagram: '', youtube: '', twitter: '' }, seo: { title: 'HaiFarmer', description: 'Natural forest produce' }, shipping: { freeShippingThreshold: 499, standardRate: 49 }, razorpay: { keyId: '', keySecret: '' } })
+        setLoading(false)
+        return
+      }
       try {
         const data = await api.getSettings()
         setSettings(data || {})
@@ -36,6 +43,7 @@ export default function AdminSettings() {
   }
 
   const handleSave = async () => {
+    if (DEMO_MODE) { toast.success('Settings saved (demo)'); return }
     setSaving(true)
     try {
       await api.updateSettings(settings)
@@ -47,6 +55,7 @@ export default function AdminSettings() {
   const handleLogoUpload = async (e, field) => {
     const file = e.target.files[0]
     if (!file) return
+    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
     try {
       const result = await api.uploadImage(file, 'haifarmer/settings')
       handleChange(field, result.url)

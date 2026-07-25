@@ -2,7 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { api } from '../../lib/api'
 import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
+import { demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
+
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
@@ -13,6 +16,11 @@ export default function AdminCategories() {
 
   const load = async () => {
     setLoading(true)
+    if (DEMO_MODE) {
+      setCategories(demoCategories.map(c => ({ ...c, image: c.image_url })))
+      setLoading(false)
+      return
+    }
     try {
       const data = await api.getAllCategories()
       setCategories(data || [])
@@ -35,6 +43,7 @@ export default function AdminCategories() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('Name is required')
+    if (DEMO_MODE) { toast.success(editing ? 'Category updated (demo)' : 'Category created (demo)'); resetForm(); return }
     try {
       if (editing) {
         await api.updateCategory(editing, form)
@@ -50,11 +59,13 @@ export default function AdminCategories() {
 
   const handleDelete = async (id) => {
     if (!confirm('Hide this category?')) return
+    if (DEMO_MODE) { toast.success('Category hidden (demo)'); return }
     try { await api.deleteCategory(id); toast.success('Category hidden'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
+    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
     try { await api.toggleCategoryActive(id); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -62,6 +73,7 @@ export default function AdminCategories() {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
+    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
     try {
       const result = await api.uploadImage(file, 'haifarmer/categories')
       setForm(prev => ({ ...prev, image: result.url, cloudinaryPublicId: result.publicId }))
@@ -122,7 +134,7 @@ export default function AdminCategories() {
                     <td className="p-3 text-slate-500">{cat.order || 0}</td>
                     <td className="p-3">
                       <div className="flex items-center gap-3">
-                        {cat.image && <img src={cat.image} alt="" className="h-8 w-8 rounded-lg object-cover" />}
+                        {cat.image && <img src={cat.image} alt="" className="h-8 w-8 rounded-lg object-cover" onError={e => { e.target.style.display = 'none' }} />}
                         <span className="font-medium text-slate-900">{cat.name}</span>
                       </div>
                     </td>

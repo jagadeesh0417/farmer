@@ -4,7 +4,34 @@ import { formatPrice } from '../../lib/utils'
 import { cld } from '../../lib/cloudinary'
 import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
+import { demoCombos, demoProducts } from '../../lib/demoData'
 import { toast } from 'react-toastify'
+
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
+const mapDemoCombo = (c) => ({
+  _id: c.id || c._id,
+  name: c.name || c.bundle_name,
+  description: c.description || c.bundle_description,
+  image: c.image_url || c.bundle_image,
+  price: c.price || c.bundle_price,
+  discountPercent: c.discountPercent || c.bundle_discountPercent || 0,
+  isActive: true,
+  isCombo: true,
+  items: (c.items || c.contains || []).map(item => ({
+    product: { _id: item.id, name: item.name },
+    variantName: item.variant || '',
+    quantity: item.quantity || 1,
+    price: item.price || 0,
+  })),
+})
+
+const mapDemoProductForSelect = (p) => ({
+  _id: p.id || p._id,
+  name: p.name,
+  basePrice: p.variants?.[0]?.price || 0,
+  variants: (p.variants || []).map(v => ({ _id: v.id, name: v.weight_label, price: v.price })),
+})
 
 export default function AdminBundles() {
   const [bundles, setBundles] = useState([])
@@ -20,6 +47,13 @@ export default function AdminBundles() {
   })
 
   const load = async () => {
+    setLoading(true)
+    if (DEMO_MODE) {
+      setBundles(demoCombos.map(mapDemoCombo))
+      setProducts(demoProducts.map(mapDemoProductForSelect))
+      setLoading(false)
+      return
+    }
     try {
       const [bData, pData] = await Promise.all([
         api.getAllBundles(),
@@ -64,6 +98,7 @@ export default function AdminBundles() {
     if (!form.name.trim()) return toast.error('Name is required')
     if (form.discountPercent < 0 || form.discountPercent > 100) return toast.error('Discount must be 0-100')
     if (!form.items.some(i => i.product)) return toast.error('At least one item must have a product selected')
+    if (DEMO_MODE) { toast.success(editing ? 'Bundle updated (demo)' : 'Bundle created (demo)'); resetForm(); return }
     setSubmitting(true)
     try {
       const payload = {
@@ -80,11 +115,13 @@ export default function AdminBundles() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this bundle?')) return
+    if (DEMO_MODE) { toast.success('Deleted (demo)'); return }
     try { await api.deleteBundle(id); toast.success('Deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
+    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
     try { await api.toggleBundleActive(id); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -92,6 +129,7 @@ export default function AdminBundles() {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
+    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
     try {
       const result = await api.uploadImage(file, 'haifarmer/bundles')
       setForm(prev => ({ ...prev, image: result.url, cloudinaryPublicId: result.publicId }))

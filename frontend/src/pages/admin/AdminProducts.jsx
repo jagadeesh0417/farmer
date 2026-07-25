@@ -3,7 +3,23 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { formatPrice } from '../../lib/utils'
 import { cld } from '../../lib/cloudinary'
+import { demoProducts } from '../../lib/demoData'
 import { toast } from 'react-toastify'
+
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
+const mapDemoProduct = (p, idx) => ({
+  _id: p.id || `dm-${idx}`,
+  name: p.name,
+  slug: (p.name || '').toLowerCase().replace(/\s+/g, '-'),
+  images: [p.image_url],
+  basePrice: p.variants?.[0]?.price || 0,
+  discountPercent: p.discountPercent || 0,
+  category: { name: p.category_name || p.category_tag || 'Uncategorized' },
+  variants: (p.variants || []).map(v => ({ ...v, stock: v.stock || 50 })),
+  isActive: true,
+  isFeatured: p.isBestSeller || false,
+})
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([])
@@ -23,6 +39,13 @@ export default function AdminProducts() {
 
   const load = async () => {
     setLoading(true)
+    if (DEMO_MODE) {
+      const all = demoProducts.map((p, idx) => mapDemoProduct(p, idx))
+      setProducts(search ? all.filter(p => p.name.toLowerCase().includes(search.toLowerCase())) : all)
+      setTotal(all.length)
+      setLoading(false)
+      return
+    }
     try {
       const result = await api.getProducts({ page, limit: 20, search, active: 'all' })
       setProducts(result.data || [])
@@ -36,17 +59,20 @@ export default function AdminProducts() {
   const handleSearch = (e) => { e.preventDefault(); setPage(1) }
 
   const handleToggleActive = async (id) => {
+    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
     try { await api.toggleProductActive(id); toast.success('Toggled'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggleFeatured = async (id) => {
+    if (DEMO_MODE) { toast.success('Featured toggled (demo)'); return }
     try { await api.toggleProductFeatured(id); toast.success('Featured toggled'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to hide this product?')) return
+    if (DEMO_MODE) { toast.success('Product hidden (demo)'); return }
     try { await api.deleteProduct(id); toast.success('Product hidden'); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -59,6 +85,7 @@ export default function AdminProducts() {
   const savePrice = async (id) => {
     const val = Number(priceValue)
     if (isNaN(val) || val < 0) { toast.error('Invalid price'); return }
+    if (DEMO_MODE) { toast.success('Price updated (demo)'); setEditingPrice(null); return }
     try {
       await api.updateProduct(id, { basePrice: val })
       toast.success('Price updated')
@@ -75,6 +102,7 @@ export default function AdminProducts() {
   const saveDiscount = async (id) => {
     const val = Math.round(Number(discountValue))
     if (isNaN(val) || val < 0 || val > 100) { toast.error('Discount must be 0-100'); return }
+    if (DEMO_MODE) { toast.success('Discount updated (demo)'); setEditingDiscount(null); return }
     try {
       await api.updateProduct(id, { discountPercent: val })
       toast.success('Discount updated')
@@ -86,6 +114,7 @@ export default function AdminProducts() {
   const handleImageReplace = async (e, id) => {
     const file = e.target.files[0]
     if (!file) return
+    if (DEMO_MODE) { toast.success('Image replace not available in demo mode'); return }
     try {
       const result = await api.uploadImage(file, 'haifarmer/products')
       const p = products.find(x => x._id === id)
@@ -125,6 +154,7 @@ export default function AdminProducts() {
     reordered.splice(dropIdx, 0, moved)
     setProducts(reordered)
     handleDragEnd()
+    if (DEMO_MODE) { toast.success('Products reordered (demo)'); return }
     try {
       const orders = reordered.map((p, i) => ({ id: p._id, displayOrder: i }))
       await api.reorderProducts(orders)
@@ -182,7 +212,7 @@ export default function AdminProducts() {
                     <td className="p-3">
                       <div className="flex items-center gap-3">
                         <div className="relative group">
-                          <img src={cld(p.images?.[0], 'f_auto,q_auto,w_200,c_fill')} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
+                          <img src={cld(p.images?.[0], 'f_auto,q_auto,w_200,c_fill')} alt={p.name} className="h-10 w-10 rounded-lg object-cover bg-slate-100" onError={e => { e.target.style.display = 'none' }} />
                           <button
                             onClick={() => { setImageUploadTarget(p._id); fileInputRef.current?.click() }}
                             className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
@@ -242,7 +272,7 @@ export default function AdminProducts() {
               </div>
             )}
           </div>
-          {total > 20 && (
+          {!DEMO_MODE && total > 20 && (
             <div className="mt-4 flex justify-center gap-2">
               <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50">Previous</button>
               <span className="flex items-center px-3 text-sm text-slate-600">Page {page} of {Math.ceil(total / 20)}</span>
