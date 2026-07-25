@@ -4,6 +4,7 @@ import { cld } from '../../lib/cloudinary'
 import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
 import { toast } from 'react-toastify'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 const IMAGE_TYPES = [
   { key: 'desktop', label: 'Desktop', ratio: '1920 × 700', hint: 'Wide landscape' },
@@ -36,8 +37,6 @@ function formatDateLocal(date) {
   return d.toISOString().slice(0, 16)
 }
 
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
-
 export default function AdminBanners() {
   const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
@@ -49,7 +48,7 @@ export default function AdminBanners() {
 
   const load = async () => {
     setLoading(true)
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setBanners([])
       setLoading(false)
       return
@@ -101,7 +100,7 @@ export default function AdminBanners() {
     }
     if (form.order < 0) return toast.error('Order must be 0 or greater')
 
-    if (DEMO_MODE) { toast.success(editing ? 'Banner updated (demo)' : 'Banner created (demo)'); resetForm(); return }
+    if (isDemoMode()) { toast.success(editing ? 'Banner updated (demo)' : 'Banner created (demo)'); resetForm(); return }
 
     const payload = {
       ...form,
@@ -126,13 +125,13 @@ export default function AdminBanners() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this banner?')) return
-    if (DEMO_MODE) { toast.success('Banner deleted (demo)'); return }
+    if (isDemoMode()) { toast.success('Banner deleted (demo)'); return }
     try { await api.deleteBanner(id); toast.success('Banner deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
-    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
     try { await api.toggleBannerActive(id); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -153,7 +152,7 @@ export default function AdminBanners() {
   const handleImageUpload = async (e, type) => {
     const file = e.target.files[0]
     if (!file) return
-    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
     setActiveUpload(type)
     try {
       const result = await api.uploadImage(file, 'haifarmer/banners')

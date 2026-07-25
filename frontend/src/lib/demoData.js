@@ -1,5 +1,5 @@
 const IMG = 'https://hnilmlhyqcgsbfbguuuz.supabase.co/storage/v1/object/public/bundle-images/bundles'
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from './withDemoFallback'
 
 export const demoProducts = [
   {
@@ -323,4 +323,4 @@ export const demoBanners = [
   },
 ]
 
-export { DEMO_MODE, demoCategories }
+export { isDemoMode, demoCategories }

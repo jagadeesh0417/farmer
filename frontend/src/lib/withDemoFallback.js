@@ -1,17 +1,27 @@
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+let _demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
+
+export async function checkBackend() {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || '/api'
+    await fetch(`${apiUrl}/products?page=1&limit=1`, { signal: AbortSignal.timeout(4000) })
+    _demoMode = false
+  } catch {
+    _demoMode = true
+  }
+}
+
+export function isDemoMode() { return _demoMode }
 
 export function withDemoFallback(realData, demoData) {
-  if (DEMO_MODE && (!realData || (Array.isArray(realData) && realData.length === 0))) {
+  if (_demoMode && (!realData || (Array.isArray(realData) && realData.length === 0))) {
     return demoData
   }
   return realData
 }
 
 export function withDemoCategoriesFallback(realData, demoData) {
-  if (DEMO_MODE && (!realData || (Array.isArray(realData) && realData.length === 0))) {
+  if (_demoMode && (!realData || (Array.isArray(realData) && realData.length === 0))) {
     return demoData
   }
   return realData
 }
-
-export { DEMO_MODE }

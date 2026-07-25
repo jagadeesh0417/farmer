@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 const ADMIN_EMAIL = 'haifarmer@gmail.com'
 const ADMIN_PASS = 'Haifarner1234'
 
@@ -17,7 +16,7 @@ export default function AdminLogin() {
     e.preventDefault()
     if (!email || !password) return toast.error('All fields required')
 
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       if (email !== ADMIN_EMAIL || password !== ADMIN_PASS) {
         return toast.error('Invalid credentials — use haifarmer@gmail.com / Haifarner1234')
       }
@@ -60,7 +59,7 @@ export default function AdminLogin() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-slate-900">Admin Login</h1>
           <p className="text-sm text-slate-500 mt-1">HAiFarmer Admin Panel</p>
-          {DEMO_MODE && (
+          {isDemoMode() && (
             <span className="inline-block mt-2 rounded-full bg-amber-100 px-3 py-0.5 text-[11px] font-semibold text-amber-700">Demo Mode</span>
           )}
         </div>
@@ -70,13 +69,13 @@ export default function AdminLogin() {
           <button type="submit" disabled={loading} className="w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 transition disabled:opacity-50">
             {loading ? 'Logging in...' : 'Login'}
           </button>
-          {DEMO_MODE && (
+          {isDemoMode() && (
             <button type="button" onClick={handleDemoLogin} className="w-full rounded-xl border-2 border-dashed border-amber-300 bg-amber-50 py-3 text-sm font-bold text-amber-700 hover:bg-amber-100 transition">
               Quick Demo Login
             </button>
           )}
         </form>
-        {DEMO_MODE && (
+        {isDemoMode() && (
           <p className="text-center text-[11px] text-slate-400 mt-4">Backend server is not running. Admin operates in offline demo mode.</p>
         )}
       </div>

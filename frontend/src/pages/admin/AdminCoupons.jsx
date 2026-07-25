@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 const typeLabels = { universal: 'Grocery + Combo', grocery: 'Grocery Only', combo: 'Combo Only' }
 const typeColors = { universal: 'bg-blue-100 text-blue-700', grocery: 'bg-green-100 text-green-700', combo: 'bg-purple-100 text-purple-700' }
@@ -27,7 +26,7 @@ export default function AdminCoupons() {
 
   const load = async () => {
     setLoading(true)
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setCoupons(demoCoupons)
       setLoading(false)
       return
@@ -62,7 +61,7 @@ export default function AdminCoupons() {
     if (Number(form.discountValue) <= 0) return toast.error('Discount value must be greater than 0')
     if (form.discountType === 'percentage' && Number(form.discountValue) > 100) return toast.error('Percentage discount cannot exceed 100%')
     if (form.expiryDate && new Date(form.expiryDate) < new Date(new Date().toDateString())) return toast.error('Expiry date must be in the future')
-    if (DEMO_MODE) { toast.success(editing ? 'Coupon updated (demo)' : 'Coupon created (demo)'); resetForm(); return }
+    if (isDemoMode()) { toast.success(editing ? 'Coupon updated (demo)' : 'Coupon created (demo)'); resetForm(); return }
     setSubmitting(true)
     try {
       const payload = { ...form, discountValue: Number(form.discountValue), maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : undefined, minPurchase: Number(form.minPurchase), maxUses: Number(form.maxUses) }
@@ -75,13 +74,13 @@ export default function AdminCoupons() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this coupon?')) return
-    if (DEMO_MODE) { toast.success('Coupon deleted (demo)'); return }
+    if (isDemoMode()) { toast.success('Coupon deleted (demo)'); return }
     try { await api.deleteCoupon(id); toast.success('Coupon deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
-    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
     try { await api.toggleCouponActive(id); load() }
     catch (err) { toast.error(err.message) }
   }

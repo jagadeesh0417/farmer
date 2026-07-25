@@ -105,6 +105,17 @@ const siteSettingSchema = new mongoose.Schema({
   promoBanner2Link: String,
   promoBanner3Url: String,
   promoBanner3Link: String,
+
+  // Home page section product assignments
+  homeSections: {
+    groceries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    bestSellers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    healthConcern: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    millets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    lentilsBeans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    honey: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    spices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  },
 }, { timestamps: true })
 
 export default mongoose.model('SiteSetting', siteSettingSchema)

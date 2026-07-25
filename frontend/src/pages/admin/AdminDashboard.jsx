@@ -4,8 +4,7 @@ import { api } from '../../lib/api'
 import { formatPrice } from '../../lib/utils'
 import { cld } from '../../lib/cloudinary'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 const demoStats = {
   totalRevenue: 584720,
@@ -61,7 +60,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setStats(demoStats)
       setRecentOrders(demoRecentOrders)
       setBestSelling(demoBestSelling)

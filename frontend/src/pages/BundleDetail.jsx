@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { DEMO_MODE } from '../lib/withDemoFallback'
+import { isDemoMode } from '../lib/withDemoFallback'
 import { demoCombos } from '../lib/demoData'
 import SeoHead from '../components/SeoHead'
 import { formatPrice, getImageUrl } from '../lib/utils'
@@ -19,7 +19,7 @@ export default function BundleDetail() {
   useEffect(() => {
     const load = async () => {
       if (!slug) return
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         const found = demoCombos.find(b => {
           const id = b._id || b.id
           return id === slug || toSlug(b.bundle_name || b.name) === slug

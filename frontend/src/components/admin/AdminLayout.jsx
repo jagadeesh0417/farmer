@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { api } from '../../lib/api'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: '📊', end: true },
@@ -29,7 +28,7 @@ export default function AdminLayout() {
       return
     }
 
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setVerifying(false)
       return
     }
@@ -43,7 +42,7 @@ export default function AdminLayout() {
     })
   }, [navigate])
 
-  if (verifying && !DEMO_MODE) {
+  if (verifying && !isDemoMode()) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="flex flex-col items-center gap-3">
@@ -65,7 +64,7 @@ export default function AdminLayout() {
       <aside className="fixed left-0 top-0 z-50 h-full w-56 bg-slate-900 text-white shadow-xl md:block hidden overflow-y-auto">
         <div className="p-4 border-b border-slate-700">
           <h1 className="text-lg font-bold tracking-wide">HAiFarmer Admin</h1>
-          {DEMO_MODE && <span className="text-[10px] text-amber-400 font-semibold">Demo Mode</span>}
+          {isDemoMode() && <span className="text-[10px] text-amber-400 font-semibold">Demo Mode</span>}
         </div>
         <nav className="p-2 space-y-1">
           {navItems.map(item => (
@@ -113,7 +112,7 @@ export default function AdminLayout() {
       </div>
 
       <main className="flex-1 md:ml-56 pb-20 md:pb-0 min-h-screen">
-        {DEMO_MODE && (
+        {isDemoMode() && (
           <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
             <span className="text-xs text-amber-700 font-semibold">Demo Mode — Backend server is not connected. Data shown is sample data.</span>
           </div>

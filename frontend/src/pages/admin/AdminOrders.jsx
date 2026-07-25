@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
 import { formatPrice } from '../../lib/utils'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 const demoOrders = [
   { _id: 'ord-1', orderNumber: 'HF-2026-0784', user: { fullName: 'Priya Sharma', email: 'priya@example.com' }, guestInfo: null, items: [{ name: 'Wild Honey', variantName: '250g', quantity: 2, price: 399 }], total: 1199, subtotal: 1398, shippingCost: 0, couponDiscount: 199, paymentMethod: 'Razorpay', paymentStatus: 'paid', status: 'delivered', createdAt: '2026-07-14T10:30:00Z' },
@@ -23,7 +22,7 @@ export default function AdminOrders() {
 
   const load = async () => {
     setLoading(true)
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setOrders(statusFilter ? demoOrders.filter(o => o.status === statusFilter) : demoOrders)
       setTotal(demoOrders.length)
       setLoading(false)
@@ -44,7 +43,7 @@ export default function AdminOrders() {
   const handleStatusChange = async (id, status, currentStatus) => {
     if (status === currentStatus) return
     if (!confirm(`Change order status to "${status}"?`)) return
-    if (DEMO_MODE) { toast.success(`Order ${status} (demo)`); return }
+    if (isDemoMode()) { toast.success(`Order ${status} (demo)`); return }
     try { await api.updateOrderStatus(id, status); toast.success(`Order ${status}`); load() }
     catch (err) { toast.error(err.message) }
   }

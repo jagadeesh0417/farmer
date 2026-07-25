@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getFarmers } from '../lib/farmerService'
-import { DEMO_MODE } from '../lib/withDemoFallback'
+import { isDemoMode } from '../lib/withDemoFallback'
 import { demoFarmers } from '../lib/demoData'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { getImageUrl } from '../lib/utils'
@@ -17,7 +17,7 @@ export default function Farmers() {
     const load = async () => {
       try {
         const data = await getFarmers()
-        setFarmers(DEMO_MODE && (!data || data.length === 0) ? demoFarmers : (data || []))
+        setFarmers(isDemoMode() && (!data || data.length === 0) ? demoFarmers : (data || []))
       } catch (e) { console.error(e) }
       finally { setLoading(false) }
     }

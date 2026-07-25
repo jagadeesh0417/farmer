@@ -5,8 +5,7 @@ import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoProducts, demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 export default function AdminProductForm() {
   const { id } = useParams()
@@ -28,7 +27,7 @@ export default function AdminProductForm() {
 
   useEffect(() => {
     const load = async () => {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         setCategories(demoCategories.map(c => ({ ...c, _id: c._id || c.id })))
         if (isEdit) {
           const product = demoProducts.find(p => p.id === id)
@@ -105,7 +104,7 @@ export default function AdminProductForm() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
-    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
     for (const file of files) {
       const img = await new Promise(resolve => {
         const reader = new FileReader()
@@ -134,7 +133,7 @@ export default function AdminProductForm() {
   }
 
   const removeImage = (idx) => {
-    if (DEMO_MODE) { toast.success('Image removed (demo)'); return }
+    if (isDemoMode()) { toast.success('Image removed (demo)'); return }
     const url = form.images[idx]
     api.deleteImage(url).catch(err => console.error('Failed to delete image from cloud:', err))
     setForm(prev => ({
@@ -149,7 +148,7 @@ export default function AdminProductForm() {
     if (!form.basePrice || Number(form.basePrice) <= 0) { toast.error('Base price must be greater than 0'); return }
     if (form.discountPercent < 0 || form.discountPercent > 100) { toast.error('Discount must be 0-100'); return }
     if (!form.variants.some(v => v.name?.trim() && Number(v.price) > 0)) { toast.error('At least one variant with name and price > 0 is required'); return }
-    if (DEMO_MODE) { toast.success(isEdit ? 'Product updated (demo)' : 'Product created (demo)'); navigate('/admin/products'); return }
+    if (isDemoMode()) { toast.success(isEdit ? 'Product updated (demo)' : 'Product created (demo)'); navigate('/admin/products'); return }
     setSaving(true)
     try {
       const payload = {

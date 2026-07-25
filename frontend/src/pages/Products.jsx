@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { getProducts } from '../lib/productService'
 import { getCategories } from '../lib/productService'
-import { DEMO_MODE } from '../lib/withDemoFallback'
+import { isDemoMode } from '../lib/withDemoFallback'
 import { demoProducts } from '../lib/demoData'
 import SeoHead from '../components/SeoHead'
 import ProductCard from '../components/ProductCard'
@@ -46,8 +46,8 @@ export default function Products() {
       setLoading(true)
       try {
         const result = await getProducts(page, 50, catSlug || null, search || null, sort, false)
-        setProducts(DEMO_MODE && (!result?.data || result.data.length === 0) ? demoProducts : (result?.data || []))
-        setTotal(DEMO_MODE && (!result?.data || result.data.length === 0) ? demoProducts.length : (result?.total || 0))
+        setProducts(isDemoMode() && (!result?.data || result.data.length === 0) ? demoProducts : (result?.data || []))
+        setTotal(isDemoMode() && (!result?.data || result.data.length === 0) ? demoProducts.length : (result?.total || 0))
       } catch (e) { console.error(e) }
       finally { setLoading(false) }
     }
@@ -96,8 +96,17 @@ export default function Products() {
           {/* Sidebar filters - Desktop */}
           <aside className="hidden lg:block w-56 shrink-0">
             <div className="sticky top-6">
-              <h3 className="font-heading text-h4 font-bold text-ink mb-4">Categories</h3>
-              <ul className="space-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-heading text-h4 font-bold text-ink">Filters</h3>
+                {catSlug && (
+                  <button onClick={() => updateParams({ category: '', page: '1' })}
+                    className="text-caption text-green-600 hover:text-green-700 font-semibold">Clear</button>
+                )}
+              </div>
+              <div className="mb-1 px-3 py-1.5">
+                <span className="text-caption font-semibold text-muted uppercase tracking-wider">Category</span>
+              </div>
+              <ul className="space-y-0.5">
                 <li>
                   <button onClick={() => updateParams({ category: '', page: '1' })}
                     className={`w-full text-left px-3 py-2 rounded-lg text-body-sm transition ${!catSlug ? 'bg-green-50 text-green-700 font-semibold' : 'text-muted hover:bg-gray-50 hover:text-ink'}`}>All Products</button>

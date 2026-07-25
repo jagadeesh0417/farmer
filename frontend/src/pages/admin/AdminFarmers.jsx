@@ -4,8 +4,7 @@ import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoFarmers } from '../../lib/demoData'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 export default function AdminFarmers() {
   const [farmers, setFarmers] = useState([])
@@ -26,7 +25,7 @@ export default function AdminFarmers() {
 
   const load = async () => {
     setLoading(true)
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       const all = demoFarmers.map(f => ({ ...f, _id: f.id || f._id }))
       setFarmers(search ? all.filter(f => f.name?.toLowerCase().includes(search.toLowerCase())) : all)
       setTotal(all.length)
@@ -66,7 +65,7 @@ export default function AdminFarmers() {
     e.preventDefault()
     if (submitting) return
     if (!form.name.trim() || !form.phone.trim()) return toast.error('Name and phone are required')
-    if (DEMO_MODE) { toast.success(editing ? 'Farmer updated (demo)' : 'Farmer created (demo)'); resetForm(); return }
+    if (isDemoMode()) { toast.success(editing ? 'Farmer updated (demo)' : 'Farmer created (demo)'); resetForm(); return }
     setSubmitting(true)
     try {
       const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean) }
@@ -78,7 +77,7 @@ export default function AdminFarmers() {
   }
 
   const handleToggleActive = async (id) => {
-    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
     try {
       await api.toggleFarmerActive(id)
       toast.success('Toggled')
@@ -89,7 +88,7 @@ export default function AdminFarmers() {
   const handleQRUpload = async (e, id) => {
     const file = e.target.files[0]
     if (!file) return
-    if (DEMO_MODE) { toast.success('QR upload not available in demo mode'); return }
+    if (isDemoMode()) { toast.success('QR upload not available in demo mode'); return }
     try {
       toast.info('Uploading QR...')
       const result = await api.uploadImage(file, 'haifarmer/farmers/qr')
@@ -102,13 +101,13 @@ export default function AdminFarmers() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this farmer?')) return
-    if (DEMO_MODE) { toast.success('Farmer deleted (demo)'); return }
+    if (isDemoMode()) { toast.success('Farmer deleted (demo)'); return }
     try { await api.deleteFarmer(id); toast.success('Farmer deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleStatus = async (id, status) => {
-    if (DEMO_MODE) { toast.success(`Farmer ${status} (demo)`); return }
+    if (isDemoMode()) { toast.success(`Farmer ${status} (demo)`); return }
     try { await api.updateFarmerStatus(id, status); toast.success(`Farmer ${status}`); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -116,7 +115,7 @@ export default function AdminFarmers() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
-    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
     try {
       toast.info('Uploading...')
       const results = await api.uploadMultiple(files, 'haifarmer/farmers')

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { DEMO_MODE } from '../lib/withDemoFallback'
+import { isDemoMode } from '../lib/withDemoFallback'
 import { demoCombos } from '../lib/demoData'
 import SeoHead from '../components/SeoHead'
 import BundleCard from '../components/BundleCard'
@@ -12,7 +12,7 @@ export default function Combos() {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         setBundles(demoCombos)
         setLoading(false)
         return

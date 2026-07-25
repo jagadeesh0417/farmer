@@ -11,7 +11,7 @@ import { api } from '../lib/api'
 import { getComboBundles as getSupabaseComboBundles } from '../lib/productService'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
-import { DEMO_MODE } from '../lib/withDemoFallback'
+import { isDemoMode } from '../lib/withDemoFallback'
 import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
@@ -34,6 +34,12 @@ const HEALTH_CONCERNS = [
 ]
 
 const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 'Super Saver Combos', 'Shop By Goal']
+
+function getSectionProducts(products, settings, sectionKey) {
+  const ids = settings?.homeSections?.[sectionKey]
+  if (!ids || ids.length === 0) return products
+  return products.filter(p => ids.includes(p.id || p._id))
+}
 
 export default function Home() {
   const { cartItems } = useCart()
@@ -63,7 +69,7 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false
     async function load() {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         setProducts(demoProducts)
         setBundles(demoCombos)
         setMilletProducts(demoProductsByCategory('millets'))
@@ -102,11 +108,11 @@ export default function Home() {
     api.getCategories().then(data => {
       if (cancelled) return
       let cats = Array.isArray(data) ? data : data?.data || []
-      if (DEMO_MODE && cats.length === 0) cats = demoCategories()
+      if (isDemoMode() && cats.length === 0) cats = demoCategories()
       setCategories(cats)
       if (cats.length > 0 && !activeCategory) setActiveCategory(cats[0].id || cats[0]._id)
     }).catch(() => {
-      if (!cancelled && DEMO_MODE) {
+      if (!cancelled && isDemoMode()) {
         const cats = demoCategories()
         setCategories(cats)
         if (cats.length > 0) setActiveCategory(cats[0].id || cats[0]._id)
@@ -124,10 +130,10 @@ export default function Home() {
     setCatLoading(prev => ({ ...prev, [catName]: true }))
     api.getProducts({ category: catName, limit: 8 }).then(r => {
       let data = r?.data || []
-      if (DEMO_MODE && data.length === 0) data = demoProductsByCategory(catName)
+      if (isDemoMode() && data.length === 0) data = demoProductsByCategory(catName)
       setCategoryProducts(prev => ({ ...prev, [catName]: data }))
     }).catch(() => {
-      if (DEMO_MODE) setCategoryProducts(prev => ({ ...prev, [catName]: demoProductsByCategory(catName) }))
+      if (isDemoMode()) setCategoryProducts(prev => ({ ...prev, [catName]: demoProductsByCategory(catName) }))
     }).finally(() => {
       setCatLoading(prev => ({ ...prev, [catName]: false }))
     })
@@ -204,19 +210,28 @@ export default function Home() {
               {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
             </div>
           ) : products.length > 0 ? (
-            <div className="relative">
-              <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              </button>
-              <div id="groceries-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-                {products.map((product, i) => (
-                  <div key={product.id || product._id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[320px]"><ProductCard product={product} /></div>
-                ))}
-              </div>
-            </div>
+            (() => {
+              const groceries = getSectionProducts(products, settings, 'groceries')
+              return groceries.length > 0 ? (
+                <div className="relative">
+                  <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                  <div id="groceries-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+                    {groceries.map((product, i) => (
+                      <div key={product.id || product._id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[320px]"><ProductCard product={product} /></div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-off-white rounded-xl border border-border">
+                  <p className="text-body-sm text-muted">No products in this section yet.</p>
+                </div>
+              )
+            })()
           ) : (
             <div className="text-center py-12 bg-off-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No products available yet.</p>
@@ -235,7 +250,7 @@ export default function Home() {
               className="inline-block mt-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
           </div>
           <div className="flex gap-3 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-            {(DEMO_MODE ? demoStories.map(s => ({
+            {(isDemoMode() ? demoStories.map(s => ({
               poster: s.image,
               alt: s.title,
               src: null,
@@ -266,7 +281,7 @@ export default function Home() {
                     </>
                   )}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    {DEMO_MODE && reel.duration && (
+                    {isDemoMode() && reel.duration && (
                       <span className="inline-block rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-micro font-medium text-white mb-1">{reel.duration}</span>
                     )}
                     <p className="text-caption font-medium text-white drop-shadow-sm line-clamp-1">{reel.alt}</p>
@@ -355,19 +370,28 @@ export default function Home() {
               {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-64 animate-pulse" />)}
             </div>
           ) : products.length > 0 ? (
-            <div className="relative">
-              <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              </button>
-              <div id="bestsellers-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-                {products.slice(0, 12).map((product) => (
-                  <div key={product.id || product._id} className="min-w-[220px] sm:min-w-[240px] lg:min-w-[260px]"><ProductCard product={product} /></div>
-                ))}
-              </div>
-            </div>
+            (() => {
+              const bestSellers = getSectionProducts(products, settings, 'bestSellers')
+              return bestSellers.length > 0 ? (
+                <div className="relative">
+                  <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                  <div id="bestsellers-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+                    {bestSellers.slice(0, 12).map((product) => (
+                      <div key={product.id || product._id} className="min-w-[220px] sm:min-w-[240px] lg:min-w-[260px]"><ProductCard product={product} /></div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-xl border border-border">
+                  <p className="text-body-sm text-muted">No products in this section yet.</p>
+                </div>
+              )
+            })()
           ) : (
             <div className="text-center py-12 bg-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No products available yet.</p>
@@ -422,7 +446,8 @@ export default function Home() {
           </div>
           {HEALTH_CONCERNS.map(concern => {
             if (concern.label !== activeConcern) return null
-            const filtered = products.filter(p => {
+            const sectionProducts = getSectionProducts(products, settings, 'healthConcern')
+            const filtered = sectionProducts.length > 0 ? sectionProducts : products.filter(p => {
               const cat = (p.category || '').toLowerCase()
               return cat === concern.category || cat.includes(concern.category)
             })
@@ -456,12 +481,10 @@ export default function Home() {
       {/* 11. Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
-            </div>
-            <Link to="/products?category=millets" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
+            <Link to="/products?category=millets" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -469,7 +492,7 @@ export default function Home() {
             </div>
           ) : milletProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {milletProducts.slice(0, 8).map(product => (
+              {(getSectionProducts(products, settings, 'millets').length > 0 ? getSectionProducts(products, settings, 'millets') : milletProducts).slice(0, 8).map(product => (
                 <ProductCard key={product.id || product._id} product={product} />
               ))}
             </div>
@@ -485,12 +508,10 @@ export default function Home() {
       {/* 12. Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
-            </div>
-            <Link to="/products?category=lentils-beans" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
+            <Link to="/products?category=lentils-beans" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -498,7 +519,7 @@ export default function Home() {
             </div>
           ) : grainProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {grainProducts.slice(0, 8).map(product => (
+              {(getSectionProducts(products, settings, 'lentilsBeans').length > 0 ? getSectionProducts(products, settings, 'lentilsBeans') : grainProducts).slice(0, 8).map(product => (
                 <ProductCard key={product.id || product._id} product={product} />
               ))}
             </div>
@@ -514,15 +535,14 @@ export default function Home() {
       {/* 13. Honey */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Nature's Sweetness</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Honey</h2>
-            </div>
-            <Link to="/products?category=honey" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Nature's Sweetness</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Honey</h2>
+            <Link to="/products?category=honey" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {(() => {
-            const honeyProducts = products.filter(p => (p.category || '').toLowerCase() === 'honey' || (p.category_name || '').toLowerCase() === 'honey')
+            const sectionProducts = getSectionProducts(products, settings, 'honey')
+            const honeyProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => (p.category || '').toLowerCase() === 'honey' || (p.category_name || '').toLowerCase() === 'honey')
             return honeyProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {honeyProducts.slice(0, 4).map(product => (
@@ -542,15 +562,14 @@ export default function Home() {
       {/* 14. Spices */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
-            </div>
-            <Link to="/products?category=spices" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
+            <Link to="/products?category=spices" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {(() => {
-            const spiceProducts = products.filter(p => (p.category || '').toLowerCase() === 'spices' || (p.category_name || '').toLowerCase() === 'spices')
+            const sectionProducts = getSectionProducts(products, settings, 'spices')
+            const spiceProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => (p.category || '').toLowerCase() === 'spices' || (p.category_name || '').toLowerCase() === 'spices')
             return spiceProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {spiceProducts.slice(0, 4).map(product => (

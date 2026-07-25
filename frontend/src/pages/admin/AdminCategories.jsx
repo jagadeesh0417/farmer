@@ -4,8 +4,7 @@ import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
-
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+import { isDemoMode } from '../../lib/withDemoFallback'
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
@@ -16,7 +15,7 @@ export default function AdminCategories() {
 
   const load = async () => {
     setLoading(true)
-    if (DEMO_MODE) {
+    if (isDemoMode()) {
       setCategories(demoCategories.map(c => ({ ...c, image: c.image_url })))
       setLoading(false)
       return
@@ -43,7 +42,7 @@ export default function AdminCategories() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('Name is required')
-    if (DEMO_MODE) { toast.success(editing ? 'Category updated (demo)' : 'Category created (demo)'); resetForm(); return }
+    if (isDemoMode()) { toast.success(editing ? 'Category updated (demo)' : 'Category created (demo)'); resetForm(); return }
     try {
       if (editing) {
         await api.updateCategory(editing, form)
@@ -59,13 +58,13 @@ export default function AdminCategories() {
 
   const handleDelete = async (id) => {
     if (!confirm('Hide this category?')) return
-    if (DEMO_MODE) { toast.success('Category hidden (demo)'); return }
+    if (isDemoMode()) { toast.success('Category hidden (demo)'); return }
     try { await api.deleteCategory(id); toast.success('Category hidden'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
-    if (DEMO_MODE) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
     try { await api.toggleCategoryActive(id); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -73,7 +72,7 @@ export default function AdminCategories() {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (DEMO_MODE) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
     try {
       const result = await api.uploadImage(file, 'haifarmer/categories')
       setForm(prev => ({ ...prev, image: result.url, cloudinaryPublicId: result.publicId }))
