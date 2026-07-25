@@ -17,14 +17,14 @@ const SECTION_KEYS = [
 const COMBO_SECTION_KEY = { key: 'superSaverCombos', label: 'Super Saver Combos' }
 
 const defaultSectionIds = {
-  groceries: ['dm-1', 'dm-2', 'dm-3', 'dm-4', 'dm-5', 'dm-6', 'dm-7', 'dm-8'],
-  bestSellers: ['dm-1', 'dm-4', 'dm-7', 'dm-11', 'dm-15'],
-  healthConcern: ['dm-1', 'dm-4', 'dm-7', 'dm-11'],
-  millets: ['dm-7', 'dm-8', 'dm-9', 'dm-10'],
-  lentilsBeans: ['dm-5', 'dm-6'],
-  honey: ['dm-1'],
-  spices: ['dm-4', 'dm-11', 'dm-12', 'dm-13'],
-  superSaverCombos: ['demo-combo-1', 'demo-combo-2', 'demo-combo-3'],
+  groceries: [],
+  bestSellers: [],
+  healthConcern: [],
+  millets: [],
+  lentilsBeans: [],
+  honey: [],
+  spices: [],
+  superSaverCombos: [],
 }
 
 export default function AdminSettings() {
