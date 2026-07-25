@@ -12,6 +12,7 @@ import { getComboBundles as getSupabaseComboBundles } from '../lib/productServic
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
+import { getItems } from '../lib/demoStore'
 import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
@@ -37,8 +38,9 @@ const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 
 
 function getSectionProducts(products, settings, sectionKey) {
   const ids = settings?.homeSections?.[sectionKey]
-  if (!ids || ids.length === 0) return products
-  return products.filter(p => ids.includes(p.id || p._id))
+  let filtered = products
+  if (ids && ids.length > 0) filtered = products.filter(p => ids.includes(p.id || p._id))
+  return filtered.filter(p => p.showOnHome !== false)
 }
 
 export default function Home() {
@@ -70,8 +72,10 @@ export default function Home() {
     let cancelled = false
     async function load() {
       if (isDemoMode()) {
-        setProducts(demoProducts)
-        setBundles(demoCombos)
+        const savedProducts = getItems('products')
+        const savedBundles = getItems('bundles')
+        setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
+        setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
         setMilletProducts(demoProductsByCategory('millets'))
         setGrainProducts(demoProductsByCategory('lentils-beans'))
         setFarmers(demoFarmers)
@@ -338,7 +342,7 @@ export default function Home() {
             </div>
           ) : bundles.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {bundles.slice(0, 4).map(bundle => (
+              {bundles.filter(b => b.showOnHome !== false).slice(0, 4).map(bundle => (
                 <BundleCard key={bundle._id || bundle.id} bundle={bundle} compact />
               ))}
             </div>
@@ -449,7 +453,7 @@ export default function Home() {
             const sectionProducts = getSectionProducts(products, settings, 'healthConcern')
             const filtered = sectionProducts.length > 0 ? sectionProducts : products.filter(p => {
               const cat = (p.category || '').toLowerCase()
-              return cat === concern.category || cat.includes(concern.category)
+              return p.showOnHome !== false && (cat === concern.category || cat.includes(concern.category))
             })
             return (
               <div key={concern.label}>

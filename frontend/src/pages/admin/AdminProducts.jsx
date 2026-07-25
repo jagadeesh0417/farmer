@@ -71,6 +71,12 @@ export default function AdminProducts() {
     catch (err) { toast.error(err.message) }
   }
 
+  const handleToggleHome = async (id) => {
+    if (isDemoMode()) { toggleItem('products', id, 'showOnHome'); toast.success('Home visibility toggled'); load(); return }
+    try { await api.updateProduct(id, { showOnHome: !products.find(p => p._id === id)?.showOnHome }); toast.success('Home visibility toggled'); load() }
+    catch (err) { toast.error(err.message) }
+  }
+
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to hide this product?')) return
     if (isDemoMode()) { demoDelete('products', id); toast.success('Product hidden'); load(); return }
@@ -197,7 +203,7 @@ export default function AdminProducts() {
             <table className="w-full text-sm">
               <thead><tr className="border-b border-slate-100 bg-slate-50 text-left text-xs text-slate-500 uppercase">
                 <th className="p-3 font-medium w-8"></th>
-                <th className="p-3 font-medium">Product</th><th className="p-3 font-medium">Category</th><th className="p-3 font-medium">Price</th><th className="p-3 font-medium">Discount</th><th className="p-3 font-medium">Stock</th><th className="p-3 font-medium">Status</th><th className="p-3 font-medium">Featured</th><th className="p-3 font-medium">Actions</th>
+                <th className="p-3 font-medium">Product</th><th className="p-3 font-medium">Category</th><th className="p-3 font-medium">Price</th><th className="p-3 font-medium">Discount</th><th className="p-3 font-medium">Stock</th><th className="p-3 font-medium">Status</th><th className="p-3 font-medium">Featured</th><th className="p-3 font-medium">Home</th><th className="p-3 font-medium">Actions</th>
               </tr></thead>
               <tbody>
                 {products.map((p, idx) => (
@@ -260,6 +266,9 @@ export default function AdminProducts() {
                     </td>
                     <td className="p-3">
                       <button onClick={() => handleToggleFeatured(p._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.isFeatured ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>{p.isFeatured ? 'Featured' : 'Normal'}</button>
+                    </td>
+                    <td className="p-3">
+                      <button onClick={() => handleToggleHome(p._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.showOnHome !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>{p.showOnHome !== false ? 'Show' : 'Hide'}</button>
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">

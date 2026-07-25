@@ -7,6 +7,7 @@ import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoCombos, demoProducts } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import { getItems, addItem, updateItem, deleteItem as demoDelete, toggleItem } from '../../lib/demoStore'
 
 const mapDemoCombo = (c) => ({
   _id: c.id || c._id,
@@ -48,7 +49,9 @@ export default function AdminBundles() {
   const load = async () => {
     setLoading(true)
     if (isDemoMode()) {
-      setBundles(demoCombos.map(mapDemoCombo))
+      const saved = getItems('bundles')
+      const all = [...saved, ...demoCombos.filter(dc => !saved.some(s => s.name === dc.name)).map(mapDemoCombo)]
+      setBundles(all)
       setProducts(demoProducts.map(mapDemoProductForSelect))
       setLoading(false)
       return
@@ -97,7 +100,12 @@ export default function AdminBundles() {
     if (!form.name.trim()) return toast.error('Name is required')
     if (form.discountPercent < 0 || form.discountPercent > 100) return toast.error('Discount must be 0-100')
     if (!form.items.some(i => i.product)) return toast.error('At least one item must have a product selected')
-    if (isDemoMode()) { toast.success(editing ? 'Bundle updated (demo)' : 'Bundle created (demo)'); resetForm(); return }
+    if (isDemoMode()) {
+      const payload = { ...form, discountPercent: Number(form.discountPercent) || 0, items: form.items.map(i => ({ ...i, quantity: Number(i.quantity) || 1, price: Number(i.price) || 0 })) }
+      if (editing) { updateItem('bundles', editing, payload); toast.success('Bundle updated') }
+      else { addItem('bundles', payload); toast.success('Bundle created') }
+      resetForm(); load(); return
+    }
     setSubmitting(true)
     try {
       const payload = {
@@ -114,21 +122,32 @@ export default function AdminBundles() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this bundle?')) return
-    if (isDemoMode()) { toast.success('Deleted (demo)'); return }
+    if (isDemoMode()) { demoDelete('bundles', id); toast.success('Deleted'); load(); return }
     try { await api.deleteBundle(id); toast.success('Deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
-    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toggleItem('bundles', id); toast.success('Toggled'); load(); return }
     try { await api.toggleBundleActive(id); load() }
+    catch (err) { toast.error(err.message) }
+  }
+
+  const handleToggleHome = async (id) => {
+    if (isDemoMode()) { toggleItem('bundles', id, 'showOnHome'); toast.success('Home visibility toggled'); load(); return }
+    try { const b = bundles.find(x => x._id === id); await api.updateBundle(id, { showOnHome: !b?.showOnHome }); toast.success('Home visibility toggled'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) {
+      const reader = new FileReader()
+      reader.onload = () => { setForm(prev => ({ ...prev, image: reader.result })); toast.success('Image set') }
+      reader.readAsDataURL(file)
+      return
+    }
     try {
       const result = await api.uploadImage(file, 'haifarmer/bundles')
       setForm(prev => ({ ...prev, image: result.url, cloudinaryPublicId: result.publicId }))
@@ -258,6 +277,7 @@ export default function AdminBundles() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => handleToggle(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{b.isActive ? 'On' : 'Off'}</button>
+                <button onClick={() => handleToggleHome(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.showOnHome !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>{b.showOnHome !== false ? 'Home' : 'NoHome'}</button>
                 <button onClick={() => handleEdit(b)} className="text-xs font-semibold text-brand-600">Edit</button>
                 <button onClick={() => handleDelete(b._id)} className="text-xs font-semibold text-red-600">Del</button>
               </div>

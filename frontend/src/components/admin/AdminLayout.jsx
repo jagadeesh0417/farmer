@@ -64,7 +64,6 @@ export default function AdminLayout() {
       <aside className="fixed left-0 top-0 z-50 h-full w-56 bg-slate-900 text-white shadow-xl md:block hidden overflow-y-auto">
         <div className="p-4 border-b border-slate-700">
           <h1 className="text-lg font-bold tracking-wide">HAiFarmer Admin</h1>
-          {isDemoMode() && <span className="text-[10px] text-amber-400 font-semibold">Demo Mode</span>}
         </div>
         <nav className="p-2 space-y-1">
           {navItems.map(item => (
@@ -112,11 +111,6 @@ export default function AdminLayout() {
       </div>
 
       <main className="flex-1 md:ml-56 pb-20 md:pb-0 min-h-screen">
-        {isDemoMode() && (
-          <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center">
-            <span className="text-xs text-amber-700 font-semibold">Demo Mode — Backend server is not connected. Data shown is sample data.</span>
-          </div>
-        )}
         <Outlet />
       </main>
     </div>
