@@ -5,7 +5,11 @@ function load(key) {
 }
 
 function save(key, data) {
-  localStorage.setItem(PREFIX + key, JSON.stringify(data))
+  try {
+    localStorage.setItem(PREFIX + key, JSON.stringify(data))
+  } catch (err) {
+    console.error(`demoStore.save(${key}) failed:`, err.message)
+  }
 }
 
 export function getItems(key) {

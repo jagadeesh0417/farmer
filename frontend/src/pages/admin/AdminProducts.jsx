@@ -125,6 +125,7 @@ export default function AdminProducts() {
       const reader = new FileReader()
       reader.onload = () => { updateItem('products', id, { image: reader.result }); toast.success('Image replaced'); load() }
       reader.readAsDataURL(file)
+      e.target.value = ''
       return
     }
     try {

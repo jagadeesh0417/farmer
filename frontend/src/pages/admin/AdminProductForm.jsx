@@ -6,7 +6,7 @@ import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoProducts, demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
-import { addItem, updateItem } from '../../lib/demoStore'
+import { getItems, addItem, updateItem } from '../../lib/demoStore'
 
 export default function AdminProductForm() {
   const { id } = useParams()
@@ -31,23 +31,24 @@ export default function AdminProductForm() {
       if (isDemoMode()) {
         setCategories(demoCategories.map(c => ({ ...c, _id: c._id || c.id })))
         if (isEdit) {
-          const product = demoProducts.find(p => p.id === id)
+          const saved = getItems('products')
+          const product = saved.find(p => p._id === id || p.id === id) || demoProducts.find(p => p.id === id)
           if (product) {
             setForm({
               name: product.name || '',
               description: product.description || '',
               tagline: product.tagline || '',
               nutrition: product.nutrition || '',
-              basePrice: product.variants?.[0]?.price || '',
+              basePrice: product.basePrice || product.variants?.[0]?.price || '',
               discountPercent: Math.round(product.discountPercent || 0),
-              category: '',
-              isActive: true,
-              isFeatured: product.isBestSeller || false,
-              isNewArrival: false,
-              images: product.image_url ? [product.image_url] : [],
-              cloudinaryPublicIds: [],
+              category: product.category?._id || product.category || '',
+              isActive: product.isActive ?? true,
+              isFeatured: product.isFeatured || product.isBestSeller || false,
+              isNewArrival: product.isNewArrival || false,
+              images: product.images || (product.image_url ? [product.image_url] : []),
+              cloudinaryPublicIds: product.cloudinaryPublicIds || [],
               variants: product.variants?.length > 0 ? product.variants : form.variants,
-              seo: { metaTitle: product.name || '', metaDescription: product.description || '', keywords: [] },
+              seo: product.seo || { metaTitle: product.name || '', metaDescription: product.description || '', keywords: [] },
             })
           }
         }
@@ -109,6 +110,7 @@ export default function AdminProductForm() {
       const urls = await Promise.all(files.map(f => new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(f) })))
       setForm(prev => ({ ...prev, images: [...prev.images, ...urls] }))
       toast.success(`${urls.length} image(s) added`)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
     for (const file of files) {

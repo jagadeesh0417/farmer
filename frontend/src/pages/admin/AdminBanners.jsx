@@ -151,6 +151,7 @@ export default function AdminBanners() {
       const reader = new FileReader()
       reader.onload = () => { applyImage(type, reader.result, ''); toast.success(`${type} image set`) }
       reader.readAsDataURL(file)
+      e.target.value = ''
       return
     }
     setActiveUpload(type)

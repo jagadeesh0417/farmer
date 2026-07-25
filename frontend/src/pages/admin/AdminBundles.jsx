@@ -146,6 +146,7 @@ export default function AdminBundles() {
       const reader = new FileReader()
       reader.onload = () => { setForm(prev => ({ ...prev, image: reader.result })); toast.success('Image set') }
       reader.readAsDataURL(file)
+      e.target.value = ''
       return
     }
     try {

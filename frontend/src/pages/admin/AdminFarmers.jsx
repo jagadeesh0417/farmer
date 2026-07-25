@@ -100,6 +100,7 @@ export default function AdminFarmers() {
       const reader = new FileReader()
       reader.onload = () => { updateItem('farmers', id, { qrImage: reader.result }); toast.success('QR uploaded'); load() }
       reader.readAsDataURL(file)
+      e.target.value = ''
       return
     }
     try {
@@ -140,6 +141,7 @@ export default function AdminFarmers() {
         reader.readAsDataURL(files[index])
       }
       loadNext(0, [])
+      e.target.value = ''
       return
     }
     try {
