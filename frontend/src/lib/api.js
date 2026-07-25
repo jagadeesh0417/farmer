@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api'
+const raw = import.meta.env.VITE_API_URL || ''
+const API_URL = raw && raw.startsWith('http') ? `${raw.replace(/\/+$/, '')}/api` : (raw || '/api')
 
 function getToken() {
   try {

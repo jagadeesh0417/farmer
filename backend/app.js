@@ -17,15 +17,16 @@ import generateImageRoutes from './routes/generateImage.js'
 
 const app = express()
 
-const corsOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173')
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',').map(s => s.trim()).filter(Boolean)
-corsOrigins.push('http://localhost:5173', 'http://localhost:4173')
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || corsOrigins.includes(origin)) return callback(null, true)
     callback(null, false)
   },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'Accept'],
   credentials: true,
 }))
 app.use(express.json({ limit: '10mb' }))
