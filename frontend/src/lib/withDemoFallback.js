@@ -3,8 +3,8 @@ let _demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
 export async function checkBackend() {
   try {
     const apiUrl = import.meta.env.VITE_API_URL || '/api'
-    await fetch(`${apiUrl}/products?page=1&limit=1`, { signal: AbortSignal.timeout(4000) })
-    _demoMode = false
+    const res = await fetch(`${apiUrl}/products?page=1&limit=1`, { signal: AbortSignal.timeout(4000) })
+    _demoMode = !res.ok
   } catch {
     _demoMode = true
   }
