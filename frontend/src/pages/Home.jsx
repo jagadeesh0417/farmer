@@ -13,7 +13,7 @@ import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
-import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
+import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory, demoBanners } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
@@ -56,6 +56,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [bundles, setBundles] = useState([])
+  const [banners, setBanners] = useState([])
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -81,8 +82,10 @@ export default function Home() {
       if (isDemoMode()) {
         const savedProducts = getItems('products')
         const savedBundles = getItems('bundles')
+        const savedBanners = getItems('banners')
         setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
         setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
+        setBanners([...savedBanners, ...demoBanners.filter(d => !savedBanners.some(s => s._id === d._id))])
         setMilletProducts(demoProductsByCategory('millets'))
         setGrainProducts(demoProductsByCategory('lentils-beans'))
         setFarmers(demoFarmers)
@@ -155,7 +158,7 @@ export default function Home() {
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Hero slider */}
-      <HeroSlider banners={HOME_ASSETS.hero} />
+      <HeroSlider banners={banners.length > 0 ? banners : HOME_ASSETS.hero} />
 
       {/* 2. Advertisement banner — cinematic strip */}
       <section className="py-4 sm:py-5 lg:py-6 bg-white">

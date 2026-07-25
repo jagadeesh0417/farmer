@@ -6,6 +6,9 @@ import { generatePlaceholder } from '../lib/placeholders'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { useCart } from '../contexts/CartContext'
 import ProductCard from '../components/ProductCard'
+import { isDemoMode } from '../lib/withDemoFallback'
+import { getItems } from '../lib/demoStore'
+import { demoProducts } from '../lib/demoData'
 
 const DEFAULT_BENEFITS = [
   { icon: '🛡️', label: 'Immunity Boost' },
@@ -13,6 +16,10 @@ const DEFAULT_BENEFITS = [
   { icon: '🧪', label: 'Chemical-Free' },
   { icon: '🌿', label: '100% Natural' },
 ]
+
+function slugify(name) {
+  return (name || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+}
 
 const DEFAULT_TABS = [
   { key: 'howtouse', label: 'How to Use', content: 'Take 1-2 tablespoons daily. Can be taken directly, mixed with warm water or herbal tea, used as a natural sweetener in recipes, or applied topically for skin and hair care.' },
@@ -46,6 +53,18 @@ export default function ProductDetail() {
     const load = async () => {
       if (!slug) return
       try {
+        if (isDemoMode()) {
+          const saved = getItems('products')
+          const all = [...saved, ...demoProducts]
+          const found = all.find(p => slugify(p.name) === slug)
+          if (found) {
+            setProduct(found)
+            const variants = found.variants || found.product_variants || []
+            if (variants.length) setSelectedVariant(variants[0])
+          }
+          setLoading(false)
+          return
+        }
         const { getProductBySlug } = await import('../lib/productService')
         const data = await getProductBySlug(slug)
         setProduct(data)
