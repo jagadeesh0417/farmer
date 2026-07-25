@@ -4,6 +4,8 @@ import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
 
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+const ADMIN_EMAIL = 'haifarmer@gmail.com'
+const ADMIN_PASS = 'Haifarner1234'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -16,10 +18,13 @@ export default function AdminLogin() {
     if (!email || !password) return toast.error('All fields required')
 
     if (DEMO_MODE) {
+      if (email !== ADMIN_EMAIL || password !== ADMIN_PASS) {
+        return toast.error('Invalid credentials — use haifarmer@gmail.com / Haifarner1234')
+      }
       const demoUser = { _id: 'demo-admin', email, fullName: 'Admin (Demo)', role: 'admin' }
       const demoToken = 'demo-token-haifarmer-' + Date.now()
       localStorage.setItem('adminSession', JSON.stringify({ token: demoToken, user: demoUser }))
-      toast.success('Demo Mode — Welcome Admin!')
+      toast.success('Welcome Admin!')
       navigate('/admin')
       return
     }
@@ -42,10 +47,10 @@ export default function AdminLogin() {
   }
 
   const handleDemoLogin = () => {
-    const demoUser = { _id: 'demo-admin', email: 'admin@haifarmer.com', fullName: 'Admin (Demo)', role: 'admin' }
+    const demoUser = { _id: 'demo-admin', email: ADMIN_EMAIL, fullName: 'Admin (Demo)', role: 'admin' }
     const demoToken = 'demo-token-haifarmer-' + Date.now()
     localStorage.setItem('adminSession', JSON.stringify({ token: demoToken, user: demoUser }))
-    toast.success('Demo Mode — Welcome Admin!')
+    toast.success('Welcome Admin!')
     navigate('/admin')
   }
 
