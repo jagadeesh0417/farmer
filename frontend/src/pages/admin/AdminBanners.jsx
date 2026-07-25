@@ -6,6 +6,7 @@ import ImageGenerator from '../../components/admin/ImageGenerator'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
 import { getItems, addItem, updateItem, deleteItem as demoDelete, toggleItem } from '../../lib/demoStore'
+import { demoBanners } from '../../lib/demoData'
 
 const IMAGE_TYPES = [
   { key: 'desktop', label: 'Desktop', ratio: '1920 × 700', hint: 'Wide landscape' },
@@ -40,7 +41,8 @@ export default function AdminBanners() {
   const load = async () => {
     setLoading(true)
     if (isDemoMode()) {
-      setBanners(getItems('banners'))
+      const saved = getItems('banners')
+      setBanners([...saved, ...demoBanners.filter(d => !saved.some(s => s._id === d._id))])
       setLoading(false)
       return
     }

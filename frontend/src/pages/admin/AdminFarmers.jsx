@@ -5,6 +5,7 @@ import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoFarmers } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import { getItems, addItem, updateItem, deleteItem as demoDelete, toggleItem } from '../../lib/demoStore'
 
 export default function AdminFarmers() {
   const [farmers, setFarmers] = useState([])
@@ -26,7 +27,9 @@ export default function AdminFarmers() {
   const load = async () => {
     setLoading(true)
     if (isDemoMode()) {
-      const all = demoFarmers.map(f => ({ ...f, _id: f.id || f._id }))
+      const saved = getItems('farmers')
+      const demos = demoFarmers.map(f => ({ ...f, _id: f.id || f._id }))
+      const all = [...saved, ...demos.filter(d => !saved.some(s => s.name === d.name))]
       setFarmers(search ? all.filter(f => f.name?.toLowerCase().includes(search.toLowerCase())) : all)
       setTotal(all.length)
       setLoading(false)
@@ -65,11 +68,16 @@ export default function AdminFarmers() {
     e.preventDefault()
     if (submitting) return
     if (!form.name.trim() || !form.phone.trim()) return toast.error('Name and phone are required')
-    if (isDemoMode()) { toast.success(editing ? 'Farmer updated (demo)' : 'Farmer created (demo)'); resetForm(); return }
+    if (isDemoMode()) {
+      const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean) }
+      if (editing && editing !== 'new') { updateItem('farmers', editing, payload); toast.success('Farmer updated') }
+      else { addItem('farmers', payload); toast.success('Farmer created') }
+      resetForm(); load(); return
+    }
     setSubmitting(true)
     try {
       const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean) }
-      if (editing) { await api.updateFarmer(editing, payload); toast.success('Farmer updated') }
+      if (editing && editing !== 'new') { await api.updateFarmer(editing, payload); toast.success('Farmer updated') }
       else { await api.createFarmer(payload); toast.success('Farmer created') }
       resetForm(); load()
     } catch (err) { toast.error(err.message) }
@@ -77,7 +85,7 @@ export default function AdminFarmers() {
   }
 
   const handleToggleActive = async (id) => {
-    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toggleItem('farmers', id); toast.success('Toggled'); load(); return }
     try {
       await api.toggleFarmerActive(id)
       toast.success('Toggled')
@@ -88,7 +96,12 @@ export default function AdminFarmers() {
   const handleQRUpload = async (e, id) => {
     const file = e.target.files[0]
     if (!file) return
-    if (isDemoMode()) { toast.success('QR upload not available in demo mode'); return }
+    if (isDemoMode()) {
+      const reader = new FileReader()
+      reader.onload = () => { updateItem('farmers', id, { qrImage: reader.result }); toast.success('QR uploaded'); load() }
+      reader.readAsDataURL(file)
+      return
+    }
     try {
       toast.info('Uploading QR...')
       const result = await api.uploadImage(file, 'haifarmer/farmers/qr')
@@ -101,13 +114,13 @@ export default function AdminFarmers() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this farmer?')) return
-    if (isDemoMode()) { toast.success('Farmer deleted (demo)'); return }
+    if (isDemoMode()) { demoDelete('farmers', id); toast.success('Farmer deleted'); load(); return }
     try { await api.deleteFarmer(id); toast.success('Farmer deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleStatus = async (id, status) => {
-    if (isDemoMode()) { toast.success(`Farmer ${status} (demo)`); return }
+    if (isDemoMode()) { updateItem('farmers', id, { status }); toast.success(`Farmer ${status}`); load(); return }
     try { await api.updateFarmerStatus(id, status); toast.success(`Farmer ${status}`); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -115,7 +128,20 @@ export default function AdminFarmers() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
-    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) {
+      const loadNext = (index, urls) => {
+        if (index >= files.length) {
+          setForm(prev => ({ ...prev, images: [...prev.images, ...urls] }))
+          toast.success('Images set')
+          return
+        }
+        const reader = new FileReader()
+        reader.onload = () => { urls.push(reader.result); loadNext(index + 1, urls) }
+        reader.readAsDataURL(files[index])
+      }
+      loadNext(0, [])
+      return
+    }
     try {
       toast.info('Uploading...')
       const results = await api.uploadMultiple(files, 'haifarmer/farmers')

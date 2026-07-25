@@ -5,6 +5,7 @@ import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import { getItems, addItem, updateItem, deleteItem as demoDelete, toggleItem } from '../../lib/demoStore'
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
@@ -13,10 +14,15 @@ export default function AdminCategories() {
   const [form, setForm] = useState({ name: '', description: '', image: '', cloudinaryPublicId: '', order: 0, isActive: true })
   const fileRef = useRef(null)
 
+  const mapDemoCat = (c) => ({ ...c, _id: c._id || c.id, image: c.image || c.image_url })
+
   const load = async () => {
     setLoading(true)
     if (isDemoMode()) {
-      setCategories(demoCategories.map(c => ({ ...c, image: c.image_url })))
+      const saved = getItems('categories')
+      const demos = demoCategories.map(mapDemoCat)
+      const all = [...saved, ...demos.filter(d => !saved.some(s => s.name === d.name))]
+      setCategories(all)
       setLoading(false)
       return
     }
@@ -42,7 +48,12 @@ export default function AdminCategories() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('Name is required')
-    if (isDemoMode()) { toast.success(editing ? 'Category updated (demo)' : 'Category created (demo)'); resetForm(); return }
+    if (isDemoMode()) {
+      const payload = { ...form }
+      if (editing) { updateItem('categories', editing, payload); toast.success('Category updated') }
+      else { addItem('categories', payload); toast.success('Category created') }
+      resetForm(); load(); return
+    }
     try {
       if (editing) {
         await api.updateCategory(editing, form)
@@ -58,13 +69,13 @@ export default function AdminCategories() {
 
   const handleDelete = async (id) => {
     if (!confirm('Hide this category?')) return
-    if (isDemoMode()) { toast.success('Category hidden (demo)'); return }
+    if (isDemoMode()) { demoDelete('categories', id); toast.success('Category hidden'); load(); return }
     try { await api.deleteCategory(id); toast.success('Category hidden'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
-    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toggleItem('categories', id); toast.success('Toggled'); load(); return }
     try { await api.toggleCategoryActive(id); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -72,7 +83,12 @@ export default function AdminCategories() {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) {
+      const reader = new FileReader()
+      reader.onload = () => { setForm(prev => ({ ...prev, image: reader.result })); toast.success('Image set') }
+      reader.readAsDataURL(file)
+      return
+    }
     try {
       const result = await api.uploadImage(file, 'haifarmer/categories')
       setForm(prev => ({ ...prev, image: result.url, cloudinaryPublicId: result.publicId }))
