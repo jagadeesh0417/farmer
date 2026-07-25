@@ -155,6 +155,7 @@ export default function AdminProductForm() {
     e.preventDefault()
     if (!form.basePrice || Number(form.basePrice) <= 0) { toast.error('Base price must be greater than 0'); return }
     if (form.discountPercent < 0 || form.discountPercent > 100) { toast.error('Discount must be 0-100'); return }
+    if (!form.category) { toast.error('Please select a category'); return }
     if (!form.variants.some(v => v.name?.trim() && Number(v.price) > 0)) { toast.error('At least one variant with name and price > 0 is required'); return }
     if (isDemoMode()) {
       const data = { ...form, basePrice: Number(form.basePrice), discountPercent: Math.round(Number(form.discountPercent) || 0), variants: form.variants.map(v => ({ ...v, price: Number(v.price) || 0, originalPrice: Number(v.originalPrice) || 0, stock: Number(v.stock) || 0 })) }

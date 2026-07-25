@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { demoCombos } from '../lib/demoData'
+import { api } from '../lib/api'
 import SeoHead from '../components/SeoHead'
 import BundleCard from '../components/BundleCard'
 
@@ -18,9 +19,8 @@ export default function Combos() {
         return
       }
       try {
-        const { getComboBundles } = await import('../lib/productService')
-        const data = await getComboBundles()
-        setBundles(data || [])
+        const data = await api.getBundles({ combo: 'true' })
+        setBundles(Array.isArray(data) ? data : data?.data || [])
       } catch (e) {
         console.error(e)
         setBundles([])
