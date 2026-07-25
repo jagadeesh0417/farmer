@@ -4,6 +4,9 @@ import { toast } from 'react-toastify'
 import { api } from '../../lib/api'
 import { isDemoMode } from '../../lib/withDemoFallback'
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+const hasExplicitApi = API_URL && API_URL !== '/api'
+
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: '📊', end: true },
   { to: '/admin/products', label: 'Products', icon: '📦' },
@@ -28,7 +31,7 @@ export default function AdminLayout() {
       return
     }
 
-    if (isDemoMode()) {
+    if (isDemoMode() && !hasExplicitApi) {
       setVerifying(false)
       return
     }
@@ -42,7 +45,7 @@ export default function AdminLayout() {
     })
   }, [navigate])
 
-  if (verifying && !isDemoMode()) {
+  if (verifying && (!isDemoMode() || hasExplicitApi)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="flex flex-col items-center gap-3">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
+import { isDemoMode } from '../../lib/withDemoFallback'
 const ADMIN_EMAIL = 'haifarmer@gmail.com'
 const ADMIN_PASS = 'Farmer1234'
 
@@ -25,15 +26,15 @@ export default function AdminLogin() {
       localStorage.setItem('adminSession', JSON.stringify({ token: data.token, user: data.user }))
       toast.success('Welcome Admin!')
       navigate('/admin')
-    } catch {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
+    } catch (err) {
+      if (isDemoMode() && email === ADMIN_EMAIL && password === ADMIN_PASS) {
         const demoUser = { _id: 'demo-admin', email, fullName: 'Admin (Demo)', role: 'admin' }
         const demoToken = 'demo-token-haifarmer-' + Date.now()
         localStorage.setItem('adminSession', JSON.stringify({ token: demoToken, user: demoUser }))
         toast.success('Welcome Admin!')
         navigate('/admin')
       } else {
-        toast.error('Invalid credentials')
+        toast.error(err.message || 'Invalid credentials')
       }
     } finally {
       setLoading(false)
