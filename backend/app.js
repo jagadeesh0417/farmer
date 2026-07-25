@@ -17,16 +17,16 @@ import generateImageRoutes from './routes/generateImage.js'
 
 const app = express()
 
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
-  .split(',').map(s => s.trim()).filter(Boolean)
+const allowed = [
+  'https://farmer-umber.vercel.app',
+  'http://localhost:5173',
+]
+const previewRe = /^https:\/\/[a-z0-9-]+-jagadeesh-s-projects2\.vercel\.app$/
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || corsOrigins.includes(origin)) return callback(null, true)
-    callback(null, false)
-  },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'Content-Type', 'Accept'],
+  origin: (origin, cb) =>
+    (!origin || allowed.includes(origin) || previewRe.test(origin))
+      ? cb(null, true) : cb(new Error('Not allowed by CORS')),
   credentials: true,
 }))
 app.use(express.json({ limit: '10mb' }))
