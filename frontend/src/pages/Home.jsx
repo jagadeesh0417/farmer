@@ -103,7 +103,7 @@ export default function Home() {
           api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
-          api.getAllBanners().then(r => Array.isArray(r) ? r : []).catch(() => []),
+          api.getBanners().then(r => Array.isArray(r) ? r : r?.data || []).catch(() => []),
         ])
         if (cancelled) return
         setProducts(productsData)
