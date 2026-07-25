@@ -6,6 +6,7 @@ import { cld } from '../../lib/cloudinary'
 import { demoProducts } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import { getItems, updateItem, deleteItem as demoDelete, toggleItem } from '../../lib/demoStore'
 
 const mapDemoProduct = (p, idx) => ({
   _id: p.id || `dm-${idx}`,
@@ -39,7 +40,8 @@ export default function AdminProducts() {
   const load = async () => {
     setLoading(true)
     if (isDemoMode()) {
-      const all = demoProducts.map((p, idx) => mapDemoProduct(p, idx))
+      const saved = getItems('products')
+      const all = [...saved, ...demoProducts.filter(dp => !saved.some(s => s.name === dp.name)).map((p, idx) => mapDemoProduct(p, idx))]
       setProducts(search ? all.filter(p => p.name.toLowerCase().includes(search.toLowerCase())) : all)
       setTotal(all.length)
       setLoading(false)
@@ -58,20 +60,20 @@ export default function AdminProducts() {
   const handleSearch = (e) => { e.preventDefault(); setPage(1) }
 
   const handleToggleActive = async (id) => {
-    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toggleItem('products', id, 'isActive'); toast.success('Toggled'); load(); return }
     try { await api.toggleProductActive(id); toast.success('Toggled'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggleFeatured = async (id) => {
-    if (isDemoMode()) { toast.success('Featured toggled (demo)'); return }
+    if (isDemoMode()) { toggleItem('products', id, 'isFeatured'); toast.success('Featured toggled'); load(); return }
     try { await api.toggleProductFeatured(id); toast.success('Featured toggled'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to hide this product?')) return
-    if (isDemoMode()) { toast.success('Product hidden (demo)'); return }
+    if (isDemoMode()) { demoDelete('products', id); toast.success('Product hidden'); load(); return }
     try { await api.deleteProduct(id); toast.success('Product hidden'); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -84,7 +86,7 @@ export default function AdminProducts() {
   const savePrice = async (id) => {
     const val = Number(priceValue)
     if (isNaN(val) || val < 0) { toast.error('Invalid price'); return }
-    if (isDemoMode()) { toast.success('Price updated (demo)'); setEditingPrice(null); return }
+    if (isDemoMode()) { updateItem('products', id, { basePrice: val }); toast.success('Price updated'); setEditingPrice(null); load(); return }
     try {
       await api.updateProduct(id, { basePrice: val })
       toast.success('Price updated')
@@ -101,7 +103,7 @@ export default function AdminProducts() {
   const saveDiscount = async (id) => {
     const val = Math.round(Number(discountValue))
     if (isNaN(val) || val < 0 || val > 100) { toast.error('Discount must be 0-100'); return }
-    if (isDemoMode()) { toast.success('Discount updated (demo)'); setEditingDiscount(null); return }
+    if (isDemoMode()) { updateItem('products', id, { discountPercent: val }); toast.success('Discount updated'); setEditingDiscount(null); load(); return }
     try {
       await api.updateProduct(id, { discountPercent: val })
       toast.success('Discount updated')
@@ -113,7 +115,12 @@ export default function AdminProducts() {
   const handleImageReplace = async (e, id) => {
     const file = e.target.files[0]
     if (!file) return
-    if (isDemoMode()) { toast.success('Image replace not available in demo mode'); return }
+    if (isDemoMode()) {
+      const reader = new FileReader()
+      reader.onload = () => { updateItem('products', id, { image: reader.result }); toast.success('Image replaced'); load() }
+      reader.readAsDataURL(file)
+      return
+    }
     try {
       const result = await api.uploadImage(file, 'haifarmer/products')
       const p = products.find(x => x._id === id)

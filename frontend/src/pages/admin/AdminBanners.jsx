@@ -5,6 +5,7 @@ import { generatePlaceholder } from '../../lib/placeholders'
 import ImageGenerator from '../../components/admin/ImageGenerator'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import { getItems, addItem, updateItem, deleteItem as demoDelete, toggleItem } from '../../lib/demoStore'
 
 const IMAGE_TYPES = [
   { key: 'desktop', label: 'Desktop', ratio: '1920 × 700', hint: 'Wide landscape' },
@@ -20,21 +21,12 @@ const emptyForm = {
   order: 0,
   isActive: true,
   position: 'hero',
-  startDate: '',
-  endDate: '',
   desktopImage: '',
   desktopPublicId: '',
   tabletImage: '',
   tabletPublicId: '',
   mobileImage: '',
   mobilePublicId: '',
-}
-
-function formatDateLocal(date) {
-  if (!date) return ''
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return ''
-  return d.toISOString().slice(0, 16)
 }
 
 export default function AdminBanners() {
@@ -49,7 +41,7 @@ export default function AdminBanners() {
   const load = async () => {
     setLoading(true)
     if (isDemoMode()) {
-      setBanners([])
+      setBanners(getItems('banners'))
       setLoading(false)
       return
     }
@@ -78,8 +70,6 @@ export default function AdminBanners() {
       order: b.order || 0,
       isActive: b.isActive,
       position: b.position || 'hero',
-      startDate: formatDateLocal(b.startDate),
-      endDate: formatDateLocal(b.endDate),
       desktopImage: b.desktopImage || b.image || '',
       desktopPublicId: b.desktopPublicId || b.cloudinaryPublicId || '',
       tabletImage: b.tabletImage || '',
@@ -100,7 +90,19 @@ export default function AdminBanners() {
     }
     if (form.order < 0) return toast.error('Order must be 0 or greater')
 
-    if (isDemoMode()) { toast.success(editing ? 'Banner updated (demo)' : 'Banner created (demo)'); resetForm(); return }
+    if (isDemoMode()) {
+      const payload = { ...form }
+      if (editing) {
+        updateItem('banners', editing, payload)
+        toast.success('Banner updated')
+      } else {
+        addItem('banners', payload)
+        toast.success('Banner created')
+      }
+      resetForm()
+      load()
+      return
+    }
 
     const payload = {
       ...form,
@@ -125,13 +127,13 @@ export default function AdminBanners() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this banner?')) return
-    if (isDemoMode()) { toast.success('Banner deleted (demo)'); return }
+    if (isDemoMode()) { demoDelete('banners', id); toast.success('Banner deleted'); load(); return }
     try { await api.deleteBanner(id); toast.success('Banner deleted'); load() }
     catch (err) { toast.error(err.message) }
   }
 
   const handleToggle = async (id) => {
-    if (isDemoMode()) { toast.success('Toggled (demo)'); return }
+    if (isDemoMode()) { toggleItem('banners', id); toast.success('Toggled'); load(); return }
     try { await api.toggleBannerActive(id); load() }
     catch (err) { toast.error(err.message) }
   }
@@ -152,7 +154,12 @@ export default function AdminBanners() {
   const handleImageUpload = async (e, type) => {
     const file = e.target.files[0]
     if (!file) return
-    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) {
+      const reader = new FileReader()
+      reader.onload = () => { applyImage(type, reader.result, ''); toast.success(`${type} image set`) }
+      reader.readAsDataURL(file)
+      return
+    }
     setActiveUpload(type)
     try {
       const result = await api.uploadImage(file, 'haifarmer/banners')
@@ -191,17 +198,6 @@ export default function AdminBanners() {
               <div className="grid grid-cols-2 gap-3">
                 <input value={form.buttonText} onChange={e => setForm(prev => ({ ...prev, buttonText: e.target.value }))} placeholder="Button text (optional)" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
                 <input value={form.redirectLink} onChange={e => setForm(prev => ({ ...prev, redirectLink: e.target.value }))} placeholder="Button link" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Start date</label>
-                  <input type="datetime-local" value={form.startDate} onChange={e => setForm(prev => ({ ...prev, startDate: e.target.value }))} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">End date</label>
-                  <input type="datetime-local" value={form.endDate} onChange={e => setForm(prev => ({ ...prev, endDate: e.target.value }))} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-                </div>
               </div>
 
               <input type="number" value={form.order} onChange={e => setForm(prev => ({ ...prev, order: Number(e.target.value) }))} placeholder="Display order" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
@@ -268,10 +264,6 @@ export default function AdminBanners() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-slate-900 text-sm">{b.title || 'Untitled'}</p>
                         <p className="text-xs text-slate-500 truncate">{b.subtitle || b.redirectLink || ''}</p>
-                        <div className="flex flex-wrap gap-2 mt-1.5">
-                          {b.startDate && <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">From {new Date(b.startDate).toLocaleDateString()}</span>}
-                          {b.endDate && <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">Until {new Date(b.endDate).toLocaleDateString()}</span>}
-                        </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button onClick={() => handleToggle(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{b.isActive ? 'On' : 'Off'}</button>

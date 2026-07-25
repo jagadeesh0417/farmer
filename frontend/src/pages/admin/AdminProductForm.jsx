@@ -6,6 +6,7 @@ import ImageGenerator from '../../components/admin/ImageGenerator'
 import { demoProducts, demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import { addItem, updateItem } from '../../lib/demoStore'
 
 export default function AdminProductForm() {
   const { id } = useParams()
@@ -104,7 +105,12 @@ export default function AdminProductForm() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
-    if (isDemoMode()) { toast.success('Image upload not available in demo mode'); return }
+    if (isDemoMode()) {
+      const urls = await Promise.all(files.map(f => new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(f) })))
+      setForm(prev => ({ ...prev, images: [...prev.images, ...urls] }))
+      toast.success(`${urls.length} image(s) added`)
+      return
+    }
     for (const file of files) {
       const img = await new Promise(resolve => {
         const reader = new FileReader()
@@ -148,7 +154,11 @@ export default function AdminProductForm() {
     if (!form.basePrice || Number(form.basePrice) <= 0) { toast.error('Base price must be greater than 0'); return }
     if (form.discountPercent < 0 || form.discountPercent > 100) { toast.error('Discount must be 0-100'); return }
     if (!form.variants.some(v => v.name?.trim() && Number(v.price) > 0)) { toast.error('At least one variant with name and price > 0 is required'); return }
-    if (isDemoMode()) { toast.success(isEdit ? 'Product updated (demo)' : 'Product created (demo)'); navigate('/admin/products'); return }
+    if (isDemoMode()) {
+      const data = { ...form, basePrice: Number(form.basePrice), discountPercent: Math.round(Number(form.discountPercent) || 0), variants: form.variants.map(v => ({ ...v, price: Number(v.price) || 0, originalPrice: Number(v.originalPrice) || 0, stock: Number(v.stock) || 0 })) }
+      if (isEdit) { updateItem('products', id, data); toast.success('Product updated') } else { addItem('products', data); toast.success('Product created') }
+      navigate('/admin/products'); return
+    }
     setSaving(true)
     try {
       const payload = {
