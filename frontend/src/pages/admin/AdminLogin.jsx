@@ -16,18 +16,6 @@ export default function AdminLogin() {
     e.preventDefault()
     if (!email || !password) return toast.error('All fields required')
 
-    if (isDemoMode()) {
-      if (email !== ADMIN_EMAIL || password !== ADMIN_PASS) {
-        return toast.error('Invalid credentials — use haifarmer@gmail.com / Haifarner1234')
-      }
-      const demoUser = { _id: 'demo-admin', email, fullName: 'Admin (Demo)', role: 'admin' }
-      const demoToken = 'demo-token-haifarmer-' + Date.now()
-      localStorage.setItem('adminSession', JSON.stringify({ token: demoToken, user: demoUser }))
-      toast.success('Welcome Admin!')
-      navigate('/admin')
-      return
-    }
-
     setLoading(true)
     try {
       const data = await api.login({ email, password })
@@ -38,8 +26,16 @@ export default function AdminLogin() {
       localStorage.setItem('adminSession', JSON.stringify({ token: data.token, user: data.user }))
       toast.success('Welcome Admin!')
       navigate('/admin')
-    } catch (err) {
-      toast.error(err.message || 'Login failed')
+    } catch {
+      if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
+        const demoUser = { _id: 'demo-admin', email, fullName: 'Admin (Demo)', role: 'admin' }
+        const demoToken = 'demo-token-haifarmer-' + Date.now()
+        localStorage.setItem('adminSession', JSON.stringify({ token: demoToken, user: demoUser }))
+        toast.success('Welcome Admin!')
+        navigate('/admin')
+      } else {
+        toast.error('Invalid credentials')
+      }
     } finally {
       setLoading(false)
     }
