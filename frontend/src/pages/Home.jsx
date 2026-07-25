@@ -37,10 +37,17 @@ const HEALTH_CONCERNS = [
 const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 'Super Saver Combos', 'Shop By Goal']
 
 function getSectionProducts(products, settings, sectionKey) {
+  if (sectionKey === 'groceries') return products.filter(p => p.showOnHome !== false)
   const ids = settings?.homeSections?.[sectionKey]
   let filtered = products
   if (ids && ids.length > 0) filtered = products.filter(p => ids.includes(p.id || p._id))
   return filtered.filter(p => p.showOnHome !== false)
+}
+
+function getSectionCombos(bundles, settings) {
+  const ids = settings?.homeSections?.superSaverCombos
+  if (!ids || ids.length === 0) return bundles.filter(b => b.showOnHome !== false)
+  return bundles.filter(b => ids.includes(b.id || b._id) && b.showOnHome !== false)
 }
 
 export default function Home() {
@@ -342,7 +349,7 @@ export default function Home() {
             </div>
           ) : bundles.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {bundles.filter(b => b.showOnHome !== false).slice(0, 4).map(bundle => (
+              {getSectionCombos(bundles, settings).slice(0, 4).map(bundle => (
                 <BundleCard key={bundle._id || bundle.id} bundle={bundle} compact />
               ))}
             </div>

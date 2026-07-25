@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
-import { demoProducts } from '../../lib/demoData'
+import { demoProducts, demoCombos } from '../../lib/demoData'
 import { isDemoMode } from '../../lib/withDemoFallback'
 
 const SECTION_KEYS = [
@@ -14,6 +14,8 @@ const SECTION_KEYS = [
   { key: 'spices', label: 'Spices' },
 ]
 
+const COMBO_SECTION_KEY = { key: 'superSaverCombos', label: 'Super Saver Combos' }
+
 const defaultSectionIds = {
   groceries: ['dm-1', 'dm-2', 'dm-3', 'dm-4', 'dm-5', 'dm-6', 'dm-7', 'dm-8'],
   bestSellers: ['dm-1', 'dm-4', 'dm-7', 'dm-11', 'dm-15'],
@@ -22,16 +24,30 @@ const defaultSectionIds = {
   lentilsBeans: ['dm-5', 'dm-6'],
   honey: ['dm-1'],
   spices: ['dm-4', 'dm-11', 'dm-12', 'dm-13'],
+  superSaverCombos: ['demo-combo-1', 'demo-combo-2', 'demo-combo-3'],
 }
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState(null)
   const [products, setProducts] = useState([])
+  const [bundles, setBundles] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
   const logoRef = useRef(null)
   const faviconRef = useRef(null)
+
+  function loadSavedHomeSections() {
+    try {
+      const raw = localStorage.getItem('haifarmer_demo_homeSections')
+      if (raw) return { ...defaultSectionIds, ...JSON.parse(raw) }
+    } catch {}
+    return { ...defaultSectionIds }
+  }
+
+  function saveHomeSections(homeSections) {
+    try { localStorage.setItem('haifarmer_demo_homeSections', JSON.stringify(homeSections)) } catch {}
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -46,9 +62,10 @@ export default function AdminSettings() {
           footer: { socialLinks: {} },
           seo: {},
           sliderSettings: { mode: 'both', autoPlay: true, loop: true, pauseOnHover: true, transitionSpeed: 2100, showArrows: true, showDots: true },
-          homeSections: { ...defaultSectionIds },
+          homeSections: loadSavedHomeSections(),
         })
         setProducts(demoProducts.map(p => ({ id: p.id || p._id, name: p.name })))
+        setBundles(demoCombos.map(b => ({ id: b._id || b.id, name: b.name })))
         setLoading(false)
         return
       }
@@ -85,15 +102,26 @@ export default function AdminSettings() {
       const updated = current.includes(productId)
         ? current.filter(id => id !== productId)
         : [...current, productId]
-      return {
-        ...prev,
-        homeSections: { ...defaultSectionIds, ...prev.homeSections, [sectionKey]: updated },
-      }
+      const homeSections = { ...defaultSectionIds, ...prev.homeSections, [sectionKey]: updated }
+      if (isDemoMode()) saveHomeSections(homeSections)
+      return { ...prev, homeSections }
+    })
+  }
+
+  const toggleSectionBundle = (bundleId) => {
+    setSettings(prev => {
+      const current = prev.homeSections?.superSaverCombos || []
+      const updated = current.includes(bundleId)
+        ? current.filter(id => id !== bundleId)
+        : [...current, bundleId]
+      const homeSections = { ...defaultSectionIds, ...prev.homeSections, superSaverCombos: updated }
+      if (isDemoMode()) saveHomeSections(homeSections)
+      return { ...prev, homeSections }
     })
   }
 
   const handleSave = async () => {
-    if (isDemoMode()) { toast.success('Settings saved (demo)'); return }
+    if (isDemoMode()) { toast.success('Settings saved'); return }
     setSaving(true)
     try {
       await api.updateSettings(settings)
@@ -307,6 +335,36 @@ export default function AdminSettings() {
                   </div>
                 )
               })}
+
+              {/* Super Saver Combos */}
+              <div className="border border-slate-200 rounded-xl p-4">
+                <h3 className="text-sm font-bold text-slate-900 mb-3">{COMBO_SECTION_KEY.label}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {bundles.map(b => {
+                    const isSelected = (settings?.homeSections?.superSaverCombos || []).includes(b.id)
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => toggleSectionBundle(b.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                          isSelected
+                            ? 'bg-brand-600 text-white ring-2 ring-brand-300 ring-offset-1'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        {isSelected && (
+                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                        {b.name}
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="text-[11px] text-slate-400 mt-2">{(settings?.homeSections?.superSaverCombos || []).length} combo(s) selected</p>
+              </div>
             </div>
           </div>
         )}

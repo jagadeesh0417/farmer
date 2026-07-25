@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../lib/api'
+import { isDemoMode } from '../lib/withDemoFallback'
 
 const defaultSettings = {
   storeName: 'HAiFarmer',
@@ -19,6 +20,14 @@ const defaultSettings = {
   placeholder_image: '',
 }
 
+function getSavedHomeSections() {
+  try {
+    const raw = localStorage.getItem('haifarmer_demo_homeSections')
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return null
+}
+
 const defaultHomeSections = {
   groceries: ['dm-1', 'dm-2', 'dm-3', 'dm-4', 'dm-5', 'dm-6', 'dm-7', 'dm-8'],
   bestSellers: ['dm-1', 'dm-4', 'dm-7', 'dm-11', 'dm-15'],
@@ -27,14 +36,17 @@ const defaultHomeSections = {
   lentilsBeans: ['dm-5', 'dm-6'],
   honey: ['dm-1'],
   spices: ['dm-4', 'dm-11', 'dm-12', 'dm-13'],
+  superSaverCombos: ['demo-combo-1', 'demo-combo-2', 'demo-combo-3'],
 }
 
 function aliasSettings(raw) {
-  if (!raw) return { ...defaultSettings, homeSections: { ...defaultHomeSections } }
+  const saved = getSavedHomeSections()
+  const homeSections = saved ? { ...defaultHomeSections, ...saved } : { ...defaultHomeSections }
+  if (!raw) return { ...defaultSettings, homeSections }
   return {
     ...defaultSettings,
     ...raw,
-    homeSections: { ...defaultHomeSections, ...(raw.homeSections || {}) },
+    homeSections: { ...homeSections, ...(raw.homeSections || {}) },
     store_name: raw.storeName || raw.store_name || defaultSettings.storeName,
     header_text_1: raw.headerText1 || raw.header_text_1 || defaultSettings.headerText1,
     logo_url: raw.logo || raw.logo_url || '',
