@@ -1,16 +1,15 @@
-let _demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
-const API_URL = import.meta.env.VITE_API_URL || ''
-const hasExplicitApi = API_URL && API_URL !== '/api'
+// Demo mode is ONLY active in local development (Vite DEV mode).
+// In production builds (import.meta.env.PROD), isDemoMode() ALWAYS returns false.
+let _demoMode = import.meta.env.DEV && import.meta.env.VITE_DEMO_MODE === 'true'
 
 export async function checkBackend() {
-  if (hasExplicitApi) {
+  if (!import.meta.env.DEV) {
     _demoMode = false
-    try {
-      const res = await fetch(`${API_URL}/products?page=1&limit=1`, { signal: AbortSignal.timeout(4000) })
-      if (!res.ok) console.error(`Backend at ${API_URL} returned ${res.status}`)
-    } catch {
-      console.error(`Backend at ${API_URL} is unreachable — check CORS and network`)
-    }
+    return
+  }
+  const apiUrl = import.meta.env.VITE_API_URL || '/api'
+  if (apiUrl && apiUrl !== '/api') {
+    _demoMode = false
     return
   }
   try {
@@ -22,7 +21,7 @@ export async function checkBackend() {
   }
 }
 
-export function isDemoMode() { return _demoMode }
+export function isDemoMode() { return import.meta.env.DEV && _demoMode }
 
 export function withDemoFallback(realData, demoData) {
   if (_demoMode && (!realData || (Array.isArray(realData) && realData.length === 0))) {

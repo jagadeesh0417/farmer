@@ -414,16 +414,16 @@ const seed = async () => {
   await mongoose.connect(uri, { serverSelectionTimeoutMS: 15000 })
   console.log('MongoDB connected')
 
+  const adminEmail = process.env.ADMIN_EMAIL || 'haifarmer@gmail.com'
+  const adminPass = process.env.ADMIN_PASS || 'Farmer1234'
   const adminExists = await User.findOne({ role: 'admin' })
   if (adminExists) {
-    adminExists.email = 'haifarmer@gmail.com'
-    adminExists.password = 'Haifarner1234'
-    adminExists.fullName = 'HAiFarmer Admin'
-    await adminExists.save()
-    console.log('Admin updated: haifarmer@gmail.com / Haifarner1234')
+    adminExists.email = adminEmail
+    if (process.env.ADMIN_PASS) { adminExists.password = adminPass; await adminExists.save() }
+    console.log(`Admin: ${adminEmail}`)
   } else {
-    await User.create({ email: 'haifarmer@gmail.com', password: 'Haifarner1234', fullName: 'HAiFarmer Admin', role: 'admin' })
-    console.log('Admin created: haifarmer@gmail.com / Haifarner1234')
+    await User.create({ email: adminEmail, password: adminPass, fullName: 'HAiFarmer Admin', role: 'admin' })
+    console.log(`Admin created: ${adminEmail} / ${adminPass}`)
   }
 
   const settingsExists = await SiteSetting.findOne()

@@ -21,7 +21,7 @@ export async function connectDB() {
   }
   const uri = process.env.MONGODB_URI
   const dbName = getDbName(uri)
-  const opts = { serverSelectionTimeoutMS: 10000 }
+  const opts = { serverSelectionTimeoutMS: 10000, bufferCommands: false }
   if (dbName) opts.dbName = dbName
   cached.promise = mongoose.connect(uri, opts).then(conn => {
     cached.conn = conn

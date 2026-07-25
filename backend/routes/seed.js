@@ -436,20 +436,20 @@ const COMBOS = [
 router.post('/seed', async (req, res) => {
   try {
     const { secret } = req.body
-    if (secret !== 'haifarmer-seed-2026') return res.status(401).json({ error: 'Invalid secret' })
+    if (secret !== (process.env.SEED_SECRET || 'haifarmer-seed-2026')) return res.status(401).json({ error: 'Invalid secret' })
 
     const results = []
 
+    const adminEmail = process.env.ADMIN_EMAIL || 'haifarmer@gmail.com'
+    const adminPass = process.env.ADMIN_PASS || 'Farmer1234'
     const adminExists = await User.findOne({ role: 'admin' })
     if (adminExists) {
-      adminExists.email = 'haifarmer@gmail.com'
-      adminExists.password = 'Haifarner1234'
-      adminExists.fullName = 'HAiFarmer Admin'
-      await adminExists.save()
-      results.push('Admin credentials updated: haifarmer@gmail.com / Haifarner1234')
+      adminExists.email = adminEmail
+      if (process.env.ADMIN_PASS) { adminExists.password = adminPass; await adminExists.save() }
+      results.push(`Admin: ${adminEmail}`)
     } else {
-      await User.create({ email: 'haifarmer@gmail.com', password: 'Haifarner1234', fullName: 'HAiFarmer Admin', role: 'admin' })
-      results.push('Admin user created: haifarmer@gmail.com / Haifarner1234')
+      await User.create({ email: adminEmail, password: adminPass, fullName: 'HAiFarmer Admin', role: 'admin' })
+      results.push(`Admin created: ${adminEmail} / ${adminPass}`)
     }
 
     const settingsExists = await SiteSetting.findOne()
