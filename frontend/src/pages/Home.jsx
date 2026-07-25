@@ -194,12 +194,10 @@ export default function Home() {
       {/* 4. Groceries — auto-scrolling carousel */}
       <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="font-heading text-h2 font-bold text-ink">Groceries</h2>
-              <p className="text-body-sm text-muted mt-0.5">Everyday essentials</p>
-            </div>
-            <Link to="/products" className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-6">
+            <h2 className="font-heading text-h2 font-bold text-ink">Groceries</h2>
+            <p className="text-body-sm text-muted mt-0.5">Everyday essentials</p>
+            <Link to="/products" className="inline-block mt-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -230,13 +228,11 @@ export default function Home() {
       {/* 5. 9:16 Vertical Videos — Reels */}
       <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="font-heading text-h2 font-bold text-ink">Stories from the Soil</h2>
-              <p className="text-body-sm text-muted mt-0.5">Short videos from our tribal communities</p>
-            </div>
+          <div className="text-center mb-6">
+            <h2 className="font-heading text-h2 font-bold text-ink">Stories from the Soil</h2>
+            <p className="text-body-sm text-muted mt-0.5">Short videos from our tribal communities</p>
             <a href={`https://www.youtube-nocookie.com/embed/${HOME_ASSETS.youtube.videoId}`} target="_blank" rel="noopener noreferrer"
-              className="text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
+              className="inline-block mt-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
           </div>
           <div className="flex gap-3 overflow-x-auto hide-scrollbar carousel-snap pb-2">
             {(DEMO_MODE ? demoStories.map(s => ({

@@ -115,7 +115,7 @@ export default function BundleDetail() {
           <div className="flex flex-col gap-6">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-xl bg-green-600/10 px-4 py-1.5 text-micro font-semibold tracking-[0.08em] uppercase text-green-600 mb-3">Best Value Bundle</span>
-              <h1 className="font-heading text-h1 font-bold text-ink tracking-tight">{name}</h1>
+              <h1 className="font-heading text-h1 font-bold text-ink tracking-tight text-center">{name}</h1>
             </div>
 
             <div className="flex items-end gap-3">

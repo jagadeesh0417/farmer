@@ -68,7 +68,7 @@ export default function FarmerDetail() {
           <div className="p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
-                <h1 className="font-heading text-h2 font-bold text-ink">{farmer.name}</h1>
+                <h1 className="font-heading text-h2 font-bold text-ink text-center">{farmer.name}</h1>
                 {farmer.village && (
                   <p className="mt-1 text-body-sm text-muted">
                     {[farmer.village, farmer.district, farmer.state].filter(Boolean).join(', ')}

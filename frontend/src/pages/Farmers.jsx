@@ -59,7 +59,7 @@ export default function Farmers() {
                   <img src={generatePlaceholder('farmer', farmer.name)} alt={farmer.name} className="h-48 w-full object-cover flex-shrink-0" />
                 )}
                 <div className="flex flex-col flex-1 p-5">
-                  <h3 className="font-heading text-h3 font-bold text-ink">{farmer.name}</h3>
+                  <h3 className="font-heading text-h3 font-bold text-ink text-center">{farmer.name}</h3>
                   {farmer.location && <p className="mt-1 text-body-sm text-muted">{farmer.location}</p>}
                   {farmer.bio && <p className="mt-auto pt-3 text-body-sm text-muted leading-relaxed">{farmer.bio}</p>}
                 </div>

@@ -157,7 +157,7 @@ export default function ProductDetail() {
           {/* Info */}
           <div className="flex flex-col gap-6">
             {categoryTag && <span className="text-micro font-semibold tracking-[0.1em] uppercase text-[#0E9F3E]">{categoryTag}</span>}
-            <h1 className="font-heading text-h1 font-bold text-ink tracking-tight">{product.name}</h1>
+            <h1 className="font-heading text-h1 font-bold text-ink tracking-tight text-center">{product.name}</h1>
             {product.tagline && <p className="text-body-sm text-muted leading-relaxed">{product.tagline}</p>}
 
             {/* Key Benefits */}
@@ -304,7 +304,7 @@ export default function ProductDetail() {
         <div className="mt-8 rounded-2xl overflow-hidden bg-[#F0E6D3]">
           <div className="grid lg:grid-cols-2">
             <div className="p-8 lg:p-10 flex flex-col justify-center">
-              <h3 className="font-heading text-h3 font-bold text-ink">Our Farmers Are the Heart of Our Purpose</h3>
+              <h3 className="font-heading text-h3 font-bold text-ink text-center">Our Farmers Are the Heart of Our Purpose</h3>
               <p className="text-body-sm text-muted mt-3 leading-relaxed">This product is sourced directly from tribal farming communities who have cultivated the land for generations using traditional, sustainable methods. Every purchase supports their livelihoods and preserves ancient knowledge.</p>
               <Link to="/farmers" className="mt-4 text-body-sm font-semibold text-[#0E9F3E] hover:text-[#0B8A34] transition-colors">Meet the Farmers →</Link>
             </div>
@@ -317,7 +317,7 @@ export default function ProductDetail() {
         {/* Related products */}
         {relatedProducts.length > 0 && (
           <div className="mt-12">
-            <h3 className="font-heading text-h3 font-bold text-ink mb-6">You may also like</h3>
+            <h3 className="font-heading text-h3 font-bold text-ink mb-6 text-center">You may also like</h3>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {relatedProducts.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 2} />)}
             </div>
