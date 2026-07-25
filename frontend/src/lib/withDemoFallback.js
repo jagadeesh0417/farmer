@@ -4,7 +4,8 @@ export async function checkBackend() {
   try {
     const apiUrl = import.meta.env.VITE_API_URL || '/api'
     const res = await fetch(`${apiUrl}/products?page=1&limit=1`, { signal: AbortSignal.timeout(4000) })
-    _demoMode = !res.ok
+    const ct = res.headers.get('content-type') || ''
+    _demoMode = !res.ok || !ct.includes('json')
   } catch {
     _demoMode = true
   }
