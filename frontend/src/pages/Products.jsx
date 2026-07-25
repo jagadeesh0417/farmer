@@ -68,7 +68,15 @@ export default function Products() {
           setProducts(result?.data || [])
           setTotal(result?.total || 0)
         }
-      } catch (e) { console.error(e) }
+      } catch (e) {
+        console.error(e)
+        if (isDemoMode()) {
+          const saved = getItems('products')
+          const merged = [...saved, ...demoProducts.filter(dp => !saved.some(s => s.name === dp.name))]
+          setProducts(merged)
+          setTotal(merged.length)
+        }
+      }
       finally { setLoading(false) }
     }
     load()
