@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { getProducts } from '../lib/productService'
-import { getCategories } from '../lib/productService'
+import { api } from '../lib/api'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
 import { demoProducts } from '../lib/demoData'
@@ -49,8 +48,9 @@ export default function Products() {
   const hasFilters = catSlug || search || minRating > 0
 
   useEffect(() => {
-    getCategories().then(res => {
-      if (res?.categories) setCategories(res.categories.filter(c => c.isActive !== false))
+    api.getCategories().then(data => {
+      const cats = Array.isArray(data) ? data : data?.data || []
+      setCategories(cats.filter(c => c.isActive !== false))
     }).catch(() => {})
   }, [])
 
@@ -58,7 +58,10 @@ export default function Products() {
     const load = async () => {
       setLoading(true)
       try {
-        const result = await getProducts(page, 50, catSlug || null, search || null, sort, false)
+        const params = { page, limit: 50, sort, active: 'true' }
+        if (catSlug) params.category = catSlug
+        if (search) params.search = search
+        const result = await api.getProducts(params)
         if (isDemoMode()) {
           const saved = getItems('products')
           const merged = (!result?.data || result.data.length === 0) ? [...saved, ...demoProducts.filter(dp => !saved.some(s => s.name === dp.name))] : (result?.data || [])
