@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { getImageUrl } from '../lib/utils'
 import { cld } from '../lib/cloudinary'
 
 function BannerImage({ banner, priority }) {
@@ -7,9 +6,9 @@ function BannerImage({ banner, priority }) {
   const tablet = banner.tabletImage || banner.desktopImage || banner.image
   const mobile = banner.mobileImage || banner.tabletImage || banner.desktopImage || banner.image
 
-  const desktopUrl = desktop ? cld(getImageUrl(desktop), 'f_auto,q_auto,w_1920,h_700,c_fill') : ''
-  const tabletUrl = tablet ? cld(getImageUrl(tablet), 'f_auto,q_auto,w_1200,h_600,c_fill') : ''
-  const mobileUrl = mobile ? cld(getImageUrl(mobile), 'f_auto,q_auto,w_1080,h_1350,c_fill') : ''
+  const desktopUrl = desktop ? cld(desktop, 'f_auto,q_auto,w_1920,h_700,c_fill') : ''
+  const tabletUrl = tablet ? cld(tablet, 'f_auto,q_auto,w_1200,h_600,c_fill') : ''
+  const mobileUrl = mobile ? cld(mobile, 'f_auto,q_auto,w_1080,h_1350,c_fill') : ''
 
   return (
     <picture>

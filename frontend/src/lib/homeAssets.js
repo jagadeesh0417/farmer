@@ -1,88 +1,55 @@
-const CLOUD_BASE = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto/haifarmer/placeholders'
+const EXISTING_IMG = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto/v1785043452/haifarmer/banners/h0e2m410jrmwqgljj9qj'
 
 export const HOME_ASSETS = {
   hero: [
     {
-      image: `${CLOUD_BASE}/hero-1`,
-      desktopImage: `${CLOUD_BASE}/hero-1`,
-      tabletImage: `${CLOUD_BASE}/hero-1`,
-      mobileImage: `${CLOUD_BASE}/hero-1`,
-      title: 'Pure Forest Honey & Natural Produce',
-      subtitle: 'Straight from tribal communities to your home',
-      buttonText: 'Shop Now',
+      image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG,
+      title: 'Pure Forest Honey & Natural Produce', subtitle: 'Straight from tribal communities to your home', buttonText: 'Shop Now',
     },
     {
-      image: `${CLOUD_BASE}/hero-2`,
-      desktopImage: `${CLOUD_BASE}/hero-2`,
-      tabletImage: `${CLOUD_BASE}/hero-2`,
-      mobileImage: `${CLOUD_BASE}/hero-2`,
-      title: 'Traditional Millets & Grains',
-      subtitle: 'Rainwater-fed, chemical-free, full of tradition',
-      buttonText: 'Explore',
+      image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG,
+      title: 'Traditional Millets & Grains', subtitle: 'Rainwater-fed, chemical-free, full of tradition', buttonText: 'Explore',
     },
     {
-      image: `${CLOUD_BASE}/hero-3`,
-      desktopImage: `${CLOUD_BASE}/hero-3`,
-      tabletImage: `${CLOUD_BASE}/hero-3`,
-      mobileImage: `${CLOUD_BASE}/hero-3`,
-      title: 'Organic Spices & Seasonings',
-      subtitle: 'Authentic tribal flavours from forest to table',
-      buttonText: 'Discover',
+      image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG,
+      title: 'Organic Spices & Seasonings', subtitle: 'Authentic tribal flavours from forest to table', buttonText: 'Discover',
     },
   ],
 
   adBanner: {
-    image: `${CLOUD_BASE}/ad-banner`,
-    desktopImage: `${CLOUD_BASE}/ad-banner`,
-    tabletImage: `${CLOUD_BASE}/ad-banner`,
-    mobileImage: `${CLOUD_BASE}/ad-banner`,
-    alt: 'Free delivery on all orders over ₹999 — special offer banner',
+    image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG,
+    alt: 'Free delivery on all orders over ₹999',
   },
 
   promo: [
-    {
-      image: `${CLOUD_BASE}/promo-1`,
-      desktopImage: `${CLOUD_BASE}/promo-1`,
-      tabletImage: `${CLOUD_BASE}/promo-1`,
-      mobileImage: `${CLOUD_BASE}/promo-1`,
-    },
-    {
-      image: `${CLOUD_BASE}/promo-2`,
-      desktopImage: `${CLOUD_BASE}/promo-2`,
-      tabletImage: `${CLOUD_BASE}/promo-2`,
-      mobileImage: `${CLOUD_BASE}/promo-2`,
-    },
-    {
-      image: `${CLOUD_BASE}/promo-3`,
-      desktopImage: `${CLOUD_BASE}/promo-3`,
-      tabletImage: `${CLOUD_BASE}/promo-3`,
-      mobileImage: `${CLOUD_BASE}/promo-3`,
-    },
+    { image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG },
+    { image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG },
+    { image: EXISTING_IMG, desktopImage: EXISTING_IMG, tabletImage: EXISTING_IMG, mobileImage: EXISTING_IMG },
   ],
 
   stories: [
-    { poster: `${CLOUD_BASE}/story-1`, src: '', duration: '2:34', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
-    { poster: `${CLOUD_BASE}/story-2`, src: '', duration: '3:12', alt: 'Forest honey harvesting process — traditional methods' },
-    { poster: `${CLOUD_BASE}/story-3`, src: '', duration: '4:05', alt: 'Natural spices being sun-dried by tribal communities' },
-    { poster: `${CLOUD_BASE}/story-4`, src: '', duration: '2:58', alt: 'Traditional millet processing — from farm to table' },
+    { poster: EXISTING_IMG, src: '', duration: '2:34', alt: 'Tribal farmer story' },
+    { poster: EXISTING_IMG, src: '', duration: '3:12', alt: 'Honey harvesting process' },
+    { poster: EXISTING_IMG, src: '', duration: '4:05', alt: 'Spices sun-drying' },
+    { poster: EXISTING_IMG, src: '', duration: '2:58', alt: 'Millet processing' },
   ],
 
   youtube: {
     videoId: 'dQw4w9WgXcQ',
-    poster: `${CLOUD_BASE}/youtube-poster`,
-    bg: `${CLOUD_BASE}/youtube-bg`,
+    poster: EXISTING_IMG,
+    bg: EXISTING_IMG,
   },
 
   reels: [
-    { poster: `${CLOUD_BASE}/reel-1`, src: '', duration: '2:34', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
-    { poster: `${CLOUD_BASE}/reel-2`, src: '', duration: '3:12', alt: 'Forest honey harvesting process' },
-    { poster: `${CLOUD_BASE}/reel-3`, src: '', duration: '4:05', alt: 'Natural spices being sun-dried' },
-    { poster: `${CLOUD_BASE}/reel-4`, src: '', duration: '2:58', alt: 'Traditional millet processing' },
+    { poster: EXISTING_IMG, src: '', duration: '2:34', alt: 'Tribal farmer story' },
+    { poster: EXISTING_IMG, src: '', duration: '3:12', alt: 'Honey harvesting' },
+    { poster: EXISTING_IMG, src: '', duration: '4:05', alt: 'Spices drying' },
+    { poster: EXISTING_IMG, src: '', duration: '2:58', alt: 'Millet processing' },
   ],
 
   videoSection: {
     src: '',
-    poster: `${CLOUD_BASE}/video-poster`,
+    poster: EXISTING_IMG,
     type: 'video/mp4',
     alt: 'HaiFarmer video story',
   },
