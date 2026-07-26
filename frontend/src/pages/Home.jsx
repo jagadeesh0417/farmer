@@ -35,14 +35,6 @@ const HEALTH_CONCERNS = [
 
 const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 'Super Saver Combos', 'Shop By Goal']
 
-function getSectionProducts(products, settings, sectionKey) {
-  if (sectionKey === 'groceries') return products.filter(p => p.showOnHome !== false)
-  const ids = settings?.homeSections?.[sectionKey]
-  let filtered = products
-  if (ids && ids.length > 0) filtered = products.filter(p => ids.includes(p.id || p._id))
-  return filtered.filter(p => p.showOnHome !== false)
-}
-
 function getSectionCombos(bundles, settings) {
   const ids = settings?.homeSections?.superSaverCombos
   if (!ids || ids.length === 0) return bundles.filter(b => b.showOnHome !== false)
@@ -52,6 +44,28 @@ function getSectionCombos(bundles, settings) {
 function getCategoryName(p) {
   const cat = p.category
   return typeof cat === 'string' ? cat : (cat?.slug || cat?.name || '')
+}
+
+const SECTION_CATEGORY_MAP = {
+  millets: ['millets'],
+  lentilsBeans: ['lentils-beans'],
+  honey: ['honey', 'natural-sweeteners'],
+  spices: ['spices', 'spices-seasonings'],
+}
+
+function getSectionProducts(products, settings, sectionKey) {
+  const catSlugs = SECTION_CATEGORY_MAP[sectionKey]
+  const ids = settings?.homeSections?.[sectionKey]
+  let filtered = products
+  if (ids && ids.length > 0) {
+    filtered = products.filter(p => ids.includes(p.id || p._id))
+  } else if (catSlugs) {
+    filtered = products.filter(p => {
+      const cat = getCategoryName(p).toLowerCase()
+      return catSlugs.some(s => cat === s || cat === s.replace(/-/g, ''))
+    })
+  }
+  return filtered.filter(p => p.showOnHome !== false)
 }
 
 export default function Home() {
