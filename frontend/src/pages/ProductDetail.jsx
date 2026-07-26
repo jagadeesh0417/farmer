@@ -116,7 +116,7 @@ export default function ProductDetail() {
   const price = selectedVariant?.price ?? product.base_price ?? product.price
   const mrp = selectedVariant?.original_price ?? selectedVariant?.originalPrice ?? selectedVariant?.mrp ?? product.mrp ?? price
   const savings = mrp - price
-  const categoryTag = product.category_tag || product.harvest_type || product.badge || product.category_name || product.category || ''
+  const categoryTag = product.category_tag || product.harvest_type || product.badge || product.category_name || (typeof product.category === 'string' ? product.category : product.category?.name) || ''
   const benefits = product.benefits?.length ? product.benefits : DEFAULT_BENEFITS
   const tabs = product.infoTabs?.length ? product.infoTabs : DEFAULT_TABS.map(t => ({
     ...t,
@@ -150,7 +150,7 @@ export default function ProductDetail() {
             <Link to="/" className="hover:text-green-600">Home</Link>
             <span>/</span>
             <Link to="/products" className="hover:text-green-600">All Products</Link>
-            {product.category && <><span>/</span><Link to={`/products?category=${product.category_slug || ''}`} className="hover:text-green-600">{product.category}</Link></>}
+            {product.category && <><span>/</span><Link to={`/products?category=${typeof product.category === 'string' ? product.category : product.category?.slug || ''}`} className="hover:text-green-600">{typeof product.category === 'string' ? product.category : product.category?.name}</Link></>}
             <span>/</span>
             <span className="text-ink font-medium truncate">{product.name}</span>
           </div>
