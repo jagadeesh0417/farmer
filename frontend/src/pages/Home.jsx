@@ -95,13 +95,13 @@ export default function Home() {
         return
       }
       try {
-        const [productsData, bundlesData, milletData, grainData, farmersData, bannersData] = await Promise.all([
+        const [productsData, bundlesData, milletData, grainData, farmersData, bannerSettings] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
           api.getBundles({ combo: 'true' }).then(r => r?.data || r || []).catch(() => []),
           api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
-          api.getBanners().then(r => Array.isArray(r) ? r : r?.data || []).catch(() => []),
+          api.getBannerSettings().catch(() => ({})),
         ])
         if (cancelled) return
         setProducts(productsData)
@@ -109,7 +109,18 @@ export default function Home() {
         setMilletProducts(milletData)
         setGrainProducts(grainData)
         setFarmers(Array.isArray(farmersData) ? farmersData : farmersData?.data || [])
-        setBanners((bannersData || []).filter(b => b.isActive !== false))
+        const bs = bannerSettings || {}
+        const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
+          _id: k,
+          desktopImage: bs[k].image,
+          tabletImage: bs[k].image,
+          mobileImage: bs[k].image,
+          image: bs[k].image,
+          title: bs[k].title || '',
+          subtitle: bs[k].subtitle || '',
+          buttonText: bs[k].buttonText || '',
+        }))
+        setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero)
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }

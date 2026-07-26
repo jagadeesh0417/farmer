@@ -10,6 +10,7 @@ const hasExplicitApi = API_URL && API_URL !== '/api'
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: '📊', end: true },
   { to: '/admin/products', label: 'Products', icon: '📦' },
+  { to: '/admin/banners', label: 'Banners', icon: '🖼️' },
   { to: '/admin/categories', label: 'Categories', icon: '📁' },
   { to: '/admin/orders', label: 'Orders', icon: '🛒' },
   { to: '/admin/coupons', label: 'Coupons', icon: '🎟️' },

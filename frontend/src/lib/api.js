@@ -109,6 +109,12 @@ export const api = {
   applyCoupon: (code) => request('/cart/apply-coupon', { method: 'POST', body: JSON.stringify({ code }) }),
   removeCoupon: () => request('/cart/remove-coupon', { method: 'DELETE' }),
 
+  // Banner Settings
+  getBannerSettings: () => request('/banner-settings'),
+  getAllBannerSettings: () => request('/banner-settings/all'),
+  updateBannerSetting: (key, data) => request(`/banner-settings/${key}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteBannerSetting: (key) => request(`/banner-settings/${key}`, { method: 'DELETE' }),
+
   // Banners
   getBanners: (params = {}) => request(`/banners?${new URLSearchParams(params)}`),
   getAllBanners: () => request('/banners/all'),

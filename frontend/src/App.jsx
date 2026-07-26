@@ -31,6 +31,7 @@ const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'))
 const AdminBundles = lazy(() => import('./pages/admin/AdminBundles'))
 const AdminFarmers = lazy(() => import('./pages/admin/AdminFarmers'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
+const AdminBannerManagement = lazy(() => import('./pages/admin/AdminBannerManagement'))
 
 function LoadingFallback() { return <div className="min-h-[40vh]" /> }
 
@@ -87,6 +88,7 @@ export default function App() {
           <Route path="bundles" element={<AdminBundles />} />
           <Route path="farmers" element={<AdminFarmers />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="banners" element={<AdminBannerManagement />} />
         </Route>
         <Route path="/*" element={<><ScrollToTop /><PageTracker /><AppLayout /></>} />
       </Routes>
