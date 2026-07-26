@@ -3,18 +3,9 @@ import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
 
 const BANNER_SECTIONS = [
-  { key: 'hero1', sectionName: 'Hero Banner 1', group: 'Hero Banner' },
-  { key: 'hero2', sectionName: 'Hero Banner 2', group: 'Hero Banner' },
-  { key: 'hero3', sectionName: 'Hero Banner 3', group: 'Hero Banner' },
-  { key: 'about', sectionName: 'About Banner', group: 'Homepage' },
-  { key: 'categories', sectionName: 'Categories Banner', group: 'Homepage' },
-  { key: 'offers', sectionName: 'Offers Banner', group: 'Homepage' },
-  { key: 'collections', sectionName: 'Collections Banner', group: 'Homepage' },
-  { key: 'festival', sectionName: 'Festival Banner', group: 'Homepage' },
-  { key: 'products', sectionName: 'Products Banner', group: 'Products' },
-  { key: 'testimonials', sectionName: 'Testimonials Banner', group: 'Testimonials' },
-  { key: 'contact', sectionName: 'Contact Banner', group: 'Contact' },
-  { key: 'footer', sectionName: 'Footer Banner', group: 'Footer' },
+  { key: 'hero1', sectionName: 'Hero Banner 1', group: 'Hero' },
+  { key: 'hero2', sectionName: 'Hero Banner 2', group: 'Hero' },
+  { key: 'hero3', sectionName: 'Hero Banner 3', group: 'Hero' },
 ]
 
 export default function AdminBannerManagement() {
