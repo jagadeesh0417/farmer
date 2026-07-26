@@ -8,7 +8,6 @@ import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
-import { getComboBundles as getSupabaseComboBundles } from '../lib/productService'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
@@ -95,11 +94,7 @@ export default function Home() {
       try {
         const [productsData, bundlesData, milletData, grainData, farmersData, bannersData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
-          api.getBundles({ combo: 'true' }).then(async r => {
-            let data = r?.data || r || []
-            if (!data || data.length === 0) data = await getSupabaseComboBundles().catch(() => [])
-            return data
-          }).catch(() => []),
+          api.getBundles({ combo: 'true' }).then(r => r?.data || r || []).catch(() => []),
           api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
           api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),

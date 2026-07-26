@@ -13,9 +13,12 @@ export default function ForgotPassword() {
     setLoading(true)
     setError('')
     try {
-      const { default: { supabase } } = await import('../lib/supabase')
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin })
-      if (resetError) throw resetError
+      const res = await fetch(`https://farmer-3zoa.onrender.com/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Failed to send reset email') }
       setSent(true)
     } catch (err) {
       setError(err.message || 'Failed to send reset email')

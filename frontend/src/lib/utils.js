@@ -1,8 +1,7 @@
 import { getImageWithFallback, generatePlaceholder } from './placeholders'
 
-const PLACEHOLDER_IMAGE = 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/images/placeholder.jpg'
+const PLACEHOLDER_IMAGE = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto/haifarmer/placeholder'
 const CLOUDINARY_REGEX = /https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//
-const SUPABASE_REGEX = /https?:\/\/[^.]+\.supabase\.co\/storage\/v1\/object\/public\/images\//
 
 export function optimizeImage(url, width = 600) {
   if (!url) return url
@@ -37,8 +36,7 @@ export function getImageUrl(path, fallback) {
   if (path.startsWith('http') && !path.includes('placehold.co')) return path
   if (path.startsWith('data:')) return path
   if (path.startsWith('/')) return path
-  const base = 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/images'
-  return `${base}/${path}`
+  return fallback || PLACEHOLDER_IMAGE
 }
 
 export function smartImageUrl(path, entity = 'product', name = '') {

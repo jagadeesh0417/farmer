@@ -65,13 +65,11 @@ export default function ProductDetail() {
           setLoading(false)
           return
         }
-        const { getProductBySlug } = await import('../lib/productService')
-        const data = await getProductBySlug(slug)
+        const data = await api.getProduct(slug)
         setProduct(data)
-        if (data?.product_variants?.length) setSelectedVariant(data.product_variants[0])
-        const { getProducts } = await import('../lib/productService')
-        const related = await getProducts(1, 4, data?.category || null, null, 'created_at', false)
-        setRelatedProducts((related?.data || []).filter(p => p.id !== data?.id))
+        if (data?.variants?.length) setSelectedVariant(data.variants[0])
+        const related = await api.getProducts({ limit: 4, category: data?.category, sort: 'created_at' })
+        setRelatedProducts((related?.data || []).filter(p => p._id !== data?._id))
       } catch (e) { console.error(e) }
       finally { setLoading(false) }
     }

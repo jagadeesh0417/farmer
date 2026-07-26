@@ -1,72 +1,75 @@
-const SUPABASE_STORAGE = 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public'
+const CLOUD_BASE = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto/haifarmer/placeholders'
 
 export const HOME_ASSETS = {
   hero: [
     {
-      image: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`,
-      desktopImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`,
-      tabletImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`,
-      mobileImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`,
-      alt: 'Pure forest honey and natural produce from tribal communities',
+      image: `${CLOUD_BASE}/hero-1`,
+      desktopImage: `${CLOUD_BASE}/hero-1`,
+      tabletImage: `${CLOUD_BASE}/hero-1`,
+      mobileImage: `${CLOUD_BASE}/hero-1`,
+      title: 'Pure Forest Honey & Natural Produce',
+      subtitle: 'Straight from tribal communities to your home',
+      buttonText: 'Shop Now',
     },
     {
-      image: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg`,
-      desktopImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg`,
-      tabletImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg`,
-      mobileImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg`,
-      alt: 'Forest honey being collected from traditional beehives',
+      image: `${CLOUD_BASE}/hero-2`,
+      desktopImage: `${CLOUD_BASE}/hero-2`,
+      tabletImage: `${CLOUD_BASE}/hero-2`,
+      mobileImage: `${CLOUD_BASE}/hero-2`,
+      title: 'Traditional Millets & Grains',
+      subtitle: 'Rainwater-fed, chemical-free, full of tradition',
+      buttonText: 'Explore',
     },
     {
-      image: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-      desktopImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-      tabletImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-      mobileImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-      alt: 'Freshly harvested organic spices and grains',
+      image: `${CLOUD_BASE}/hero-3`,
+      desktopImage: `${CLOUD_BASE}/hero-3`,
+      tabletImage: `${CLOUD_BASE}/hero-3`,
+      mobileImage: `${CLOUD_BASE}/hero-3`,
+      title: 'Organic Spices & Seasonings',
+      subtitle: 'Authentic tribal flavours from forest to table',
+      buttonText: 'Discover',
     },
   ],
 
   adBanner: {
-    image: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai_Farmer-Healthy-Family-box.jpeg`,
-    desktopImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai_Farmer-Healthy-Family-box.jpeg`,
-    tabletImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai_Farmer-Healthy-Family-box.jpeg`,
-    mobileImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai_Farmer-Healthy-Family-box.jpeg`,
+    image: `${CLOUD_BASE}/ad-banner`,
+    desktopImage: `${CLOUD_BASE}/ad-banner`,
+    tabletImage: `${CLOUD_BASE}/ad-banner`,
+    mobileImage: `${CLOUD_BASE}/ad-banner`,
     alt: 'Free delivery on all orders over ₹999 — special offer banner',
   },
 
-  videoSection: {
-    poster: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`,
-    alt: 'HaiFarmer brand film — from forest to your home',
-    src: '',
-    type: 'video/mp4',
-  },
+  promo: [
+    {
+      image: `${CLOUD_BASE}/promo-1`,
+      desktopImage: `${CLOUD_BASE}/promo-1`,
+      tabletImage: `${CLOUD_BASE}/promo-1`,
+      mobileImage: `${CLOUD_BASE}/promo-1`,
+    },
+    {
+      image: `${CLOUD_BASE}/promo-2`,
+      desktopImage: `${CLOUD_BASE}/promo-2`,
+      tabletImage: `${CLOUD_BASE}/promo-2`,
+      mobileImage: `${CLOUD_BASE}/promo-2`,
+    },
+    {
+      image: `${CLOUD_BASE}/promo-3`,
+      desktopImage: `${CLOUD_BASE}/promo-3`,
+      tabletImage: `${CLOUD_BASE}/promo-3`,
+      mobileImage: `${CLOUD_BASE}/promo-3`,
+    },
+  ],
+
+  stories: [
+    { poster: `${CLOUD_BASE}/story-1`, src: '', duration: '2:34', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
+    { poster: `${CLOUD_BASE}/story-2`, src: '', duration: '3:12', alt: 'Forest honey harvesting process — traditional methods' },
+    { poster: `${CLOUD_BASE}/story-3`, src: '', duration: '4:05', alt: 'Natural spices being sun-dried by tribal communities' },
+    { poster: `${CLOUD_BASE}/story-4`, src: '', duration: '2:58', alt: 'Traditional millet processing — from farm to table' },
+  ],
 
   youtube: {
     videoId: 'dQw4w9WgXcQ',
-    poster: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg`,
-    alt: 'HaiFarmer farm to table journey — YouTube video',
+    poster: `${CLOUD_BASE}/youtube-poster`,
+    bg: `${CLOUD_BASE}/youtube-bg`,
   },
-
-  leftBanner: {
-    image: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-    desktopImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-    tabletImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-    mobileImage: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`,
-    alt: 'Pure Forest Honey collection — raw, unfiltered, straight from tribal beekeepers',
-  },
-
-  reels: [
-    { poster: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`, src: '', duration: '2:34', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
-    { poster: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg`, src: '', duration: '3:12', alt: 'Forest honey harvesting process — traditional methods' },
-    { poster: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg`, src: '', duration: '4:05', alt: 'Natural spices being sun-dried by tribal communities' },
-    { poster: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai_Farmer-Healthy-Family-box.jpeg`, src: '', duration: '2:58', alt: 'Traditional millet processing — from farm to table' },
-  ],
-
-  newsletter: {
-    bg: `${SUPABASE_STORAGE}/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg`,
-    alt: '',
-  },
-}
-
-export function getHeroAsset(index) {
-  return HOME_ASSETS.hero[index] || HOME_ASSETS.hero[0]
 }

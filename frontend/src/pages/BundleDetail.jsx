@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { demoCombos } from '../lib/demoData'
+import { api } from '../lib/api'
 import SeoHead from '../components/SeoHead'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
@@ -29,9 +30,8 @@ export default function BundleDetail() {
         return
       }
       try {
-        const { getBundleBySlug } = await import('../lib/productService')
-        const data = await getBundleBySlug(slug)
-        setBundle(data)
+        const data = await api.getBundle(slug)
+        setBundle(data || null)
       } catch (e) { console.error(e) }
       finally { setLoading(false) }
     }

@@ -100,6 +100,15 @@ export const api = {
   toggleCouponActive: (id) => request(`/coupons/${id}/toggle-active`, { method: 'PATCH' }),
   validateCoupon: (code, cartValue, cartItems) => request('/coupons/validate', { method: 'POST', body: JSON.stringify({ code, cartValue, cartItems }) }),
 
+  // Cart
+  getCart: () => request('/cart'),
+  addToCart: (data) => request('/cart/add', { method: 'POST', body: JSON.stringify(data) }),
+  updateCartItem: (itemId, data) => request(`/cart/update/${itemId}`, { method: 'PUT', body: JSON.stringify(data) }),
+  removeFromCart: (itemId) => request(`/cart/remove/${itemId}`, { method: 'DELETE' }),
+  clearCart: () => request('/cart/clear', { method: 'DELETE' }),
+  applyCoupon: (code) => request('/cart/apply-coupon', { method: 'POST', body: JSON.stringify({ code }) }),
+  removeCoupon: () => request('/cart/remove-coupon', { method: 'DELETE' }),
+
   // Banners
   getBanners: (params = {}) => request(`/banners?${new URLSearchParams(params)}`),
   getAllBanners: () => request('/banners/all'),

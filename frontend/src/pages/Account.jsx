@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { formatPrice } from '../lib/utils'
 
 const WHATSAPP_NUMBER = '9709704563'
@@ -16,9 +16,10 @@ export default function Account() {
   useEffect(() => {
     if (activeTab === 'orders' && user) {
       setLoadingOrders(true)
-      supabase.from('orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-        .then(({ data }) => { setOrders(data || []); setLoadingOrders(false) })
-        .catch(() => setLoadingOrders(false))
+      api.getUserOrders().then(data => {
+        setOrders(Array.isArray(data) ? data : data?.data || [])
+        setLoadingOrders(false)
+      }).catch(() => setLoadingOrders(false))
     }
   }, [activeTab, user])
 

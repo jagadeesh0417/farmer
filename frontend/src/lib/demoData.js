@@ -1,4 +1,4 @@
-const IMG = 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/bundle-images/bundles'
+const IMG = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto/haifarmer/demo'
 import { isDemoMode } from './withDemoFallback'
 
 export const demoProducts = [
@@ -138,7 +138,7 @@ export const demoProducts = [
 export const demoCombos = [
   {
     _id: 'live-c1', bundle_name: 'Tribal Millet Box',
-    bundle_image_url: 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/bundle-images/bundles/Hai%20Farmer_millet%20Box.jpeg',
+    bundle_image_url: `${IMG}/tribal-millet-box`,
     bundle_description: 'A collection of six traditional millets and sprouted ragi once eaten by our grandparents and still cherished in tribal communities. [CONTAINS] Arikalu (500g), Samalu (500g), Korralu (500g), Tella jonnalu (500g), Erra jonnalu (500g), Sajjalu (500g), Sprouted ragi (1kg)',
     bundle_price: 952.85, bundle_discount_percent: 5, is_combo: true,
     items: [
@@ -153,7 +153,7 @@ export const demoCombos = [
   },
   {
     _id: 'live-c2', bundle_name: 'Natural Protein Box',
-    bundle_image_url: 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/bundle-images/bundles/Hai%20Farmer_Natural%20Protein%20Box.jpeg',
+    bundle_image_url: `${IMG}/natural-protein-box`,
     bundle_description: 'A wholesome mix of naturally protein-rich pulses, rajma, and legumes sourced from traditional farming communities. [CONTAINS] Konda Kandhulu (1kg), Pesalu (500g), Minumulu (1kg), Nalla Bobbarllu (500g), Tella Bobbarllu (500g), Red Rajma (500g), White Rajma (500g)',
     bundle_price: 1218.85, bundle_discount_percent: 5, is_combo: true,
     items: [
@@ -168,7 +168,7 @@ export const demoCombos = [
   },
   {
     _id: 'live-c3', bundle_name: 'Kitchen Essentials',
-    bundle_image_url: 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/bundle-images/bundles/Hai%20Farme_%20Kitchen%20essential%20pack.jpeg',
+    bundle_image_url: `${IMG}/kitchen-essentials`,
     bundle_description: 'Bring home the goodness of nature with premium products sourced directly from tribal farmers. [CONTAINS] Karam (1kg), Pasupu (250g), Avalu (100g), Chintapandu (500g), Miryalu (100g), Sugar (1kg), Pink Rock Salt (1kg)',
     bundle_price: 1221.70, bundle_discount_percent: 5, is_combo: true,
     items: [
@@ -183,7 +183,7 @@ export const demoCombos = [
   },
   {
     _id: 'live-c4', bundle_name: 'Healthy Family Box',
-    bundle_image_url: 'https://kpzhiwyfxnojdzbwerra.supabase.co/storage/v1/object/public/bundle-images/bundles/Hai_Farmer-Healthy-Family-box.jpeg',
+    bundle_image_url: `${IMG}/healthy-family-box`,
     bundle_description: 'Experience the richness of traditional living with our Tribal Complete Family Combo, carefully curated to meet your family\'s everyday kitchen needs. [CONTAINS] Arikalu (500g), Samalu (500g), Korralu (500g), Tella Jonnalu (500g), Erra Jonnalu (500g), Sajjalu (500g), Sprouted Ragi Powder (1kg), Nalla Bobbarllu (500g), Tella Bobbarllu (500g), Red Rajma (500g), White Rajma (500g), Konda Kandhulu (1kg), Pesalu (500g), Minumulu (1kg), Karam (1kg), Pasupu (250g), Avalu (100g), Chintapandu (500g), Miryalu (100g), Sugar (1kg), Pink Rock Salt (1kg)',
     bundle_price: 3355.40, bundle_discount_percent: 5, is_combo: true,
     items: Array.from({ length: 21 }, () => ({ price: 170, quantity: 1, variant: { price: 170 } })),

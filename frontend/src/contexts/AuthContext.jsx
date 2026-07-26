@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 
 const AuthContext = createContext(null)
 
@@ -8,86 +8,58 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    let cancelled = false
-
-    const timeout = setTimeout(() => {
-      if (!cancelled) setLoading(false)
-    }, 5000)
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (cancelled) return
-      setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
-    }).catch((err) => {
-      console.error('getSession error:', err)
-    }).finally(() => {
-      if (cancelled) return
-      clearTimeout(timeout)
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (cancelled) return
-      setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
-      else setProfile(null)
-    })
-
-    return () => {
-      cancelled = true
-      clearTimeout(timeout)
-      subscription.unsubscribe()
-    }
-  }, [])
-
-  async function fetchProfile(userId) {
-    try {
-      const { data } = await supabase.from('users_profiles').select('*').eq('id', userId).single()
-      setProfile(data)
-    } catch (err) {
-      console.error('fetchProfile error:', err)
-    }
+  function storeSession(token, userData) {
+    localStorage.setItem('haifarmer_token', token)
+    localStorage.setItem('haifarmer_user', JSON.stringify(userData))
+    setUser(userData)
+    setProfile(userData)
   }
 
-  async function signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    return data
-  }
-
-  async function signUp(email, password, { full_name, phone } = {}) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name, phone } }
-    })
-    if (error) throw error
-    return data
-  }
-
-  async function signInWithOtp(phone) {
-    const { data, error } = await supabase.auth.signInWithOtp({ phone })
-    if (error) throw error
-    return data
-  }
-
-  async function signOut() {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+  function clearSession() {
+    localStorage.removeItem('haifarmer_token')
+    localStorage.removeItem('haifarmer_user')
     setUser(null)
     setProfile(null)
   }
 
-  async function resetPassword(email) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`
-    })
-    if (error) throw error
+  useEffect(() => {
+    const token = localStorage.getItem('haifarmer_token')
+    if (!token) { setLoading(false); return }
+    api.getMe().then(data => {
+      if (data?.user) { setUser(data.user); setProfile(data.user) }
+    }).catch(() => {
+      clearSession()
+    }).finally(() => setLoading(false))
+  }, [])
+
+  async function signIn(email, password) {
+    const data = await api.login({ email, password })
+    if (data.user?.role !== 'customer' && data.user?.role !== 'admin') {
+      throw new Error('Access denied')
+    }
+    storeSession(data.token, data.user)
+    return data
+  }
+
+  async function signUp(email, password, { fullName, phone } = {}) {
+    const data = await api.signup({ email, password, fullName, phone })
+    storeSession(data.token, data.user)
+    return data
+  }
+
+  async function signOut() {
+    clearSession()
+  }
+
+  async function fetchProfile() {
+    try {
+      const data = await api.getMe()
+      if (data?.user) { setProfile(data.user); setUser(data.user) }
+    } catch { /* ignore */ }
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signInWithOtp, signOut, resetPassword, fetchProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signOut, fetchProfile }}>
       {children}
     </AuthContext.Provider>
   )
