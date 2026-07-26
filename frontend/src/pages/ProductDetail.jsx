@@ -8,6 +8,8 @@ import { useCart } from '../contexts/CartContext'
 import ProductCard from '../components/ProductCard'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
+import { api } from '../lib/api'
+import { toast } from 'react-toastify'
 import { demoProducts } from '../lib/demoData'
 
 const DEFAULT_BENEFITS = [
@@ -71,14 +73,14 @@ export default function ProductDetail() {
         const related = await api.getProducts({ limit: 4, category: data?.category, sort: 'created_at' })
         setRelatedProducts((related?.data || []).filter(p => p._id !== data?._id))
       } catch (e) {
-        console.error(e)
+        console.error('ProductDetail error:', e)
+        toast.error(e.message || 'Failed to load product')
         if (!isDemoMode()) {
-          // Fallback: try finding product from the API's product list by slug
           try {
             const all = await api.getProducts({ limit: 100, active: 'all' })
             const found = (all?.data || []).find(p => slugify(p.name) === slug || p.slug === slug)
-            if (found) { setProduct(found); setSelectedVariant(found.variants?.[0]) }
-          } catch {}
+            if (found) { setProduct(found); setSelectedVariant(found.variants?.[0]); toast.success('Product loaded via fallback') }
+          } catch (e2) { console.error('Fallback error:', e2) }
         }
       }
       finally { setLoading(false) }
