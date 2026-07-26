@@ -6,6 +6,7 @@ const BANNER_SECTIONS = [
   { key: 'hero1', sectionName: 'Hero Banner 1', group: 'Hero' },
   { key: 'hero2', sectionName: 'Hero Banner 2', group: 'Hero' },
   { key: 'hero3', sectionName: 'Hero Banner 3', group: 'Hero' },
+  { key: 'promotional', sectionName: 'Promotional Banner', group: 'Homepage' },
 ]
 
 export default function AdminBannerManagement() {
