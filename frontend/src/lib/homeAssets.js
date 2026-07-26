@@ -1,4 +1,4 @@
-const BANNER_IMG = '/banner.png'
+const BANNER_IMG = 'https://res.cloudinary.com/drp7pfa2w/image/upload/v1784985321/haifarmer/products/rffbrqi21z3fotbkilbl.jpg'
 
 export const HOME_ASSETS = {
   hero: [
