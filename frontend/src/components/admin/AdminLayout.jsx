@@ -14,7 +14,6 @@ const navItems = [
   { to: '/admin/orders', label: 'Orders', icon: '🛒' },
   { to: '/admin/coupons', label: 'Coupons', icon: '🎟️' },
   { to: '/admin/bundles', label: 'Combos', icon: '📦' },
-  { to: '/admin/banners', label: 'Banners', icon: '🖼️' },
   { to: '/admin/farmers', label: 'Farmers', icon: '👨‍🌾' },
   { to: '/admin/settings', label: 'Settings', icon: '⚙️' },
 ]
