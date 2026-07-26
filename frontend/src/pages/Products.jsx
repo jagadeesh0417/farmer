@@ -88,7 +88,7 @@ export default function Products() {
   const categoryCounts = useMemo(() => {
     const counts = {}
     products.forEach(p => {
-      const cat = (p.category || '').toLowerCase()
+      const cat = typeof p.category === 'string' ? p.category.toLowerCase() : (p.category?.slug || p.category?.name || '').toLowerCase()
       if (cat) counts[cat] = (counts[cat] || 0) + 1
     })
     return counts

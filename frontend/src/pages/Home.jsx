@@ -49,6 +49,11 @@ function getSectionCombos(bundles, settings) {
   return bundles.filter(b => ids.includes(b.id || b._id) && b.showOnHome !== false)
 }
 
+function getCategoryName(p) {
+  const cat = p.category
+  return typeof cat === 'string' ? cat : (cat?.slug || cat?.name || '')
+}
+
 export default function Home() {
   const { cartItems } = useCart()
   const { settings } = useSiteSettings()
@@ -459,7 +464,7 @@ export default function Home() {
             if (concern.label !== activeConcern) return null
             const sectionProducts = getSectionProducts(products, settings, 'healthConcern')
             const filtered = sectionProducts.length > 0 ? sectionProducts : products.filter(p => {
-              const cat = (p.category || '').toLowerCase()
+              const cat = getCategoryName(p).toLowerCase()
               return p.showOnHome !== false && (cat === concern.category || cat.includes(concern.category))
             })
             return (
@@ -553,7 +558,7 @@ export default function Home() {
           </div>
           {(() => {
             const sectionProducts = getSectionProducts(products, settings, 'honey')
-            const honeyProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => (p.category || '').toLowerCase() === 'honey' || (p.category_name || '').toLowerCase() === 'honey')
+            const honeyProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => getCategoryName(p).toLowerCase() === 'honey' || (p.category_name || '').toLowerCase() === 'honey')
             return honeyProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {honeyProducts.slice(0, 4).map(product => (
@@ -580,7 +585,7 @@ export default function Home() {
           </div>
           {(() => {
             const sectionProducts = getSectionProducts(products, settings, 'spices')
-            const spiceProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => (p.category || '').toLowerCase() === 'spices' || (p.category_name || '').toLowerCase() === 'spices')
+            const spiceProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => getCategoryName(p).toLowerCase() === 'spices' || (p.category_name || '').toLowerCase() === 'spices')
             return spiceProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {spiceProducts.slice(0, 4).map(product => (
