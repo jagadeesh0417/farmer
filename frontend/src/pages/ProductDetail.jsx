@@ -70,7 +70,17 @@ export default function ProductDetail() {
         if (data?.variants?.length) setSelectedVariant(data.variants[0])
         const related = await api.getProducts({ limit: 4, category: data?.category, sort: 'created_at' })
         setRelatedProducts((related?.data || []).filter(p => p._id !== data?._id))
-      } catch (e) { console.error(e) }
+      } catch (e) {
+        console.error(e)
+        if (!isDemoMode()) {
+          // Fallback: try finding product from the API's product list by slug
+          try {
+            const all = await api.getProducts({ limit: 100, active: 'all' })
+            const found = (all?.data || []).find(p => slugify(p.name) === slug || p.slug === slug)
+            if (found) { setProduct(found); setSelectedVariant(found.variants?.[0]) }
+          } catch {}
+        }
+      }
       finally { setLoading(false) }
     }
     load()

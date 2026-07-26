@@ -1,4 +1,4 @@
-const raw = import.meta.env.VITE_API_URL || ''
+const raw = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://farmer-3zoa.onrender.com' : '')
 const API_URL = raw && raw.startsWith('http') ? `${raw.replace(/\/+$/, '')}/api` : (raw || '/api')
 
 function getToken() {
@@ -21,7 +21,7 @@ async function request(endpoint, options = {}) {
   }
 
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 15000)
+  const timeout = setTimeout(() => controller.abort(), 30000)
 
   try {
     const res = await fetch(`${API_URL}${endpoint}`, {
