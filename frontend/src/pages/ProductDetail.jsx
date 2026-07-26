@@ -68,6 +68,8 @@ export default function ProductDetail() {
           return
         }
         const data = await api.getProduct(slug)
+        console.log('ProductDetail: slug=', slug, 'data=', data ? 'found' : 'null')
+        if (!data) { console.warn('ProductDetail: API returned null for slug:', slug); toast.error('Product not found in database'); setLoading(false); return }
         setProduct(data)
         if (data?.variants?.length) setSelectedVariant(data.variants[0])
         const related = await api.getProducts({ limit: 4, category: data?.category, sort: 'created_at' })
