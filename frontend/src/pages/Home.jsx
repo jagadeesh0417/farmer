@@ -75,6 +75,7 @@ export default function Home() {
   const [products, setProducts] = useState([])
   const [bundles, setBundles] = useState([])
   const [banners, setBanners] = useState([])
+  const [adBanner, setAdBanner] = useState(null)
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -135,6 +136,7 @@ export default function Home() {
           buttonText: bs[k].buttonText || '',
         }))
         setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero)
+        setAdBanner(bs.offers?.image ? bs.offers.image : null)
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
@@ -190,8 +192,8 @@ export default function Home() {
         <div className="section-container">
           <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
             <picture>
-              <source srcSet={HOME_ASSETS.adBanner.desktopImage} media="(min-width: 768px)" />
-              <img src={HOME_ASSETS.adBanner.mobileImage} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+              <source srcSet={adBanner || HOME_ASSETS.adBanner.desktopImage} media="(min-width: 768px)" />
+              <img src={adBanner || HOME_ASSETS.adBanner.mobileImage} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
             </picture>
           </Link>
         </div>
