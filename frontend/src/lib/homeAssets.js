@@ -72,4 +72,18 @@ export const HOME_ASSETS = {
     poster: `${CLOUD_BASE}/youtube-poster`,
     bg: `${CLOUD_BASE}/youtube-bg`,
   },
+
+  reels: [
+    { poster: `${CLOUD_BASE}/reel-1`, src: '', duration: '2:34', alt: 'Tribal farmer sharing wisdom about millet cultivation' },
+    { poster: `${CLOUD_BASE}/reel-2`, src: '', duration: '3:12', alt: 'Forest honey harvesting process' },
+    { poster: `${CLOUD_BASE}/reel-3`, src: '', duration: '4:05', alt: 'Natural spices being sun-dried' },
+    { poster: `${CLOUD_BASE}/reel-4`, src: '', duration: '2:58', alt: 'Traditional millet processing' },
+  ],
+
+  videoSection: {
+    src: '',
+    poster: `${CLOUD_BASE}/video-poster`,
+    type: 'video/mp4',
+    alt: 'HaiFarmer video story',
+  },
 }
