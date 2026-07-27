@@ -11,16 +11,16 @@ function getItemName(item) {
 
 function getItemPrice(item) {
   if (item.bundle) return item.bundle.bundle_price || 0
-  return item.variant?.price || item.product?.price || 0
+  return item.variant?.price || item.product?.price || item.product?.basePrice || 0
 }
 
 function getItemImage(item) {
   if (item.bundle) return item.bundle.bundle_image_url || item.bundle.image_url
-  return item.product?.image_url
+  return item.product?.images?.[0] || item.product?.image_url
 }
 
 function getItemVariantName(item) {
-  return item.variant?.weight_label || item.variant?.name || ''
+  return item.variant?.weightLabel || item.variant?.weight_label || item.variant?.name || ''
 }
 
 export default function Cart() {
