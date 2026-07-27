@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.get('/', protect, async (req, res) => {
   try {
-    let cart = await Cart.findOne({ user: req.user._id }).populate('items.product', 'name images slug basePrice discountPercent')
+    let cart = await Cart.findOne({ user: req.user._id }).populate('items.product', 'name images slug basePrice discountPercent variants')
     if (!cart) cart = await Cart.create({ user: req.user._id, items: [] })
     res.json(cart)
   } catch (err) {
@@ -47,7 +47,7 @@ router.post('/add', protect, async (req, res) => {
       })
     }
     await cart.save()
-    await cart.populate('items.product', 'name images slug basePrice discountPercent')
+    await cart.populate('items.product', 'name images slug basePrice discountPercent variants')
     res.json(cart)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -67,7 +67,7 @@ router.put('/update/:itemId', protect, async (req, res) => {
       item.quantity = quantity
     }
     await cart.save()
-    await cart.populate('items.product', 'name images slug basePrice discountPercent')
+    await cart.populate('items.product', 'name images slug basePrice discountPercent variants')
     res.json(cart)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -80,7 +80,7 @@ router.delete('/remove/:itemId', protect, async (req, res) => {
     if (!cart) return res.status(404).json({ error: 'Cart not found' })
     cart.items.pull({ _id: req.params.itemId })
     await cart.save()
-    await cart.populate('items.product', 'name images slug basePrice discountPercent')
+    await cart.populate('items.product', 'name images slug basePrice discountPercent variants')
     res.json(cart)
   } catch (err) {
     res.status(500).json({ error: err.message })

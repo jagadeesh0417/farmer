@@ -31,7 +31,7 @@ function getItemVariantName(item) {
 
 export default function Checkout() {
   const { user } = useAuth()
-  const { cartItems, removeFromCart, updateQuantity, totals } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, totals } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [coupon, setCoupon] = useState('')
@@ -40,6 +40,7 @@ export default function Checkout() {
   const [couponLoading, setCouponLoading] = useState(false)
   const [appliedCoupon, setAppliedCoupon] = useState(null)
   const [placing, setPlacing] = useState(false)
+  const [editingVariant, setEditingVariant] = useState(null)
   const [delivery, setDelivery] = useState({
     name: user?.fullName || user?.user_metadata?.full_name || '',
     phone: user?.phone || user?.user_metadata?.phone || '',
@@ -74,6 +75,21 @@ export default function Checkout() {
       }
     } catch (err) { setCouponError(err.message || 'Failed to apply coupon') }
     finally { setCouponLoading(false) }
+  }
+
+  const handleVariantChange = async (item, newVariant) => {
+    const qty = item.quantity
+    const productId = item.product_id || item.product?._id
+    if (!productId) return
+    await removeFromCart(item.id)
+    await addToCart({
+      product_id: productId,
+      variant_id: newVariant._id,
+      quantity: qty,
+      product: item.product,
+      variant: { _id: newVariant._id, name: newVariant.name, price: newVariant.price, weightLabel: newVariant.weightLabel },
+    })
+    setEditingVariant(null)
   }
 
   const buildWhatsAppMessage = () => {
@@ -210,7 +226,27 @@ export default function Checkout() {
                     className="h-20 w-20 rounded-xl object-cover" />
                   <div className="flex-1">
                     <h3 className="font-semibold text-ink">{getItemName(item)}</h3>
-                    {getItemVariantName(item) && <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>}
+                    {getItemVariantName(item) && (
+                      <div className="flex items-center flex-wrap gap-x-1">
+                        <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>
+                        {item.product?.variants?.length > 1 && (
+                          <button onClick={() => setEditingVariant(editingVariant === item.id ? null : item.id)}
+                            className="text-caption font-semibold text-green-600 hover:text-green-700 ml-1">
+                            (change)
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {editingVariant === item.id && item.product?.variants && (
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {item.product.variants.filter(v => v.isActive !== false && String(v._id) !== String(item.variant_id || item.variant?._id)).map(v => (
+                          <button key={v._id} onClick={() => handleVariantChange(item, v)}
+                            className="px-2.5 py-1 text-caption font-medium rounded-lg border border-border hover:bg-green-50 hover:border-green-600 transition-all">
+                            {v.weightLabel || v.name} — {formatPrice(v.price)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <p className="mt-1 text-body-sm font-semibold text-green-600">{formatPrice(getItemPrice(item))}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">-</button>
