@@ -249,7 +249,7 @@ export default function Checkout() {
             <Link to="/cart" className="hover:text-green-600 transition-colors">Cart</Link>
             <span>/</span>
             <span className="text-green-800/70 font-medium">
-              {step === 1 ? 'Delivery Address' : step === 2 ? 'Order Summary' : 'Payment'}
+              {step === 1 ? 'Quantity' : step === 2 ? 'Delivery Address' : step === 3 ? 'Order Summary' : 'Payment'}
             </span>
           </div>
         </div>
@@ -259,20 +259,76 @@ export default function Checkout() {
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-8">
           {[
-            { num: 1, label: 'Address' },
-            { num: 2, label: 'Summary' },
-            { num: 3, label: 'Payment' },
+            { num: 1, label: 'Quantity' },
+            { num: 2, label: 'Address' },
+            { num: 3, label: 'Summary' },
+            { num: 4, label: 'Payment' },
           ].map(s => (
             <div key={s.num} className="flex items-center gap-2">
               <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step >= s.num ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800/40'}`}>{s.num}</div>
               <span className={`text-sm font-semibold hidden sm:inline ${step >= s.num ? 'text-ink' : 'text-green-800/40'}`}>{s.label}</span>
-              {s.num < 3 && <div className={`h-px w-8 sm:w-12 ${step > s.num ? 'bg-green-600' : 'bg-green-200'}`} />}
+              {s.num < 4 && <div className={`h-px w-8 sm:w-12 ${step > s.num ? 'bg-green-600' : 'bg-green-200'}`} />}
             </div>
           ))}
         </div>
 
-        {/* Step 1: Delivery Address */}
+        {/* Step 1: Quantity */}
         {step === 1 && (
+          <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+              <h3 className="font-heading text-h4 font-bold text-ink mb-4">Order Items ({cartItems.length})</h3>
+              <div className="space-y-3">
+                {cartItems.map(item => (
+                  <div key={item.id} className="flex items-center gap-4 pb-3 border-b border-border last:border-0">
+                    <img src={getImageUrl(getItemImage(item), settings?.placeholder_image)} alt={getItemName(item)} className="h-14 w-14 rounded-lg object-cover shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-body-sm font-semibold text-ink truncate">{getItemName(item)}</p>
+                      {getItemVariantName(item) && <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>}
+                      <div className="flex items-center gap-2 mt-2">
+                        <button onClick={() => { if (item.quantity > 1) updateQuantity(item.id, item.quantity - 1) }}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 hover:text-green-700 transition-colors text-sm font-bold">−</button>
+                        <span className="min-w-[1.5rem] text-center text-body-sm font-semibold text-ink">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 hover:text-green-700 transition-colors text-sm font-bold">+</button>
+                        <button onClick={() => removeFromCart(item.id)}
+                          className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors text-xs"
+                          title="Remove item">✕</button>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-body-sm font-semibold text-ink">{formatPrice(getItemPrice(item) * item.quantity)}</p>
+                      <p className="text-caption text-green-800/40">×{item.quantity}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm h-fit sticky top-28">
+              <h2 className="font-heading mb-3 text-h2 font-bold text-ink">Your Items</h2>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {cartItems.map(item => (
+                  <div key={item.id} className="flex items-center gap-3 text-body-sm">
+                    <span className="flex-1 truncate">{getItemName(item)}{getItemVariantName(item) ? ` (${getItemVariantName(item)})` : ''}</span>
+                    <span className="text-green-800/50">×{item.quantity}</span>
+                    <span className="font-semibold">{formatPrice(getItemPrice(item) * item.quantity)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-border flex justify-between text-body-sm font-semibold">
+                <span>Subtotal</span><span>{formatPrice(total)}</span>
+              </div>
+              <button onClick={() => setStep(2)}
+                className="btn-font mt-5 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 btn-lift">
+                Continue to Address
+              </button>
+              <Link to="/cart" className="mt-3 block text-center text-caption font-semibold text-green-600 hover:text-green-700">Edit Cart</Link>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Delivery Address */}
+        {step === 2 && (
           <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
               <h2 className="font-heading mb-5 text-h3 font-bold text-ink">Delivery Address</h2>
@@ -347,10 +403,11 @@ export default function Checkout() {
                 </label>
 
                 <div className="flex gap-3 pt-2">
-                  <Link to="/cart" className="btn-font flex-1 rounded-2xl border border-border bg-white py-3.5 text-center text-body-sm font-semibold text-green-800/60 transition-all hover:border-green-600 hover:text-green-600">
-                    ← Back to Cart
-                  </Link>
-                  <button onClick={() => setStep(2)}
+                  <button onClick={() => setStep(1)}
+                    className="btn-font flex-1 rounded-2xl border border-border bg-white py-3.5 text-center text-body-sm font-semibold text-green-800/60 transition-all hover:border-green-600 hover:text-green-600">
+                    ← Back to Quantity
+                  </button>
+                  <button onClick={() => setStep(3)}
                     className="btn-font flex-1 rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 btn-lift">
                     Continue to Summary
                   </button>
@@ -376,15 +433,15 @@ export default function Checkout() {
           </div>
         )}
 
-        {/* Step 2: Order Summary */}
-        {step === 2 && (
+        {/* Step 3: Order Summary */}
+        {step === 3 && (
           <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
             <div className="space-y-4">
               {/* Delivery address card */}
               <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-heading text-h4 font-bold text-ink">Delivery Address</h3>
-                  <button onClick={() => setStep(1)} className="text-caption font-semibold text-green-600 hover:text-green-700">Edit</button>
+                  <button onClick={() => setStep(2)} className="text-caption font-semibold text-green-600 hover:text-green-700">Edit</button>
                 </div>
                 {addressComplete ? (
                   <>
@@ -397,11 +454,11 @@ export default function Checkout() {
                     {address.deliveryInstructions && <p className="text-body-sm text-green-800/40 mt-1 italic">"{address.deliveryInstructions}"</p>}
                   </>
                 ) : (
-                  <p className="text-body-sm text-red-500">Please fill in your delivery address in Step 1</p>
+                  <p className="text-body-sm text-red-500">Please fill in your delivery address in Step 2</p>
                 )}
               </div>
 
-              {/* Items with edit controls */}
+              {/* Items */}
               <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
                 <h3 className="font-heading text-h4 font-bold text-ink mb-4">Order Items ({cartItems.length})</h3>
                 <div className="space-y-3">
@@ -411,17 +468,6 @@ export default function Checkout() {
                       <div className="flex-1 min-w-0">
                         <p className="text-body-sm font-semibold text-ink truncate">{getItemName(item)}</p>
                         {getItemVariantName(item) && <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>}
-                        {/* Quantity controls */}
-                        <div className="flex items-center gap-2 mt-2">
-                          <button onClick={() => { if (item.quantity > 1) updateQuantity(item.id, item.quantity - 1) }}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 hover:text-green-700 transition-colors text-sm font-bold">−</button>
-                          <span className="min-w-[1.5rem] text-center text-body-sm font-semibold text-ink">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 hover:text-green-700 transition-colors text-sm font-bold">+</button>
-                          <button onClick={() => removeFromCart(item.id)}
-                            className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors text-xs"
-                            title="Remove item">✕</button>
-                        </div>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-body-sm font-semibold text-ink">{formatPrice(getItemPrice(item) * item.quantity)}</p>
@@ -452,24 +498,23 @@ export default function Checkout() {
                 <div className="border-t pt-2 flex justify-between text-body-lg"><span className="font-bold text-ink">Grand Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
               </div>
 
-              <button onClick={() => { if (addressComplete) setStep(3); else toast.error('Please fill in your delivery address first') }}
+              <button onClick={() => { if (addressComplete) setStep(4); else toast.error('Please fill in your delivery address first') }}
                 className="btn-font mt-5 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 btn-lift">
                 Continue to Payment
               </button>
-              <Link to="/cart" className="mt-3 block text-center text-caption font-semibold text-green-600 hover:text-green-700">Edit Cart</Link>
             </div>
           </div>
         )}
 
-        {/* Step 3: Payment */}
-        {step === 3 && (
+        {/* Step 4: Payment */}
+        {step === 4 && (
           <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
             <div className="space-y-4">
               {/* Delivery address card */}
               <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-heading text-h4 font-bold text-ink">Delivery Address</h3>
-                  <button onClick={() => setStep(1)} className="text-caption font-semibold text-green-600 hover:text-green-700">Edit</button>
+                  <button onClick={() => setStep(2)} className="text-caption font-semibold text-green-600 hover:text-green-700">Edit</button>
                 </div>
                 <p className="text-body-sm text-ink">{address.name}</p>
                 <p className="text-body-sm text-green-800/60">{address.mobile}</p>
