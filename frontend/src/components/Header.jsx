@@ -57,7 +57,7 @@ export default function Header() {
           {/* Left: Logo + Brand */}
           <Link to="/" className="flex items-center gap-2 shrink-0" onClick={closeAll}>
             {logo ? (
-              <img src={logo} alt="HaiFarmer" loading="eager" className="h-12 lg:h-14 w-auto object-contain" />
+              <img src={logo} alt="HaiFarmer" loading="eager" className="h-[65px] lg:h-[76px] w-auto object-contain" />
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-green-600">
