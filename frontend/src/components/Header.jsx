@@ -53,11 +53,11 @@ export default function Header() {
 
       {/* Header */}
       <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${scrolled ? 'shadow-sm' : ''}`}>
-        <div className="section-container flex items-center justify-between py-3 lg:py-4">
+        <div className="section-container flex items-center justify-between py-2.5 lg:py-3.5">
           {/* Left: Logo + Brand */}
           <Link to="/" className="flex items-center gap-2 shrink-0" onClick={closeAll}>
             {logo ? (
-              <img src={logo} alt="HaiFarmer" loading="eager" className="h-14 lg:h-16 w-auto object-contain" />
+              <img src={logo} alt="HaiFarmer" loading="eager" className="h-12 lg:h-14 w-auto object-contain" />
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-green-600">
