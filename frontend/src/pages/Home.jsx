@@ -9,6 +9,7 @@ import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
 import { formatPrice, getImageUrl } from '../lib/utils'
+import { cld } from '../lib/cloudinary'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
@@ -192,8 +193,8 @@ export default function Home() {
         <div className="section-container">
           <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
             <picture>
-              <source srcSet={promoBanner || HOME_ASSETS.adBanner.desktopImage} media="(min-width: 768px)" />
-              <img src={promoBanner || HOME_ASSETS.adBanner.mobileImage} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+              <source srcSet={cld(promoBanner || HOME_ASSETS.adBanner.desktopImage, 'f_auto,q_auto,w_1200')} media="(min-width: 768px)" />
+              <img src={cld(promoBanner || HOME_ASSETS.adBanner.mobileImage, 'f_auto,q_auto,w_600')} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
             </picture>
           </Link>
         </div>
