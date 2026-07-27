@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { formatPrice, getImageUrl } from '../lib/utils'
-import { getItemName, getItemPrice, getItemImage, getItemVariantName, calculateShipping, calculateFinalTotal } from '../lib/pricingService'
+import { getItemName, getItemPrice, getItemImage, getItemVariantName, calculateCartTotals } from '../lib/pricingService'
 import { api } from '../lib/api'
 import { toast } from 'react-toastify'
 
@@ -34,7 +34,7 @@ const emptyAddress = {
 
 export default function Checkout() {
   const { user } = useAuth()
-  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCartAfterOrder, totals, loading, appliedCoupon, couponDiscount, couponError, couponLoading, handleApplyCoupon, handleRemoveCoupon } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCartAfterOrder, loading, appliedCoupon, couponError, couponLoading, handleApplyCoupon, handleRemoveCoupon } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
@@ -58,11 +58,10 @@ export default function Checkout() {
   const showRazorpay = paymentMethod === 'both' || paymentMethod === 'razorpay'
   const showWhatsApp = paymentMethod === 'both' || paymentMethod === 'whatsapp'
 
-  const subtotal = totals?.subtotal || 0
-  const shipping = calculateShipping(subtotal, settings)
-  const tax = 0
-  const comboDiscount = 0
-  const grandTotal = calculateFinalTotal({ subtotal, comboDiscount, couponDiscount, shipping, tax })
+  const { subtotal, comboDiscount, couponDiscount, shipping, tax, grandTotal } = useMemo(
+    () => calculateCartTotals(cartItems, appliedCoupon, settings),
+    [cartItems, appliedCoupon, settings]
+  )
 
   const handleApplyCouponClick = () => {
     handleApplyCoupon(couponCode)

@@ -17,49 +17,64 @@ export function getItemVariantName(item) {
   return item.variant?.weightLabel || item.variant?.weight_label || item.variant?.name || ''
 }
 
+function toNumber(val) {
+  return Number(val) || 0
+}
+
 export function calculateSubtotal(items) {
-  return items.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0)
+  return items.reduce((sum, item) => {
+    const price = getItemPrice(item)
+    const qty = toNumber(item.quantity)
+    return sum + price * qty
+  }, 0)
+}
+
+export function calculateComboDiscount(items) {
+  return items.reduce((sum, item) => {
+    if (!item.bundle) return sum
+    const bundleItems = item.bundle.items || item.bundle.bundle_items || []
+    if (!bundleItems.length) return sum
+    const originalTotal = bundleItems.reduce((s, bi) => {
+      return s + toNumber(bi.price || bi.variant?.price || bi.variant_price || 0) * toNumber(bi.quantity || 1)
+    }, 0)
+    if (originalTotal <= 0) return sum
+    const sellingPrice = getItemPrice(item)
+    const savings = originalTotal - sellingPrice
+    return sum + (savings > 0 ? savings * toNumber(item.quantity) : 0)
+  }, 0)
 }
 
 export function calculateCouponDiscount(coupon, subtotal) {
   if (!coupon) return 0
+  const st = toNumber(subtotal)
   if (coupon.discountType === 'percentage') {
-    const disc = Math.round((subtotal * coupon.discountValue) / 100)
-    return coupon.maxDiscount ? Math.min(disc, coupon.maxDiscount) : disc
+    const disc = Math.round((st * toNumber(coupon.discountValue)) / 100)
+    return coupon.maxDiscount ? Math.min(disc, toNumber(coupon.maxDiscount)) : disc
   }
-  return coupon.discountValue || 0
+  return toNumber(coupon.discountValue)
 }
 
 export function calculateShipping(subtotal, settings) {
   if (!settings) return 0
-  const freeThreshold = Number(settings.freeShippingThreshold || settings.freeShippingMinAmount || 1499)
-  if (subtotal >= freeThreshold) return 0
-  return Number(settings.deliveryCharge || settings.shipping_cost || settings.delivery_charge_amount || 0)
+  const st = toNumber(subtotal)
+  const freeThreshold = toNumber(settings.freeShippingThreshold || settings.freeShippingMinAmount || 1499)
+  if (freeThreshold > 0 && st >= freeThreshold) return 0
+  return toNumber(settings.deliveryCharge || settings.shipping_cost || settings.delivery_charge_amount || 0)
 }
 
 export function calculateTax(subtotal, settings) {
   if (!settings?.taxEnabled || !settings?.taxRate) return 0
-  return Math.round((subtotal * Number(settings.taxRate)) / 100)
-}
-
-export function calculateFinalTotal({ subtotal, comboDiscount, couponDiscount, shipping, tax }) {
-  const s = Number(subtotal) || 0
-  const cd = Number(comboDiscount) || 0
-  const cp = Number(couponDiscount) || 0
-  const sh = Number(shipping) || 0
-  const tx = Number(tax) || 0
-  const raw = s - cd - cp + sh + tx
-  const grandTotal = Number(raw.toFixed(2))
-  console.log({ subtotal: s, comboDiscount: cd, couponDiscount: cp, deliveryCharge: sh, tax: tx, grandTotal })
-  return grandTotal
+  return Math.round((toNumber(subtotal) * toNumber(settings.taxRate)) / 100)
 }
 
 export function calculateCartTotals(items, appliedCoupon, settings) {
   const subtotal = calculateSubtotal(items)
+  const comboDiscount = calculateComboDiscount(items)
   const couponDiscount = calculateCouponDiscount(appliedCoupon, subtotal)
   const shipping = calculateShipping(subtotal, settings)
   const tax = calculateTax(subtotal, settings)
-  const discountTotal = 0
-  const finalTotal = calculateFinalTotal({ subtotal, couponDiscount, shipping, tax })
-  return { subtotal, discountTotal, couponDiscount, shipping, tax, finalTotal }
+  const raw = subtotal - comboDiscount - couponDiscount + shipping + tax
+  const grandTotal = Number(raw.toFixed(2))
+  console.log({ subtotal, comboDiscount, couponDiscount, deliveryCharge: shipping, tax, grandTotal })
+  return { subtotal, comboDiscount, couponDiscount, shipping, tax, grandTotal }
 }

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from './AuthContext'
 import { api } from '../lib/api'
-import { calculateSubtotal, calculateCouponDiscount, calculateFinalTotal } from '../lib/pricingService'
+import { calculateSubtotal, calculateCouponDiscount } from '../lib/pricingService'
 
 const CartContext = createContext(null)
 
@@ -47,7 +47,6 @@ export function CartProvider({ children }) {
   const { user } = useAuth()
   const [cartItems, setCartItems] = useState([])
   const [appliedCoupon, setAppliedCoupon] = useState(null)
-  const [couponDiscount, setCouponDiscount] = useState(0)
   const [couponError, setCouponError] = useState('')
   const [couponLoading, setCouponLoading] = useState(false)
   const [productSelections, setProductSelection] = useState(() => {
@@ -229,18 +228,10 @@ export function CartProvider({ children }) {
     }
     setCartItems([])
     setAppliedCoupon(null)
-    setCouponDiscount(0)
     setCouponError('')
     saveCartCache([])
     saveGuestCart([])
   }, [user])
-
-  const recalculateCoupon = useCallback((coupon, items) => {
-    if (!coupon) { setCouponDiscount(0); return }
-    const subtotal = calculateSubtotal(items)
-    const discount = calculateCouponDiscount(coupon, subtotal)
-    setCouponDiscount(discount)
-  }, [])
 
   const handleApplyCoupon = useCallback(async (code) => {
     if (!code?.trim()) return
@@ -255,19 +246,15 @@ export function CartProvider({ children }) {
       }))
       const result = await api.validateCoupon(code, subtotal, cartPayload)
       if (result.valid) {
-        const discount = calculateCouponDiscount(result.coupon, subtotal)
         setAppliedCoupon(result.coupon)
-        setCouponDiscount(discount)
         setCouponError('')
       } else {
         setCouponError(result.error || 'Invalid coupon')
         setAppliedCoupon(null)
-        setCouponDiscount(0)
       }
     } catch (err) {
       setCouponError(err.message || 'Failed to apply coupon')
       setAppliedCoupon(null)
-      setCouponDiscount(0)
     } finally {
       setCouponLoading(false)
     }
@@ -275,15 +262,18 @@ export function CartProvider({ children }) {
 
   const handleRemoveCoupon = useCallback(() => {
     setAppliedCoupon(null)
-    setCouponDiscount(0)
     setCouponError('')
   }, [])
 
   const subtotal = useMemo(() => calculateSubtotal(cartItems), [cartItems])
 
+  const couponDiscount = useMemo(() =>
+    calculateCouponDiscount(appliedCoupon, subtotal),
+    [appliedCoupon, subtotal]
+  )
+
   const totals = useMemo(() => {
-    const finalTotal = calculateFinalTotal({ subtotal, couponDiscount })
-    return { subtotal, discountTotal: 0, couponDiscount, finalTotal }
+    return { subtotal, discountTotal: 0, couponDiscount, finalTotal: subtotal - couponDiscount }
   }, [subtotal, couponDiscount])
 
   const value = {
@@ -295,7 +285,7 @@ export function CartProvider({ children }) {
     setBundleSelection: function(bundleId, sel) { setBundleSelection(prev => ({ ...prev, [bundleId]: { ...prev[bundleId], ...sel } })) },
     totals, loading,
     appliedCoupon, couponDiscount, couponError, couponLoading,
-    handleApplyCoupon, handleRemoveCoupon, recalculateCoupon,
+    handleApplyCoupon, handleRemoveCoupon,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

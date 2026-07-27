@@ -1,25 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { formatPrice } from '../lib/utils'
-import { getItemName, getItemPrice, getItemVariantName, calculateShipping, calculateFinalTotal } from '../lib/pricingService'
+import { getItemName, getItemPrice, getItemVariantName, calculateCartTotals } from '../lib/pricingService'
 import { api } from '../lib/api'
 import { toast } from 'react-toastify'
 
 export default function Payment() {
   const { user } = useAuth()
-  const { cartItems, totals, appliedCoupon, couponDiscount } = useCart()
+  const { cartItems, appliedCoupon } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [processing, setProcessing] = useState(false)
 
-  const subtotal = totals?.subtotal || 0
-  const shipping = calculateShipping(subtotal, settings)
-  const tax = 0
-  const comboDiscount = 0
-  const grandTotal = calculateFinalTotal({ subtotal, comboDiscount, couponDiscount, shipping, tax })
+  const { subtotal, comboDiscount, couponDiscount, shipping, tax, grandTotal } = useMemo(
+    () => calculateCartTotals(cartItems, appliedCoupon, settings),
+    [cartItems, appliedCoupon, settings]
+  )
 
   const handlePayment = async () => {
     setProcessing(true)
