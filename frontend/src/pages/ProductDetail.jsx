@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SeoHead from '../components/SeoHead'
 import { formatPrice, getImageUrl, getImageProps, getImageSizes } from '../lib/utils'
@@ -49,7 +49,6 @@ export default function ProductDetail() {
   const [activeTab, setActiveTab] = useState('howtouse')
   const [relatedProducts, setRelatedProducts] = useState([])
   const [lightboxOpen, setLightboxOpen] = useState(false)
-  const packSizeRef = useRef(null)
 
   useEffect(() => {
     const load = async () => {
@@ -89,12 +88,6 @@ export default function ProductDetail() {
     }
     load()
   }, [slug])
-
-  const scrollPackSizes = (dir) => {
-    if (packSizeRef.current) {
-      packSizeRef.current.scrollBy({ left: dir * 200, behavior: 'smooth' })
-    }
-  }
 
   if (loading) return (
     <div className="flex min-h-screen items-center justify-center bg-white">
@@ -213,78 +206,27 @@ export default function ProductDetail() {
             {/* Select Pack Size */}
             {hasVariants && (
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-heading text-h4 font-bold text-ink">Select Pack Size</h3>
-                  <div className="flex gap-1">
-                    <button onClick={() => scrollPackSizes(-1)} className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted hover:text-ink transition">
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                    </button>
-                    <button onClick={() => scrollPackSizes(1)} className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted hover:text-ink transition">
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <div ref={packSizeRef} className="flex gap-3 overflow-x-auto hide-scrollbar pb-2" role="radiogroup" aria-label="Pack size options">
-                    {variants.map((v, i) => {
-                      const vid = v.id || v._id
-                      const isSelected = vid === selectedVariant?.id
-                      const vPrice = v.price || price
-                      const vMrp = v.original_price || v.originalPrice || v.mrp || mrp
-                      const vSavings = vMrp - vPrice
-                      const vLabel = v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
-                      const isBestSeller = v.isBestSeller || v.is_best_seller || false
-
-                      return (
-                        <button
-                          key={vid}
-                          role="radio"
-                          aria-checked={isSelected}
-                          tabIndex={isSelected ? 0 : -1}
-                          onClick={() => {
-                            const found = variants.find(x => (x.id || x._id) === vid)
-                            if (found) setSelectedVariant(found)
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                              e.preventDefault()
-                              const dir = e.key === 'ArrowRight' ? 1 : -1
-                              const nextIdx = (i + dir + variants.length) % variants.length
-                              const nextV = variants[nextIdx]
-                              if (nextV) setSelectedVariant(nextV)
-                            }
-                          }}
-                          className={`relative shrink-0 w-[160px] rounded-xl overflow-hidden border-2 transition-all ${
-                            isSelected ? 'border-[#0E9F3E] shadow-md' : 'border-transparent'
-                          }`}
-                        >
-                          {isBestSeller && (
-                            <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 z-10 rounded-full bg-[#F5A623] px-2 py-0.5 text-micro font-bold text-[#1a1a1a] shadow-sm">
-                              Best Seller
-                            </span>
-                          )}
-                          <div className={`px-3 py-2 text-center ${isSelected ? 'bg-[#0E9F3E]' : 'bg-[#F0E6D3]'}`}>
-                            <span className={`font-product text-body-sm font-bold ${isSelected ? 'text-white' : 'text-ink'}`}>{vLabel}</span>
-                          </div>
-                          <div className="bg-[#FAF3E8] px-3 py-3 text-center">
-                            <span className="font-product text-body font-bold text-ink">{formatPrice(vPrice)}</span>
-                            {vMrp > vPrice && (
-                              <span className="ml-1.5 font-product text-caption text-gray-400 line-through">{formatPrice(vMrp)}</span>
-                            )}
-                            {vSavings > 0 && (
-                              <div className="mt-2">
-                                <span className="inline-block rounded-full bg-[#1a1a1a] px-3 py-1 text-micro font-semibold text-white">
-                                  Save {formatPrice(vSavings)}/-
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
+                <h3 className="font-heading text-h4 font-bold text-ink mb-2">Select Pack Size</h3>
+                <select
+                  value={selectedVariant?.id || selectedVariant?._id}
+                  onChange={(e) => {
+                    const found = variants.find(v => (v.id || v._id) === e.target.value)
+                    if (found) setSelectedVariant(found)
+                  }}
+                  className="w-full rounded-xl border-2 border-[#222] bg-white px-4 py-3 text-body-sm font-semibold text-ink outline-none focus:border-[#0E9F3E] transition"
+                >
+                  {variants.map((v) => {
+                    const vid = v.id || v._id
+                    const vPrice = v.price || price
+                    const vMrp = v.original_price || v.originalPrice || v.mrp || mrp
+                    const vLabel = v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
+                    return (
+                      <option key={vid} value={vid}>
+                        {vLabel} — {formatPrice(vPrice)}{vMrp > vPrice ? ` (MRP ${formatPrice(vMrp)})` : ''}
+                      </option>
+                    )
+                  })}
+                </select>
               </div>
             )}
 

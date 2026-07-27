@@ -88,10 +88,16 @@ export default function AdminProductForm() {
 
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
 
+  const handleSeoChange = (field, value) => {
+    setForm(prev => ({ ...prev, seo: { ...prev.seo, [field]: value } }))
+  }
+
   const handleVariantChange = (idx, field, value) => {
-    const variants = [...form.variants]
-    variants[idx] = { ...variants[idx], [field]: value }
-    setForm(prev => ({ ...prev, variants }))
+    setForm(prev => {
+      const variants = [...prev.variants]
+      variants[idx] = { ...variants[idx], [field]: value }
+      return { ...prev, variants }
+    })
   }
 
   const addVariant = () => {
@@ -287,11 +293,11 @@ export default function AdminProductForm() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Meta Title</label>
-              <input value={form.seo.metaTitle} onChange={e => handleChange('seo', { ...form.seo, metaTitle: e.target.value })} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Meta Description</label>
-              <input value={form.seo.metaDescription} onChange={e => handleChange('seo', { ...form.seo, metaDescription: e.target.value })} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+                <input value={form.seo.metaTitle} onChange={e => handleSeoChange('metaTitle', e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Meta Description</label>
+                <input value={form.seo.metaDescription} onChange={e => handleSeoChange('metaDescription', e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
             </div>
           </div>
         </div>
