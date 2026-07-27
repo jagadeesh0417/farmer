@@ -44,15 +44,22 @@ const SECTION_CATEGORY_MAP = {
   lentilsBeans: ['lentils-beans'],
   honey: ['honey', 'natural-sweeteners'],
   spices: ['spices', 'spices-seasonings'],
+  groceries: [],
 }
 
 function getSectionProducts(products, settings, sectionKey) {
   const catSlugs = SECTION_CATEGORY_MAP[sectionKey]
+  if (sectionKey === 'groceries') return products.filter(p => p.showOnHome !== false)
+  if (sectionKey === 'bestSellers') {
+    const ids = settings?.homeSections?.[sectionKey]
+    if (ids && ids.length > 0) return products.filter(p => ids.includes(p.id || p._id) && p.showOnHome !== false)
+    return products.filter(p => p.isFeatured && p.showOnHome !== false)
+  }
   const ids = settings?.homeSections?.[sectionKey]
   let filtered = products
   if (ids && ids.length > 0) {
     filtered = products.filter(p => ids.includes(p.id || p._id))
-  } else if (catSlugs) {
+  } else if (catSlugs && catSlugs.length > 0) {
     filtered = products.filter(p => {
       const cat = getCategoryName(p).toLowerCase()
       return catSlugs.some(s => cat === s || cat === s.replace(/-/g, ''))
