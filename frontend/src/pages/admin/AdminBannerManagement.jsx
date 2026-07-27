@@ -54,8 +54,6 @@ export default function AdminBannerManagement() {
         cloudinaryPublicId: b.cloudinaryPublicId || '',
         title: b.title || '',
         subtitle: b.subtitle || '',
-        buttonText: b.buttonText || '',
-        buttonLink: b.buttonLink || '',
         enabled: b.enabled !== false,
       })
       toast.success(`${BANNER_SECTIONS.find(s => s.key === key)?.sectionName || key} saved`)
@@ -119,10 +117,6 @@ export default function AdminBannerManagement() {
                     <div className="space-y-2">
                       <input value={b.title || ''} onChange={e => handleChange(s.key, 'title', e.target.value)} placeholder="Title" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
                       <input value={b.subtitle || ''} onChange={e => handleChange(s.key, 'subtitle', e.target.value)} placeholder="Subtitle" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                      <div className="grid grid-cols-2 gap-2">
-                        <input value={b.buttonText || ''} onChange={e => handleChange(s.key, 'buttonText', e.target.value)} placeholder="Button text" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                        <input value={b.buttonLink || ''} onChange={e => handleChange(s.key, 'buttonLink', e.target.value)} placeholder="Button link (e.g. /products)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                      </div>
                     </div>
                   </div>
 

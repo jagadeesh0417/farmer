@@ -27,6 +27,29 @@ const defaultSectionIds = {
   superSaverCombos: [],
 }
 
+function getNestedValue(obj, path) {
+  if (!obj) return ''
+  return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
+}
+
+function Input({ label, path, type = 'text', placeholder = '', value, onChange }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      {type === 'textarea' ? (
+        <textarea value={value ?? ''} onChange={onChange} rows={3} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+      ) : type === 'checkbox' ? (
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={value || false} onChange={onChange} className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+          <span className="text-sm text-slate-600">{placeholder}</span>
+        </label>
+      ) : (
+        <input type={type} value={value ?? ''} onChange={onChange} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+      )}
+    </div>
+  )
+}
+
 export default function AdminSettings() {
   const [settings, setSettings] = useState(null)
   const [products, setProducts] = useState([])
@@ -141,22 +164,6 @@ export default function AdminSettings() {
     } catch (err) { toast.error(err.message) }
   }
 
-  const Input = ({ label, path, type = 'text', placeholder = '' }) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-      {type === 'textarea' ? (
-        <textarea value={getNestedValue(settings, path) ?? ''} onChange={e => handleChange(path, e.target.value)} rows={3} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-      ) : type === 'checkbox' ? (
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={getNestedValue(settings, path) || false} onChange={e => handleChange(path, e.target.checked)} className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-          <span className="text-sm text-slate-600">{placeholder}</span>
-        </label>
-      ) : (
-        <input type={type} value={getNestedValue(settings, path) ?? ''} onChange={e => handleChange(path, e.target.value)} placeholder={placeholder} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-      )}
-    </div>
-  )
-
   const tabs = ['general', 'delivery', 'payment', 'seo', 'footer', 'slider', 'sections']
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" /></div>
@@ -181,18 +188,18 @@ export default function AdminSettings() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 mb-4">General Settings</h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Input label="Store Name" path="storeName" />
-              <Input label="Tagline" path="tagline" />
-              <Input label="Phone" path="phone" />
-              <Input label="Email" path="email" type="email" />
-              <Input label="WhatsApp Number" path="whatsapp" />
-              <Input label="Address" path="address" />
-              <Input label="Google Maps URL" path="googleMapsUrl" />
-              <Input label="Business Hours" path="businessHours" />
-              <Input label="Header Text 1" path="headerText1" />
-              <Input label="Header Text 2" path="headerText2" />
-              <Input label="GST" path="gst" />
-              <Input label="Tax (%)" path="tax" type="number" />
+              <Input label="Store Name" value={getNestedValue(settings, 'storeName')} onChange={e => handleChange('storeName', e.target.value)} />
+              <Input label="Tagline" value={getNestedValue(settings, 'tagline')} onChange={e => handleChange('tagline', e.target.value)} />
+              <Input label="Phone" value={getNestedValue(settings, 'phone')} onChange={e => handleChange('phone', e.target.value)} />
+              <Input label="Email" type="email" value={getNestedValue(settings, 'email')} onChange={e => handleChange('email', e.target.value)} />
+              <Input label="WhatsApp Number" value={getNestedValue(settings, 'whatsapp')} onChange={e => handleChange('whatsapp', e.target.value)} />
+              <Input label="Address" value={getNestedValue(settings, 'address')} onChange={e => handleChange('address', e.target.value)} />
+              <Input label="Google Maps URL" value={getNestedValue(settings, 'googleMapsUrl')} onChange={e => handleChange('googleMapsUrl', e.target.value)} />
+              <Input label="Business Hours" value={getNestedValue(settings, 'businessHours')} onChange={e => handleChange('businessHours', e.target.value)} />
+              <Input label="Header Text 1" value={getNestedValue(settings, 'headerText1')} onChange={e => handleChange('headerText1', e.target.value)} />
+              <Input label="Header Text 2" value={getNestedValue(settings, 'headerText2')} onChange={e => handleChange('headerText2', e.target.value)} />
+              <Input label="GST" value={getNestedValue(settings, 'gst')} onChange={e => handleChange('gst', e.target.value)} />
+              <Input label="Tax (%)" type="number" value={getNestedValue(settings, 'tax')} onChange={e => handleChange('tax', e.target.value)} />
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
@@ -215,10 +222,10 @@ export default function AdminSettings() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Delivery Settings</h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Input label="Free Delivery Min Amount (₹)" path="freeDeliveryMin" type="number" />
-              <Input label="Delivery Charge (₹)" path="deliveryCharge" type="number" />
-              <div className="sm:col-span-2"><Input label="Delivery Message" path="deliveryMessage" /></div>
-              <Input label="Express Delivery" path="expressDelivery" type="checkbox" placeholder="Enable Express Delivery" />
+              <Input label="Free Delivery Min Amount (₹)" type="number" value={getNestedValue(settings, 'freeDeliveryMin')} onChange={e => handleChange('freeDeliveryMin', e.target.value)} />
+              <Input label="Delivery Charge (₹)" type="number" value={getNestedValue(settings, 'deliveryCharge')} onChange={e => handleChange('deliveryCharge', e.target.value)} />
+              <div className="sm:col-span-2"><Input label="Delivery Message" value={getNestedValue(settings, 'deliveryMessage')} onChange={e => handleChange('deliveryMessage', e.target.value)} /></div>
+              <Input label="Express Delivery" type="checkbox" placeholder="Enable Express Delivery" value={getNestedValue(settings, 'expressDelivery')} onChange={e => handleChange('expressDelivery', e.target.checked)} />
             </div>
           </div>
         )}
@@ -227,8 +234,8 @@ export default function AdminSettings() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Payment Settings</h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Input label="Razorpay ON/OFF" path="razorpayEnabled" type="checkbox" placeholder="Enable Razorpay online payments" />
-              <Input label="Razorpay Key ID" path="razorpayKeyId" />
+              <Input label="Razorpay ON/OFF" type="checkbox" placeholder="Enable Razorpay online payments" value={getNestedValue(settings, 'razorpayEnabled')} onChange={e => handleChange('razorpayEnabled', e.target.checked)} />
+              <Input label="Razorpay Key ID" value={getNestedValue(settings, 'razorpayKeyId')} onChange={e => handleChange('razorpayKeyId', e.target.value)} />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
                 <select value={settings?.paymentMethod || 'both'} onChange={e => handleChange('paymentMethod', e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500">
@@ -245,14 +252,14 @@ export default function AdminSettings() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 mb-4">SEO Settings</h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Input label="Meta Title" path="seo.metaTitle" />
-              <Input label="Meta Description" path="seo.metaDescription" type="textarea" />
-              <Input label="Canonical URL" path="seo.canonicalUrl" />
-              <Input label="Google Analytics ID" path="seo.googleAnalyticsId" />
-              <Input label="Google Tag Manager ID" path="seo.googleTagManagerId" />
-              <Input label="Google Search Console Verification" path="seo.googleSearchConsoleVerification" />
-              <Input label="Bing Webmaster Verification" path="seo.bingWebmasterVerification" />
-              <Input label="Facebook Pixel ID" path="seo.facebookPixelId" />
+              <Input label="Meta Title" value={getNestedValue(settings, 'seo.metaTitle')} onChange={e => handleChange('seo.metaTitle', e.target.value)} />
+              <Input label="Meta Description" type="textarea" value={getNestedValue(settings, 'seo.metaDescription')} onChange={e => handleChange('seo.metaDescription', e.target.value)} />
+              <Input label="Canonical URL" value={getNestedValue(settings, 'seo.canonicalUrl')} onChange={e => handleChange('seo.canonicalUrl', e.target.value)} />
+              <Input label="Google Analytics ID" value={getNestedValue(settings, 'seo.googleAnalyticsId')} onChange={e => handleChange('seo.googleAnalyticsId', e.target.value)} />
+              <Input label="Google Tag Manager ID" value={getNestedValue(settings, 'seo.googleTagManagerId')} onChange={e => handleChange('seo.googleTagManagerId', e.target.value)} />
+              <Input label="Google Search Console Verification" value={getNestedValue(settings, 'seo.googleSearchConsoleVerification')} onChange={e => handleChange('seo.googleSearchConsoleVerification', e.target.value)} />
+              <Input label="Bing Webmaster Verification" value={getNestedValue(settings, 'seo.bingWebmasterVerification')} onChange={e => handleChange('seo.bingWebmasterVerification', e.target.value)} />
+              <Input label="Facebook Pixel ID" value={getNestedValue(settings, 'seo.facebookPixelId')} onChange={e => handleChange('seo.facebookPixelId', e.target.value)} />
             </div>
           </div>
         )}
@@ -261,14 +268,14 @@ export default function AdminSettings() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Footer Settings</h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Input label="Company Name" path="footer.companyName" />
-              <Input label="About Text" path="footer.aboutText" type="textarea" />
-              <Input label="FAQ URL" path="footer.faqUrl" />
-              <Input label="Contact URL" path="footer.contactUrl" />
-              <Input label="Facebook URL" path="footer.socialLinks.facebook" />
-              <Input label="Instagram URL" path="footer.socialLinks.instagram" />
-              <Input label="Twitter URL" path="footer.socialLinks.twitter" />
-              <Input label="YouTube URL" path="footer.socialLinks.youtube" />
+              <Input label="Company Name" value={getNestedValue(settings, 'footer.companyName')} onChange={e => handleChange('footer.companyName', e.target.value)} />
+              <Input label="About Text" type="textarea" value={getNestedValue(settings, 'footer.aboutText')} onChange={e => handleChange('footer.aboutText', e.target.value)} />
+              <Input label="FAQ URL" value={getNestedValue(settings, 'footer.faqUrl')} onChange={e => handleChange('footer.faqUrl', e.target.value)} />
+              <Input label="Contact URL" value={getNestedValue(settings, 'footer.contactUrl')} onChange={e => handleChange('footer.contactUrl', e.target.value)} />
+              <Input label="Facebook URL" value={getNestedValue(settings, 'footer.socialLinks.facebook')} onChange={e => handleChange('footer.socialLinks.facebook', e.target.value)} />
+              <Input label="Instagram URL" value={getNestedValue(settings, 'footer.socialLinks.instagram')} onChange={e => handleChange('footer.socialLinks.instagram', e.target.value)} />
+              <Input label="Twitter URL" value={getNestedValue(settings, 'footer.socialLinks.twitter')} onChange={e => handleChange('footer.socialLinks.twitter', e.target.value)} />
+              <Input label="YouTube URL" value={getNestedValue(settings, 'footer.socialLinks.youtube')} onChange={e => handleChange('footer.socialLinks.youtube', e.target.value)} />
             </div>
           </div>
         )}
@@ -285,12 +292,12 @@ export default function AdminSettings() {
                   <option value="both">Manual + Automatic</option>
                 </select>
               </div>
-              <Input label="Transition Speed (ms)" path="sliderSettings.transitionSpeed" type="number" />
-              <Input label="Auto Play" path="sliderSettings.autoPlay" type="checkbox" placeholder="Enable auto play" />
-              <Input label="Loop" path="sliderSettings.loop" type="checkbox" placeholder="Enable loop" />
-              <Input label="Pause on Hover" path="sliderSettings.pauseOnHover" type="checkbox" placeholder="Pause on hover" />
-              <Input label="Show Navigation Arrows" path="sliderSettings.showArrows" type="checkbox" placeholder="Show arrows" />
-              <Input label="Show Pagination Dots" path="sliderSettings.showDots" type="checkbox" placeholder="Show dots" />
+              <Input label="Transition Speed (ms)" type="number" value={getNestedValue(settings, 'sliderSettings.transitionSpeed')} onChange={e => handleChange('sliderSettings.transitionSpeed', e.target.value)} />
+              <Input label="Auto Play" type="checkbox" placeholder="Enable auto play" value={getNestedValue(settings, 'sliderSettings.autoPlay')} onChange={e => handleChange('sliderSettings.autoPlay', e.target.checked)} />
+              <Input label="Loop" type="checkbox" placeholder="Enable loop" value={getNestedValue(settings, 'sliderSettings.loop')} onChange={e => handleChange('sliderSettings.loop', e.target.checked)} />
+              <Input label="Pause on Hover" type="checkbox" placeholder="Pause on hover" value={getNestedValue(settings, 'sliderSettings.pauseOnHover')} onChange={e => handleChange('sliderSettings.pauseOnHover', e.target.checked)} />
+              <Input label="Show Navigation Arrows" type="checkbox" placeholder="Show arrows" value={getNestedValue(settings, 'sliderSettings.showArrows')} onChange={e => handleChange('sliderSettings.showArrows', e.target.checked)} />
+              <Input label="Show Pagination Dots" type="checkbox" placeholder="Show dots" value={getNestedValue(settings, 'sliderSettings.showDots')} onChange={e => handleChange('sliderSettings.showDots', e.target.checked)} />
             </div>
           </div>
         )}
@@ -371,9 +378,4 @@ export default function AdminSettings() {
       </div>
     </div>
   )
-}
-
-function getNestedValue(obj, path) {
-  if (!obj) return ''
-  return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
 }
