@@ -26,15 +26,7 @@ const VALUES = [
   { label: 'Farm Fresh', icon: '🌱' },
 ]
 
-const HEALTH_CONCERNS = [
-  { label: 'Gut Health', category: 'millets', description: 'Support digestion with fibre-rich traditional grains and wholesome foods.' },
-  { label: 'Immunity', category: 'honey', description: 'Boost natural defences with pure wild honey and forest-sourced herbs.' },
-  { label: 'Heart Health', category: 'lentils-beans', description: 'Nourish your heart with protein-rich lentils, beans, and legumes.' },
-  { label: 'Daily Nutrition', category: 'spices', description: 'Essential nutrients and antioxidants from wild-harvested spices.' },
-  { label: 'Natural Energy', category: 'oils', description: 'Sustained vitality from cold-pressed oils and pure ghee.' },
-]
-
-const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Shop By Condition', 'Super Saver Combos', 'Shop By Goal']
+const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Super Saver Combos', 'Shop By Goal']
 
 function getSectionCombos(bundles, settings) {
   const ids = settings?.homeSections?.superSaverCombos
@@ -86,7 +78,6 @@ export default function Home() {
   const [grainProducts, setGrainProducts] = useState([])
   const [farmers, setFarmers] = useState([])
   const [activeTab, setActiveTab] = useState('All Products')
-  const [activeConcern, setActiveConcern] = useState('Gut Health')
   const carouselRef = useRef(null)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
@@ -240,7 +231,7 @@ export default function Home() {
                   ) : (
                     <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No combos yet</div>
                   )
-                } else if (activeTab === 'Shop By Condition' || activeTab === 'Shop By Goal') {
+                } else if (activeTab === 'Shop By Goal') {
                   filtered = products
                 }
                 return filtered.length > 0 ? (
@@ -484,57 +475,6 @@ export default function Home() {
                 className="absolute inset-0 h-full w-full rounded-xl" />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* 10. Shop By Health Concern */}
-      <section className="py-10 lg:py-14 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Shop By</span>
-            <h2 className="mt-1 text-h2 font-bold">Health Concern</h2>
-          </div>
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {HEALTH_CONCERNS.map(concern => (
-              <button key={concern.label} onClick={() => setActiveConcern(concern.label)}
-                className={`px-4 py-2 rounded-full text-caption font-semibold transition-all border ${
-                  activeConcern === concern.label ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
-                }`}>
-                {concern.label}
-              </button>
-            ))}
-          </div>
-          {HEALTH_CONCERNS.map(concern => {
-            if (concern.label !== activeConcern) return null
-            const sectionProducts = getSectionProducts(products, settings, 'healthConcern')
-            const filtered = sectionProducts.length > 0 ? sectionProducts : products.filter(p => {
-              const cat = getCategoryName(p).toLowerCase()
-              return p.showOnHome !== false && (cat === concern.category || cat.includes(concern.category))
-            })
-            return (
-              <div key={concern.label}>
-                <p className="text-body-sm text-muted text-center mb-6 max-w-lg mx-auto">{concern.description}</p>
-                {filtered.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {filtered.slice(0, 10).map(product => (
-                      <ProductCard key={product.id || product._id} product={product} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-                    <p className="text-body-sm text-muted">No products found for {concern.label}.</p>
-                    <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all products →</Link>
-                  </div>
-                )}
-                <div className="mt-6 text-center">
-                  <Link to={`/products?category=${concern.category}`}
-                    className="inline-flex items-center gap-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">
-                    View All {concern.label} Products →
-                  </Link>
-                </div>
-              </div>
-            )
-          })}
         </div>
       </section>
 
