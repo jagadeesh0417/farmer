@@ -130,7 +130,8 @@ export default function Checkout() {
         items: cartItems.map(i => ({ name: getItemName(i), variantName: getItemVariantName(i), price: getItemPrice(i), quantity: i.quantity })),
         total: totalWithShipping, shippingCost, couponDiscount,
         couponCode: appliedCoupon?.code || null, status: 'pending', paymentMethod: 'whatsapp',
-        shippingAddress: delivery, guestInfo: delivery,
+        shippingAddress: { addressLine1: delivery.address, city: delivery.city, pincode: delivery.pincode },
+        guestInfo: { name: delivery.name, phone: delivery.phone, email: user?.email || '' },
       })
       toast.success('Order placed! Check WhatsApp for confirmation.')
       navigate('/')
@@ -154,7 +155,8 @@ export default function Checkout() {
               total: totalWithShipping, shippingCost, couponDiscount,
               couponCode: appliedCoupon?.code || null,
               paymentId: response.razorpay_payment_id, status: 'pending', paymentMethod: 'razorpay',
-              shippingAddress: delivery, guestInfo: delivery,
+              shippingAddress: { addressLine1: delivery.address, city: delivery.city, pincode: delivery.pincode },
+              guestInfo: { name: delivery.name, phone: delivery.phone, email: user?.email || '' },
             })
             toast.success('Payment successful! Order placed.')
             navigate('/')

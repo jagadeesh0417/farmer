@@ -22,6 +22,8 @@ const Impact = lazy(() => import('./pages/Impact'))
 const Journal = lazy(() => import('./pages/Journal'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Payment = lazy(() => import('./pages/Payment'))
+const Cart = lazy(() => import('./pages/Cart'))
+const CheckoutPage = lazy(() => import('./pages/Checkout'))
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
@@ -53,8 +55,8 @@ function AppLayout() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/combos" element={<Combos />} />
             <Route path="/combos/:slug" element={<BundleDetail />} />
-            <Route path="/cart" element={<Navigate to="/checkout" replace />} />
-            <Route path="/checkout" element={<Payment />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/orders" element={<Navigate to="/" replace />} />
             <Route path="/account" element={<Navigate to="/" replace />} />

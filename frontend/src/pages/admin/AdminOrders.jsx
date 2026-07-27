@@ -106,12 +106,22 @@ export default function AdminOrders() {
               <h3 className="font-bold text-slate-900 mb-3">Order {selected.orderNumber}</h3>
               <div className="grid sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="text-slate-500">Customer:</span> <span className="font-medium">{selected.user?.fullName || selected.guestInfo?.name || 'Guest'}</span></div>
+                <div><span className="text-slate-500">Email:</span> <span className="font-medium">{selected.user?.email || selected.guestInfo?.email || '-'}</span></div>
+                <div><span className="text-slate-500">Phone:</span> <span className="font-medium">{selected.guestInfo?.phone || selected.user?.phone || '-'}</span></div>
                 <div><span className="text-slate-500">Payment:</span> <span className="font-medium">{selected.paymentMethod}</span></div>
                 <div><span className="text-slate-500">Subtotal:</span> <span className="font-medium">{formatPrice(selected.subtotal)}</span></div>
                 <div><span className="text-slate-500">Shipping:</span> <span className="font-medium">{formatPrice(selected.shippingCost)}</span></div>
                 <div><span className="text-slate-500">Discount:</span> <span className="font-medium">-{formatPrice(selected.couponDiscount)}</span></div>
                 <div><span className="text-slate-500">Total:</span> <span className="font-bold text-brand-700">{formatPrice(selected.total)}</span></div>
               </div>
+              {selected.shippingAddress?.addressLine1 && (
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <p className="text-sm font-semibold text-slate-700 mb-1">Delivery Address</p>
+                  <p className="text-sm text-slate-600">{selected.shippingAddress.addressLine1}</p>
+                  {selected.shippingAddress.city && <p className="text-sm text-slate-600">{selected.shippingAddress.city}</p>}
+                  {selected.shippingAddress.pincode && <p className="text-sm text-slate-600">Pincode: {selected.shippingAddress.pincode}</p>}
+                </div>
+              )}
               {selected.items?.length > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-sm font-semibold text-slate-700">Items</p>
