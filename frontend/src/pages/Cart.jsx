@@ -24,10 +24,11 @@ function getItemVariantName(item) {
 }
 
 export default function Cart() {
-  const { cartItems, addToCart, removeFromCart, updateQuantity, totals } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, totals, loading } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [editingVariant, setEditingVariant] = useState(null)
+  const [confirmRemove, setConfirmRemove] = useState(null)
 
   const total = totals?.finalTotal || 0
 
@@ -44,6 +45,22 @@ export default function Cart() {
       variant: { _id: newVariant._id, name: newVariant.name, price: newVariant.price, weightLabel: newVariant.weightLabel },
     })
     setEditingVariant(null)
+  }
+
+  const handleQtyDown = (item) => {
+    if (item.quantity <= 1) {
+      setConfirmRemove(item.id)
+    } else {
+      updateQuantity(item.id, item.quantity - 1)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-green-600" />
+      </div>
+    )
   }
 
   if (cartItems.length === 0) {
@@ -113,10 +130,10 @@ export default function Cart() {
                     )}
                     <p className="mt-1 text-body-sm font-semibold text-green-600">{formatPrice(getItemPrice(item))}</p>
                     <div className="mt-2 flex items-center gap-2">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">-</button>
+                      <button onClick={() => handleQtyDown(item)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">-</button>
                       <span className="min-w-[2rem] text-center text-body-sm font-semibold text-ink">{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">+</button>
-                      <button onClick={() => removeFromCart(item.id)} className="ml-auto text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Remove</button>
+                      <button onClick={() => setConfirmRemove(item.id)} className="ml-auto text-caption font-semibold text-red-600 hover:text-red-700 transition-colors">Remove</button>
                     </div>
                   </div>
                 </div>
@@ -139,7 +156,7 @@ export default function Cart() {
             </div>
             <button onClick={() => navigate('/checkout')} disabled={cartItems.length === 0}
               className="btn-font mt-6 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift">
-              Proceed to Checkout
+              Proceed to Address
             </button>
             <div className="mt-4 grid grid-cols-2 gap-2 text-center">
               <div className="rounded-xl bg-green-50 p-2"><p className="text-micro font-semibold text-green-800">🔒 Secure Checkout</p></div>
@@ -148,6 +165,21 @@ export default function Cart() {
           </div>
         </div>
       </div>
+
+      {/* Confirm remove dialog */}
+      {confirmRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={() => setConfirmRemove(null)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <p className="text-body-sm font-semibold text-ink mb-4">Remove this item from cart?</p>
+            <div className="flex gap-3">
+              <button onClick={() => { removeFromCart(confirmRemove); setConfirmRemove(null) }}
+                className="flex-1 rounded-xl bg-red-600 py-2.5 text-body-sm font-semibold text-white hover:bg-red-700 transition">Remove</button>
+              <button onClick={() => setConfirmRemove(null)}
+                className="flex-1 rounded-xl border border-border py-2.5 text-body-sm font-semibold text-ink hover:bg-green-50 transition">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

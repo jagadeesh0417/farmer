@@ -118,10 +118,13 @@ export default function AdminOrders() {
                 <div className="mt-3 pt-3 border-t border-slate-100">
                   <p className="text-sm font-semibold text-slate-700 mb-1">Delivery Address</p>
                   <p className="text-sm text-slate-600">{selected.shippingAddress.addressLine1}</p>
-                  {selected.shippingAddress.city && <p className="text-sm text-slate-600">{selected.shippingAddress.city}</p>}
-                  {selected.shippingAddress.pincode && <p className="text-sm text-slate-600">Pincode: {selected.shippingAddress.pincode}</p>}
+                  {selected.shippingAddress.city && <p className="text-sm text-slate-600">{selected.shippingAddress.city}{selected.shippingAddress.state ? `, ${selected.shippingAddress.state}` : ''}</p>}
+                  {selected.shippingAddress.pincode && <p className="text-sm text-slate-600">PIN: {selected.shippingAddress.pincode}</p>}
                 </div>
               )}
+              <div className="mt-2 text-xs text-slate-400">
+                Order date: {new Date(selected.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
+              </div>
               {selected.items?.length > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-sm font-semibold text-slate-700">Items</p>

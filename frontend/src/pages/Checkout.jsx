@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -9,6 +9,7 @@ import { api } from '../lib/api'
 import { toast } from 'react-toastify'
 
 const WHATSAPP_NUMBER = '9709704563'
+const ADDRESS_CACHE_KEY = 'haifarmer_checkout_address'
 
 function getItemName(item) {
   if (item.bundle) return item.bundle.bundle_name || item.bundle.name || 'Bundle'
@@ -29,30 +30,56 @@ function getItemVariantName(item) {
   return item.variant?.weightLabel || item.variant?.weight_label || item.variant?.name || ''
 }
 
+function loadCachedAddress() {
+  try { return JSON.parse(localStorage.getItem(ADDRESS_CACHE_KEY)) } catch { return null }
+}
+
+function saveCachedAddress(addr) {
+  try { localStorage.setItem(ADDRESS_CACHE_KEY, JSON.stringify(addr)) } catch {}
+}
+
+function clearCachedAddress() {
+  try { localStorage.removeItem(ADDRESS_CACHE_KEY) } catch {}
+}
+
+const emptyAddress = {
+  name: '', mobile: '', email: '',
+  house: '', street: '', area: '', landmark: '',
+  city: '', state: '', pincode: '', country: 'India',
+  deliveryInstructions: '',
+  billingSame: true,
+  billingHouse: '', billingStreet: '', billingCity: '', billingState: '', billingPincode: '',
+}
+
 export default function Checkout() {
   const { user } = useAuth()
-  const { cartItems, addToCart, removeFromCart, updateQuantity, totals } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCartAfterOrder, totals, loading } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
+  const [step, setStep] = useState(1)
   const [coupon, setCoupon] = useState('')
   const [couponDiscount, setCouponDiscount] = useState(0)
   const [couponError, setCouponError] = useState('')
   const [couponLoading, setCouponLoading] = useState(false)
   const [appliedCoupon, setAppliedCoupon] = useState(null)
   const [placing, setPlacing] = useState(false)
-  const [editingVariant, setEditingVariant] = useState(null)
-  const [delivery, setDelivery] = useState({
-    name: user?.fullName || user?.user_metadata?.full_name || '',
-    phone: user?.phone || user?.user_metadata?.phone || '',
-    address: '',
-    city: '',
-    pincode: '',
-  })
+  const [orderSuccess, setOrderSuccess] = useState(false)
+
+  const [address, setAddress] = useState(() => ({
+    ...emptyAddress,
+    ...loadCachedAddress(),
+    name: loadCachedAddress()?.name || user?.fullName || user?.user_metadata?.full_name || '',
+    mobile: loadCachedAddress()?.mobile || user?.phone || user?.user_metadata?.phone || '',
+    email: loadCachedAddress()?.email || user?.email || '',
+  }))
+
+  useEffect(() => { saveCachedAddress(address) }, [address])
+
+  const addressComplete = address.name?.trim() && address.mobile?.trim() && address.house?.trim() && address.city?.trim() && address.pincode?.trim()
 
   const paymentMethod = settings?.paymentMethod || (settings?.razorpayEnabled !== false ? 'both' : 'whatsapp')
   const showRazorpay = paymentMethod === 'both' || paymentMethod === 'razorpay'
   const showWhatsApp = paymentMethod === 'both' || paymentMethod === 'whatsapp'
-  const deliveryComplete = delivery.name?.trim() && delivery.phone?.trim() && delivery.address?.trim()
   const total = totals?.finalTotal || 0
   const shippingCost = total >= 1499 ? 0 : (settings?.deliveryCharge || settings?.shipping_cost || settings?.delivery_charge_amount || 0)
   const totalWithShipping = total + shippingCost - (couponDiscount || 0)
@@ -78,21 +105,6 @@ export default function Checkout() {
     finally { setCouponLoading(false) }
   }
 
-  const handleVariantChange = async (item, newVariant) => {
-    const qty = item.quantity
-    const productId = item.product_id || item.product?._id
-    if (!productId) return
-    await removeFromCart(item.id)
-    await addToCart({
-      product_id: productId,
-      variant_id: newVariant._id,
-      quantity: qty,
-      product: item.product,
-      variant: { _id: newVariant._id, name: newVariant.name, price: newVariant.price, weightLabel: newVariant.weightLabel },
-    })
-    setEditingVariant(null)
-  }
-
   const buildWhatsAppMessage = () => {
     const orderLines = cartItems.map(i => {
       const name = getItemName(i)
@@ -100,6 +112,16 @@ export default function Checkout() {
       const price = getItemPrice(i)
       return `${name}${variant ? ` (${variant})` : ''} × ${i.quantity} = ${formatPrice(price * i.quantity)}`
     })
+    const shipAddr = [
+      address.house,
+      address.street,
+      address.area,
+      address.landmark,
+      address.city,
+      address.state,
+      address.pincode,
+      address.country,
+    ].filter(Boolean).join(', ')
     return [
       `🧾 *New HAiFarmer Order*`, ``,
       ...orderLines, ``,
@@ -111,64 +133,99 @@ export default function Checkout() {
       `💳 *Total: ${formatPrice(totalWithShipping)}*`,
       `💳 *Payment: WhatsApp*`, ``,
       `━━ 📋 Delivery Details ━━`,
-      `👤 Name: ${delivery.name || 'Not provided'}`,
-      `📱 Phone: ${delivery.phone || 'Not provided'}`,
-      `📍 Address: ${delivery.address || 'Not provided'}`,
-      `🏙️ City: ${delivery.city || 'Not provided'}`,
-      `📮 Pincode: ${delivery.pincode || 'Not provided'}`,
+      `👤 Name: ${address.name || 'Not provided'}`,
+      `📱 Phone: ${address.mobile || 'Not provided'}`,
+      `📍 Address: ${shipAddr}`,
+      `📮 PIN: ${address.pincode || 'Not provided'}`,
+      address.deliveryInstructions ? `📝 Instructions: ${address.deliveryInstructions}` : null,
     ].filter(Boolean).join('%0A')
   }
 
-  const sendWhatsAppOrder = async () => {
-    if (!delivery.name || !delivery.phone || !delivery.address) {
-      toast.error('Please fill in delivery details (name, phone, address)')
-      return
+  const createOrderInBackend = async (paymentMethodType, paymentId) => {
+    const shipAddr = {
+      addressLine1: [address.house, address.street, address.area, address.landmark].filter(Boolean).join(', '),
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
     }
-    const message = buildWhatsAppMessage()
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank')
-    try {
-      await api.createOrder({
-        items: cartItems.map(i => ({ name: getItemName(i), variantName: getItemVariantName(i), price: getItemPrice(i), quantity: i.quantity })),
-        total: totalWithShipping, shippingCost, couponDiscount,
-        couponCode: appliedCoupon?.code || null, status: 'pending', paymentMethod: 'whatsapp',
-        shippingAddress: { addressLine1: delivery.address, city: delivery.city, pincode: delivery.pincode },
-        guestInfo: { name: delivery.name, phone: delivery.phone, email: user?.email || '' },
-      })
-      toast.success('Order placed! Check WhatsApp for confirmation.')
-      navigate('/')
-    } catch (err) { toast.error('Failed to save order, but message sent on WhatsApp.') }
+    return api.createOrder({
+      items: cartItems.map(i => ({ name: getItemName(i), variantName: getItemVariantName(i), price: getItemPrice(i), quantity: i.quantity, image: getItemImage(i) })),
+      total: totalWithShipping, shippingCost, couponDiscount,
+      couponCode: appliedCoupon?.code || null,
+      paymentId: paymentId || null,
+      status: 'pending',
+      paymentMethod: paymentMethodType,
+      shippingAddress: shipAddr,
+      guestInfo: { name: address.name, phone: address.mobile, email: address.email || user?.email || '' },
+    })
   }
 
-  const handleRazorpayPayment = async () => {
-    if (!delivery.name || !delivery.phone || !delivery.address) {
-      toast.error('Please fill in delivery details (name, phone, address)')
-      return
-    }
+  const handlePlaceOrder = async (method) => {
+    if (!addressComplete) { toast.error('Please fill in all required address fields'); return }
+    setPlacing(true)
     try {
-      const options = {
-        key: settings?.razorpayKeyId || 'rzp_live_SeagFUXcQMCgdT',
-        amount: Math.round(totalWithShipping * 100), currency: 'INR',
-        name: settings?.storeName || 'HAiFarmer', description: 'Order Payment',
-        handler: async (response) => {
-          try {
-            await api.createOrder({
-              items: cartItems.map(i => ({ name: getItemName(i), variantName: getItemVariantName(i), price: getItemPrice(i), quantity: i.quantity })),
-              total: totalWithShipping, shippingCost, couponDiscount,
-              couponCode: appliedCoupon?.code || null,
-              paymentId: response.razorpay_payment_id, status: 'pending', paymentMethod: 'razorpay',
-              shippingAddress: { addressLine1: delivery.address, city: delivery.city, pincode: delivery.pincode },
-              guestInfo: { name: delivery.name, phone: delivery.phone, email: user?.email || '' },
-            })
-            toast.success('Payment successful! Order placed.')
-            navigate('/')
-          } catch (err) { toast.error('Payment received but order failed. Please contact support.') }
-        },
-        prefill: { name: delivery.name, contact: delivery.phone, email: user?.email || '' },
-        theme: { color: '#B65A34' },
+      if (method === 'whatsapp') {
+        const message = buildWhatsAppMessage()
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank')
+        await createOrderInBackend('whatsapp', null)
+        toast.success('Order placed! Check WhatsApp for confirmation.')
+      } else if (method === 'razorpay') {
+        const options = {
+          key: settings?.razorpayKeyId || 'rzp_live_SeagFUXcQMCgdT',
+          amount: Math.round(totalWithShipping * 100), currency: 'INR',
+          name: settings?.storeName || 'HAiFarmer', description: 'Order Payment',
+          handler: async (response) => {
+            try {
+              await createOrderInBackend('razorpay', response.razorpay_payment_id)
+              toast.success('Payment successful! Order placed.')
+              setOrderSuccess(true)
+              clearCachedAddress()
+              await clearCartAfterOrder()
+            } catch (err) {
+              toast.error('Payment received but order failed. Please contact support.')
+            }
+          },
+          prefill: { name: address.name, contact: address.mobile, email: address.email || user?.email || '' },
+          theme: { color: '#16a34a' },
+        }
+        const rzp = new window.Razorpay(options)
+        rzp.on('payment.failed', () => {
+          toast.error('Payment failed. Please try again.')
+          setPlacing(false)
+        })
+        rzp.open()
+        return
       }
-      const rzp = new window.Razorpay(options)
-      rzp.open()
-    } catch (err) { toast.error('Payment failed. Please try again.') }
+      setOrderSuccess(true)
+      clearCachedAddress()
+      await clearCartAfterOrder()
+    } catch (err) {
+      toast.error(err.message || 'Order failed. Please try again.')
+    }
+    setPlacing(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-green-600" />
+      </div>
+    )
+  }
+
+  if (orderSuccess) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-5">
+        <div className="max-w-md text-center">
+          <div className="mb-6 mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+            <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          </div>
+          <h1 className="font-heading text-h1 font-bold text-ink mb-2">Order Placed!</h1>
+          <p className="text-green-800/60 mb-6">Thank you for your order. We'll confirm shortly.</p>
+          <Link to="/" className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-8 py-3.5 text-body-sm font-semibold text-white hover:bg-green-700 transition">Continue Shopping</Link>
+        </div>
+      </div>
+    )
   }
 
   if (cartItems.length === 0) {
@@ -186,151 +243,223 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Breadcrumb */}
       <div className="bg-green-50 border-b border-border">
         <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8 lg:px-10">
           <div className="flex items-center gap-2 text-caption text-green-800/40">
-            <Link to="/" className="hover:text-green-600 transition-colors">Home</Link>
+            <Link to="/cart" className="hover:text-green-600 transition-colors">Cart</Link>
             <span>/</span>
-            <span className="text-green-800/70 font-medium">Checkout</span>
+            <span className="text-green-800/70 font-medium">
+              {step === 1 ? 'Delivery Address' : step === 2 ? 'Order Summary' : 'Payment'}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
-        <h1 className="font-heading mb-8 text-h1 font-bold text-ink tracking-tight">Secure Checkout</h1>
-        <div className="grid gap-8 lg:grid-cols-[1fr,420px]">
-          <div className="space-y-6">
-            {/* Delivery Details */}
+      <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-10">
+        {/* Step indicator */}
+        <div className="flex items-center gap-2 mb-8">
+          {[
+            { num: 1, label: 'Address' },
+            { num: 2, label: 'Summary' },
+            { num: 3, label: 'Payment' },
+          ].map(s => (
+            <div key={s.num} className="flex items-center gap-2">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step >= s.num ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800/40'}`}>{s.num}</div>
+              <span className={`text-sm font-semibold hidden sm:inline ${step >= s.num ? 'text-ink' : 'text-green-800/40'}`}>{s.label}</span>
+              {s.num < 3 && <div className={`h-px w-8 sm:w-12 ${step > s.num ? 'bg-green-600' : 'bg-green-200'}`} />}
+            </div>
+          ))}
+        </div>
+
+        {/* Step 1: Address */}
+        {step === 1 && (
+          <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-              <h2 className="font-heading mb-4 text-h3 font-bold text-ink">Delivery Details</h2>
-              <div className="grid sm:grid-cols-2 gap-3">
-                <input value={delivery.name} onChange={e => setDelivery(d => ({ ...d, name: e.target.value }))} placeholder="Full Name *"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
-                <input value={delivery.phone} onChange={e => setDelivery(d => ({ ...d, phone: e.target.value }))} placeholder="Phone *"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
-                <div className="sm:col-span-2">
-                  <textarea value={delivery.address} onChange={e => setDelivery(d => ({ ...d, address: e.target.value }))} placeholder="Delivery Address *" rows={2}
-                    className="w-full rounded-2xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+              <h2 className="font-heading mb-5 text-h3 font-bold text-ink">Delivery Address</h2>
+              <div className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Full Name *</label>
+                    <input value={address.name} onChange={e => setAddress(a => ({ ...a, name: e.target.value }))} placeholder="John Doe"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Mobile Number *</label>
+                    <input value={address.mobile} onChange={e => setAddress(a => ({ ...a, mobile: e.target.value }))} placeholder="9876543210"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Email (optional)</label>
+                    <input value={address.email} onChange={e => setAddress(a => ({ ...a, email: e.target.value }))} placeholder="john@example.com"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">House / Flat Number *</label>
+                    <input value={address.house} onChange={e => setAddress(a => ({ ...a, house: e.target.value }))} placeholder="House / Flat / Door No."
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Street</label>
+                    <input value={address.street} onChange={e => setAddress(a => ({ ...a, street: e.target.value }))} placeholder="Street name"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Area / Locality</label>
+                    <input value={address.area} onChange={e => setAddress(a => ({ ...a, area: e.target.value }))} placeholder="Area or locality"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Landmark</label>
+                    <input value={address.landmark} onChange={e => setAddress(a => ({ ...a, landmark: e.target.value }))} placeholder="Nearby landmark"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">City / Town *</label>
+                    <input value={address.city} onChange={e => setAddress(a => ({ ...a, city: e.target.value }))} placeholder="City"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">State</label>
+                    <input value={address.state} onChange={e => setAddress(a => ({ ...a, state: e.target.value }))} placeholder="State"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">PIN Code *</label>
+                    <input value={address.pincode} onChange={e => setAddress(a => ({ ...a, pincode: e.target.value }))} placeholder="PIN code"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Country</label>
+                    <input value={address.country} onChange={e => setAddress(a => ({ ...a, country: e.target.value }))} placeholder="India"
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Delivery Instructions (optional)</label>
+                    <textarea value={address.deliveryInstructions} onChange={e => setAddress(a => ({ ...a, deliveryInstructions: e.target.value }))} placeholder="Leave at door, call on arrival, etc." rows={2}
+                      className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+                  </div>
                 </div>
-                <input value={delivery.city} onChange={e => setDelivery(d => ({ ...d, city: e.target.value }))} placeholder="City"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
-                <input value={delivery.pincode} onChange={e => setDelivery(d => ({ ...d, pincode: e.target.value }))} placeholder="Pincode"
-                  className="rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={address.billingSame} onChange={e => setAddress(a => ({ ...a, billingSame: e.target.checked }))}
+                    className="rounded border-green-300 text-green-600 focus:ring-green-500" />
+                  <span className="text-body-sm text-green-800/70">Billing address same as shipping</span>
+                </label>
               </div>
             </div>
 
-            {/* Cart Items */}
-            <h2 className="font-heading text-h3 font-bold text-ink pl-1">Order Items ({cartItems.length})</h2>
-            <div className="space-y-3">
-              {cartItems.map(item => (
-                <div key={item.id} className="flex gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm hover:shadow-md transition-all">
-                  <img src={getImageUrl(getItemImage(item), settings?.placeholder_image)} alt={getItemName(item)}
-                    className="h-20 w-20 rounded-xl object-cover" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-ink">{getItemName(item)}</h3>
-                    {getItemVariantName(item) && (
-                      <div className="flex items-center flex-wrap gap-x-1">
-                        <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>
-                        {item.product?.variants?.length > 1 && (
-                          <button onClick={() => setEditingVariant(editingVariant === item.id ? null : item.id)}
-                            className="text-caption font-semibold text-green-600 hover:text-green-700 ml-1">
-                            (change)
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {editingVariant === item.id && item.product?.variants && (
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {item.product.variants.filter(v => v.isActive !== false && String(v._id) !== String(item.variant_id || item.variant?._id)).map(v => (
-                          <button key={v._id} onClick={() => handleVariantChange(item, v)}
-                            className="px-2.5 py-1 text-caption font-medium rounded-lg border border-border hover:bg-green-50 hover:border-green-600 transition-all">
-                            {v.weightLabel || v.name} — {formatPrice(v.price)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    <p className="mt-1 text-body-sm font-semibold text-green-600">{formatPrice(getItemPrice(item))}</p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">-</button>
-                      <span className="min-w-[2rem] text-center text-body-sm font-semibold text-ink">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-green-800/60 hover:bg-green-50 transition-all">+</button>
-                      <button onClick={() => removeFromCart(item.id)} className="ml-auto text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Remove</button>
-                    </div>
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm h-fit sticky top-28">
+              <h2 className="font-heading mb-3 text-h2 font-bold text-ink">Your Items</h2>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {cartItems.map(item => (
+                  <div key={item.id} className="flex items-center gap-3 text-body-sm">
+                    <span className="flex-1 truncate">{getItemName(item)}{getItemVariantName(item) ? ` (${getItemVariantName(item)})` : ''}</span>
+                    <span className="text-green-800/50">×{item.quantity}</span>
+                    <span className="font-semibold">{formatPrice(getItemPrice(item) * item.quantity)}</span>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-border flex justify-between text-body-sm font-semibold">
+                <span>Subtotal</span><span>{formatPrice(total)}</span>
+              </div>
+              <button onClick={() => { if (addressComplete) setStep(2); else toast.error('Fill in all required fields') }}
+                className="btn-font mt-5 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 btn-lift">
+                Continue to Payment
+              </button>
+              <Link to="/cart" className="mt-3 block text-center text-caption font-semibold text-green-600 hover:text-green-700">Edit Cart</Link>
             </div>
           </div>
+        )}
 
-          {/* Order Summary */}
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm h-fit sticky top-28">
-            <h2 className="font-heading mb-4 text-h2 font-bold text-ink">Order Summary</h2>
-            <div className="space-y-3 text-body-sm">
-              <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(total)}</span></div>
-              <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shippingCost === 0 ? 'text-green-800' : ''}`}>{shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}</span></div>
-              <div className="my-3 border-t border-border" />
+        {/* Step 2: Order Summary */}
+        {step === 2 && (
+          <div className="grid gap-8 lg:grid-cols-[1fr,360px]">
+            <div className="space-y-4">
+              {/* Delivery address card */}
+              <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-heading text-h4 font-bold text-ink">Delivery Address</h3>
+                  <button onClick={() => setStep(1)} className="text-caption font-semibold text-green-600 hover:text-green-700">Edit</button>
+                </div>
+                <p className="text-body-sm text-ink">{address.name}</p>
+                <p className="text-body-sm text-green-800/60">{address.mobile}</p>
+                <p className="text-body-sm text-green-800/60">{address.email}</p>
+                <p className="text-body-sm text-green-800/60 mt-1">
+                  {[address.house, address.street, address.area, address.landmark, address.city, address.state, address.pincode, address.country].filter(Boolean).join(', ')}
+                </p>
+                {address.deliveryInstructions && <p className="text-body-sm text-green-800/40 mt-1 italic">"{address.deliveryInstructions}"</p>}
+              </div>
+
+              {/* Items */}
+              <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+                <h3 className="font-heading text-h4 font-bold text-ink mb-4">Order Items ({cartItems.length})</h3>
+                <div className="space-y-3">
+                  {cartItems.map(item => (
+                    <div key={item.id} className="flex items-center gap-4 pb-3 border-b border-border last:border-0">
+                      <img src={getImageUrl(getItemImage(item), settings?.placeholder_image)} alt={getItemName(item)} className="h-14 w-14 rounded-lg object-cover shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-body-sm font-semibold text-ink truncate">{getItemName(item)}</p>
+                        {getItemVariantName(item) && <p className="text-caption text-green-800/40">{getItemVariantName(item)}</p>}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-body-sm font-semibold text-ink">{formatPrice(getItemPrice(item) * item.quantity)}</p>
+                        <p className="text-caption text-green-800/40">×{item.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm h-fit sticky top-28">
+              <h2 className="font-heading mb-4 text-h2 font-bold text-ink">Order Summary</h2>
 
               {/* Coupon */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-4">
                 <input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="Coupon code"
                   className="flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600" />
                 <button onClick={handleApplyCoupon} disabled={couponLoading}
-                  className="btn-font rounded-xl border border-green-600/30 bg-green-600/10 px-5 py-2.5 text-caption font-semibold text-green-600 hover:bg-green-600 hover:text-white transition-all disabled:opacity-50">{couponLoading ? '...' : 'Apply'}</button>
+                  className="rounded-xl border border-green-600/30 bg-green-600/10 px-5 py-2.5 text-caption font-semibold text-green-600 hover:bg-green-600 hover:text-white transition-all disabled:opacity-50">{couponLoading ? '...' : 'Apply'}</button>
               </div>
-              {couponError && <p className="text-caption text-green-600">{couponError}</p>}
-              {couponDiscount > 0 && <p className="text-caption text-green-800 font-medium">Coupon discount: -{formatPrice(couponDiscount)}</p>}
+              {couponError && <p className="text-caption text-red-600 mb-2">{couponError}</p>}
+              {couponDiscount > 0 && <p className="text-caption text-green-800 font-medium mb-2">Coupon discount: -{formatPrice(couponDiscount)}</p>}
 
-              <div className="my-3 border-t border-border" />
-              <div className="flex justify-between text-body-lg"><span className="font-bold text-ink">Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
-            </div>
+              <div className="space-y-2 text-body-sm">
+                <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(total)}</span></div>
+                <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shippingCost === 0 ? 'text-green-600' : ''}`}>{shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}</span></div>
+                <div className="border-t pt-2 flex justify-between text-body-lg"><span className="font-bold text-ink">Grand Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
+              </div>
 
-            {showRazorpay && showWhatsApp ? (
-              <div className="mt-4 space-y-3">
-                {!deliveryComplete && <p className="text-caption text-amber-600 font-medium text-center">Fill in delivery details above to proceed</p>}
-                <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0 || !deliveryComplete}
-                  className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
-                  Pay with Razorpay
+              {showRazorpay && showWhatsApp ? (
+                <div className="mt-5 space-y-3">
+                  <button onClick={() => handlePlaceOrder('razorpay')} disabled={placing}
+                    className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+                    Pay with Razorpay
+                  </button>
+                  <div className="flex items-center gap-2"><span className="flex-1 border-t border-border" /><span className="text-caption text-green-800/30">OR</span><span className="flex-1 border-t border-border" /></div>
+                  <button onClick={() => handlePlaceOrder('whatsapp')} disabled={placing}
+                    className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+                    Place Order via WhatsApp
+                  </button>
+                </div>
+              ) : showRazorpay ? (
+                <button onClick={() => handlePlaceOrder('razorpay')} disabled={placing}
+                  className="btn-font mt-5 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+                  {placing ? 'Processing...' : 'Pay with Razorpay'}
                 </button>
-                <div className="flex items-center gap-2"><span className="flex-1 border-t border-border"></span><span className="text-caption text-green-800/30">OR</span><span className="flex-1 border-t border-border"></span></div>
-                <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0 || !deliveryComplete}
-                  className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
-                  Place Order via WhatsApp
-                </button>
-              </div>
-            ) : showRazorpay ? (
-              <div className="mt-4">
-                {!deliveryComplete && <p className="text-caption text-amber-600 font-medium text-center mb-3">Fill in delivery details above to proceed</p>}
-                <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0 || !deliveryComplete}
-                  className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
-                  Pay with Razorpay
-                </button>
-              </div>
-            ) : (
-              <div className="mt-4">
-                {!deliveryComplete && <p className="text-caption text-amber-600 font-medium text-center mb-3">Fill in delivery details above to proceed</p>}
-                <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0 || !deliveryComplete}
-                  className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+              ) : (
+                <button onClick={() => handlePlaceOrder('whatsapp')} disabled={placing}
+                  className="btn-font mt-5 w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
                   {placing ? 'Placing Order...' : 'Place Order via WhatsApp'}
                 </button>
-              </div>
-            )}
+              )}
 
-            <p className="mt-3 text-center text-caption text-green-800/30">
-              {paymentMethod === 'razorpay' ? 'Secure payment via Razorpay' : paymentMethod === 'whatsapp' ? 'You will be redirected to WhatsApp to confirm your order' : 'Choose your preferred payment method'}
-            </p>
-
-            {/* Trust badges */}
-            <div className="mt-4 pt-4 border-t border-border">
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-xl bg-white p-2"><p className="text-micro font-semibold text-green-800">🔒 Secure Payment</p></div>
-                <div className="rounded-xl bg-white p-2"><p className="text-micro font-semibold text-green-800">🚚 Free Shipping</p></div>
-              </div>
+              <p className="mt-3 text-center text-caption text-green-800/30">
+                {paymentMethod === 'razorpay' ? 'Secure payment via Razorpay' : paymentMethod === 'whatsapp' ? 'You will be redirected to WhatsApp' : 'Choose your payment method'}
+              </p>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
