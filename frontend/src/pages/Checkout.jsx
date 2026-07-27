@@ -60,7 +60,9 @@ export default function Checkout() {
 
   const subtotal = totals?.subtotal || 0
   const shipping = calculateShipping(subtotal, settings)
-  const grandTotal = calculateFinalTotal({ subtotal, couponDiscount, shipping })
+  const tax = 0
+  const comboDiscount = 0
+  const grandTotal = calculateFinalTotal({ subtotal, comboDiscount, couponDiscount, shipping, tax })
 
   const handleApplyCouponClick = () => {
     handleApplyCoupon(couponCode)

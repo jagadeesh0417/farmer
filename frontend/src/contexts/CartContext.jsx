@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from './AuthContext'
 import { api } from '../lib/api'
-import { calculateSubtotal, calculateCouponDiscount } from '../lib/pricingService'
+import { calculateSubtotal, calculateCouponDiscount, calculateFinalTotal } from '../lib/pricingService'
 
 const CartContext = createContext(null)
 
@@ -282,7 +282,8 @@ export function CartProvider({ children }) {
   const subtotal = useMemo(() => calculateSubtotal(cartItems), [cartItems])
 
   const totals = useMemo(() => {
-    return { subtotal, discountTotal: 0, couponDiscount, finalTotal: subtotal - couponDiscount }
+    const finalTotal = calculateFinalTotal({ subtotal, couponDiscount })
+    return { subtotal, discountTotal: 0, couponDiscount, finalTotal }
   }, [subtotal, couponDiscount])
 
   const value = {

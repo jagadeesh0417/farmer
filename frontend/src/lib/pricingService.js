@@ -42,8 +42,16 @@ export function calculateTax(subtotal, settings) {
   return Math.round((subtotal * Number(settings.taxRate)) / 100)
 }
 
-export function calculateFinalTotal({ subtotal, couponDiscount, shipping, tax }) {
-  return Math.max(0, subtotal - (couponDiscount || 0) + (shipping || 0) + (tax || 0))
+export function calculateFinalTotal({ subtotal, comboDiscount, couponDiscount, shipping, tax }) {
+  const s = Number(subtotal) || 0
+  const cd = Number(comboDiscount) || 0
+  const cp = Number(couponDiscount) || 0
+  const sh = Number(shipping) || 0
+  const tx = Number(tax) || 0
+  const raw = s - cd - cp + sh + tx
+  const grandTotal = Number(raw.toFixed(2))
+  console.log({ subtotal: s, comboDiscount: cd, couponDiscount: cp, deliveryCharge: sh, tax: tx, grandTotal })
+  return grandTotal
 }
 
 export function calculateCartTotals(items, appliedCoupon, settings) {
