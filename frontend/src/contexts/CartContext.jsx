@@ -229,7 +229,12 @@ export function CartProvider({ children }) {
   }, [user])
 
   const totals = useMemo(() => {
-    const baseTotal = cartItems.reduce((sum, item) => sum + (item.variant?.price || 0) * item.quantity, 0)
+    const baseTotal = cartItems.reduce((sum, item) => {
+      const price = item.bundle
+        ? (item.bundle.bundle_price || item.bundle.price || 0)
+        : (item.variant?.price || item.product?.price || item.product?.basePrice || 0)
+      return sum + price * item.quantity
+    }, 0)
     return { baseTotal, discountTotal: 0, couponDiscount: 0, finalTotal: baseTotal }
   }, [cartItems])
 
