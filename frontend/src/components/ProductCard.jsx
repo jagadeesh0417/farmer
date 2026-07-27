@@ -16,7 +16,8 @@ export default function ProductCard({ product, priority }) {
   const variants = product.product_variants || product.variants || []
   const hasVariants = variants.length > 1
 
-  const selection = productSelections?.[product.id] || {}
+  const pid = product.id || product._id
+  const selection = productSelections?.[pid] || {}
   const selectedVariantId = selection.variantId || variants?.[0]?.id || variants?.[0]?._id
   const selectedVariant = variants.find(v => (v.id || v._id) === selectedVariantId) || variants?.[0] || null
 
@@ -25,7 +26,7 @@ export default function ProductCard({ product, priority }) {
   const savings = mrp - price
   const discountPercent = product.discount_percent || (mrp > price ? Math.round((savings / mrp) * 100) : 0)
 
-  const cartItem = cartItems?.find(item => item.product_id === product.id && item.variant_id === selectedVariantId)
+  const cartItem = cartItems?.find(item => item.product_id === pid && item.variant_id === selectedVariantId)
   const isInCart = Boolean(cartItem)
   const cartQuantity = cartItem?.quantity || selection.quantity || 1
   const productImage = product.image_url || product.images?.[0]
@@ -38,9 +39,9 @@ export default function ProductCard({ product, priority }) {
 
   useEffect(() => {
     if (selectedVariant && !selection.variantId) {
-      setProductSelection(product.id, { variantId: selectedVariant.id || selectedVariant._id })
+      setProductSelection(pid, { variantId: selectedVariant.id || selectedVariant._id })
     }
-  }, [product.id, selectedVariant?.id, selectedVariant?._id, selection.variantId, setProductSelection])
+  }, [pid, selectedVariant?.id, selectedVariant?._id, selection.variantId, setProductSelection])
 
   const handleVariantChange = (variantId) => {
     setProductSelection(product.id, { variantId })
@@ -86,13 +87,13 @@ export default function ProductCard({ product, priority }) {
 
       <div className="mt-3 flex flex-1 flex-col px-0">
         <Link to={`/products/${slugify(product.name)}`}>
-          <h3 className="line-clamp-2 text-center font-product text-body-sm font-black leading-tight text-[#1a1a1a]">
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black">
             {product.name}
           </h3>
         </Link>
 
         <div className="mt-2 flex items-baseline justify-center gap-2">
-          <span className="font-product text-body font-bold text-[#1a1a1a]">{formatPrice(price)}</span>
+          <span className="font-product text-body font-bold text-black">{formatPrice(price)}</span>
           {mrp > price && (
             <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(mrp)}</span>
           )}

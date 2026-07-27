@@ -18,11 +18,11 @@ export default function Footer() {
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               {logo ? (
-                <img src={logo} alt={storeName} className="h-8 w-auto" />
+                <img src={logo} alt={storeName} className="h-16 w-auto" />
               ) : (
                 <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500">
-                    <svg viewBox="0 0 32 32" fill="none" className="h-4 w-4 text-white">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500">
+                    <svg viewBox="0 0 32 32" fill="none" className="h-6 w-6 text-white">
                       <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
                       <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
                     </svg>
