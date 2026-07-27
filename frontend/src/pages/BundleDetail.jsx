@@ -154,7 +154,7 @@ export default function BundleDetail() {
               </div>
             )}
 
-            <button onClick={async () => { if (isInCart) await removeFromCart(cartItem.id); else await addToCart({ bundle_id: id, quantity: 1, bundle: { ...bundle, _id: id, name, price: bundlePrice, image, discountPercent: discountPct, items } }) }}
+            <button onClick={async () => { if (isInCart) await removeFromCart(cartItem.id); else await addToCart({ bundle_id: id, quantity: 1, bundle: { ...bundle, _id: id, name, price: bundlePrice, bundle_price: bundlePrice, image, discountPercent: discountPct, items } }) }}
               className={`btn-font w-full rounded-2xl py-4 text-body font-semibold tracking-[0.06em] uppercase text-white transition-all hover:-translate-y-1 shadow-xl btn-lift flex items-center justify-center gap-3 ${isInCart ? 'bg-green-800/80 hover:bg-green-800' : 'bg-green-600 hover:bg-green-700 shadow-green-600/25'}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.1 10.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H7.2"/></svg>
               {isInCart ? 'Remove from cart' : 'Add to cart'}

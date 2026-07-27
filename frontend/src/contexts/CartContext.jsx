@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from './AuthContext'
 import { api } from '../lib/api'
+import { calculateSubtotal, calculateCouponDiscount } from '../lib/pricingService'
 
 const CartContext = createContext(null)
 
@@ -45,7 +46,10 @@ function mapCartItems(items) {
 export function CartProvider({ children }) {
   const { user } = useAuth()
   const [cartItems, setCartItems] = useState([])
-  const [coupon, setCoupon] = useState(null)
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponDiscount, setCouponDiscount] = useState(0)
+  const [couponError, setCouponError] = useState('')
+  const [couponLoading, setCouponLoading] = useState(false)
   const [productSelections, setProductSelection] = useState(() => {
     try { return JSON.parse(localStorage.getItem(PRODUCT_SELECTIONS_KEY) || '{}') } catch { return {} }
   })
@@ -224,19 +228,62 @@ export function CartProvider({ children }) {
       } catch {}
     }
     setCartItems([])
+    setAppliedCoupon(null)
+    setCouponDiscount(0)
+    setCouponError('')
     saveCartCache([])
     saveGuestCart([])
   }, [user])
 
-  const totals = useMemo(() => {
-    const baseTotal = cartItems.reduce((sum, item) => {
-      const price = item.bundle
-        ? (item.bundle.bundle_price || item.bundle.price || 0)
-        : (item.variant?.price || item.product?.price || item.product?.basePrice || 0)
-      return sum + price * item.quantity
-    }, 0)
-    return { baseTotal, discountTotal: 0, couponDiscount: 0, finalTotal: baseTotal }
+  const recalculateCoupon = useCallback((coupon, items) => {
+    if (!coupon) { setCouponDiscount(0); return }
+    const subtotal = calculateSubtotal(items)
+    const discount = calculateCouponDiscount(coupon, subtotal)
+    setCouponDiscount(discount)
+  }, [])
+
+  const handleApplyCoupon = useCallback(async (code) => {
+    if (!code?.trim()) return
+    setCouponLoading(true)
+    setCouponError('')
+    try {
+      const subtotal = calculateSubtotal(cartItems)
+      const cartPayload = cartItems.map(i => ({
+        isCombo: !!i.bundle_id || !!i.bundle,
+        price: i.bundle ? (i.bundle.bundle_price || i.bundle.price || 0) : (i.variant?.price || i.product?.price || i.product?.basePrice || 0),
+        quantity: i.quantity,
+      }))
+      const result = await api.validateCoupon(code, subtotal, cartPayload)
+      if (result.valid) {
+        const discount = calculateCouponDiscount(result.coupon, subtotal)
+        setAppliedCoupon(result.coupon)
+        setCouponDiscount(discount)
+        setCouponError('')
+      } else {
+        setCouponError(result.error || 'Invalid coupon')
+        setAppliedCoupon(null)
+        setCouponDiscount(0)
+      }
+    } catch (err) {
+      setCouponError(err.message || 'Failed to apply coupon')
+      setAppliedCoupon(null)
+      setCouponDiscount(0)
+    } finally {
+      setCouponLoading(false)
+    }
   }, [cartItems])
+
+  const handleRemoveCoupon = useCallback(() => {
+    setAppliedCoupon(null)
+    setCouponDiscount(0)
+    setCouponError('')
+  }, [])
+
+  const subtotal = useMemo(() => calculateSubtotal(cartItems), [cartItems])
+
+  const totals = useMemo(() => {
+    return { subtotal, discountTotal: 0, couponDiscount, finalTotal: subtotal - couponDiscount }
+  }, [subtotal, couponDiscount])
 
   const value = {
     cartItems, setCartItems, addToCart, removeFromCart, updateQuantity,
@@ -245,7 +292,9 @@ export function CartProvider({ children }) {
     setProductSelection: function(productId, sel) { setProductSelection(prev => ({ ...prev, [productId]: { ...prev[productId], ...sel } })) },
     bundleSelections,
     setBundleSelection: function(bundleId, sel) { setBundleSelection(prev => ({ ...prev, [bundleId]: { ...prev[bundleId], ...sel } })) },
-    coupon, setCoupon, totals, loading,
+    totals, loading,
+    appliedCoupon, couponDiscount, couponError, couponLoading,
+    handleApplyCoupon, handleRemoveCoupon, recalculateCoupon,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

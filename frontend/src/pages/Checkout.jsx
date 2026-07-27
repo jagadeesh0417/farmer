@@ -4,31 +4,12 @@ import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { formatPrice, getImageUrl } from '../lib/utils'
-import { applyCoupon, getCouponDiscount } from '../lib/couponService'
+import { getItemName, getItemPrice, getItemImage, getItemVariantName, calculateShipping, calculateFinalTotal } from '../lib/pricingService'
 import { api } from '../lib/api'
 import { toast } from 'react-toastify'
 
 const WHATSAPP_NUMBER = '9709704563'
 const ADDRESS_CACHE_KEY = 'haifarmer_checkout_address'
-
-function getItemName(item) {
-  if (item.bundle) return item.bundle.bundle_name || item.bundle.name || 'Bundle'
-  return item.product?.name || 'Product'
-}
-
-function getItemPrice(item) {
-  if (item.bundle) return item.bundle.bundle_price || 0
-  return item.variant?.price || item.product?.price || item.product?.basePrice || 0
-}
-
-function getItemImage(item) {
-  if (item.bundle) return item.bundle.bundle_image_url || item.bundle.image_url
-  return item.product?.images?.[0] || item.product?.image_url
-}
-
-function getItemVariantName(item) {
-  return item.variant?.weightLabel || item.variant?.weight_label || item.variant?.name || ''
-}
 
 function loadCachedAddress() {
   try { return JSON.parse(localStorage.getItem(ADDRESS_CACHE_KEY)) } catch { return null }
@@ -53,15 +34,11 @@ const emptyAddress = {
 
 export default function Checkout() {
   const { user } = useAuth()
-  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCartAfterOrder, totals, loading } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCartAfterOrder, totals, loading, appliedCoupon, couponDiscount, couponError, couponLoading, handleApplyCoupon, handleRemoveCoupon } = useCart()
   const { settings } = useSiteSettings()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
-  const [coupon, setCoupon] = useState('')
-  const [couponDiscount, setCouponDiscount] = useState(0)
-  const [couponError, setCouponError] = useState('')
-  const [couponLoading, setCouponLoading] = useState(false)
-  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponCode, setCouponCode] = useState('')
   const [placing, setPlacing] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
 
@@ -80,29 +57,18 @@ export default function Checkout() {
   const paymentMethod = settings?.paymentMethod || (settings?.razorpayEnabled !== false ? 'both' : 'whatsapp')
   const showRazorpay = paymentMethod === 'both' || paymentMethod === 'razorpay'
   const showWhatsApp = paymentMethod === 'both' || paymentMethod === 'whatsapp'
-  const total = totals?.finalTotal || 0
-  const shippingCost = total >= 1499 ? 0 : (settings?.deliveryCharge || settings?.shipping_cost || settings?.delivery_charge_amount || 0)
-  const totalWithShipping = total + shippingCost - (couponDiscount || 0)
 
-  const handleApplyCoupon = async () => {
-    if (!coupon.trim()) return
-    setCouponLoading(true)
-    setCouponError('')
-    try {
-      const cartPayload = cartItems.map(i => ({ isCombo: !!i.bundle_id || !!i.bundle, price: getItemPrice(i), quantity: i.quantity }))
-      const result = await applyCoupon(coupon, total, cartPayload)
-      if (result.valid) {
-        const discount = getCouponDiscount(result.coupon, total)
-        setCouponDiscount(discount)
-        setAppliedCoupon(result.coupon)
-        toast.success(`Coupon applied! You save ${formatPrice(discount)}`)
-      } else {
-        setCouponError(result.error || 'Invalid coupon')
-        setCouponDiscount(0)
-        setAppliedCoupon(null)
-      }
-    } catch (err) { setCouponError(err.message || 'Failed to apply coupon') }
-    finally { setCouponLoading(false) }
+  const subtotal = totals?.subtotal || 0
+  const shipping = calculateShipping(subtotal, settings)
+  const grandTotal = calculateFinalTotal({ subtotal, couponDiscount, shipping })
+
+  const handleApplyCouponClick = () => {
+    handleApplyCoupon(couponCode)
+  }
+
+  const handleRemoveCouponClick = () => {
+    handleRemoveCoupon()
+    setCouponCode('')
   }
 
   const buildWhatsAppMessage = () => {
@@ -113,24 +79,18 @@ export default function Checkout() {
       return `${name}${variant ? ` (${variant})` : ''} × ${i.quantity} = ${formatPrice(price * i.quantity)}`
     })
     const shipAddr = [
-      address.house,
-      address.street,
-      address.area,
-      address.landmark,
-      address.city,
-      address.state,
-      address.pincode,
-      address.country,
+      address.house, address.street, address.area, address.landmark,
+      address.city, address.state, address.pincode, address.country,
     ].filter(Boolean).join(', ')
     return [
       `🧾 *New HAiFarmer Order*`, ``,
       ...orderLines, ``,
       `━━━━━━━━━━━━━━`,
-      `💰 Subtotal: ${formatPrice(total)}`,
-      `🚚 Shipping: ${shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}`,
-      couponDiscount > 0 ? `🎟️ Coupon (${appliedCoupon?.code}): -${formatPrice(couponDiscount)}` : null,
+      `💰 Subtotal: ${formatPrice(subtotal)}`,
+      `🚚 Shipping: ${shipping === 0 ? 'FREE' : formatPrice(shipping)}`,
+      couponDiscount > 0 ? `🎟️ Coupon: -${formatPrice(couponDiscount)}` : null,
       `━━━━━━━━━━━━━━`,
-      `💳 *Total: ${formatPrice(totalWithShipping)}*`,
+      `💳 *Total: ${formatPrice(grandTotal)}*`,
       `💳 *Payment: WhatsApp*`, ``,
       `━━ 📋 Delivery Details ━━`,
       `👤 Name: ${address.name || 'Not provided'}`,
@@ -149,9 +109,21 @@ export default function Checkout() {
       pincode: address.pincode,
     }
     return api.createOrder({
-      items: cartItems.map(i => ({ name: getItemName(i), variantName: getItemVariantName(i), price: getItemPrice(i), quantity: i.quantity, image: getItemImage(i) })),
-      total: totalWithShipping, shippingCost, couponDiscount,
+      items: cartItems.map(i => ({
+        name: getItemName(i),
+        variantName: getItemVariantName(i),
+        price: getItemPrice(i),
+        quantity: i.quantity,
+        image: getItemImage(i),
+        bundle_id: i.bundle_id || null,
+        originalPrice: getItemPrice(i),
+        sellingPrice: getItemPrice(i),
+      })),
+      subtotal,
+      shippingCost: shipping,
       couponCode: appliedCoupon?.code || null,
+      couponDiscount,
+      total: grandTotal,
       paymentId: paymentId || null,
       status: 'pending',
       paymentMethod: paymentMethodType,
@@ -172,7 +144,7 @@ export default function Checkout() {
       } else if (method === 'razorpay') {
         const options = {
           key: settings?.razorpayKeyId || 'rzp_live_SeagFUXcQMCgdT',
-          amount: Math.round(totalWithShipping * 100), currency: 'INR',
+          amount: Math.round(grandTotal * 100), currency: 'INR',
           name: settings?.storeName || 'HAiFarmer', description: 'Order Payment',
           handler: async (response) => {
             try {
@@ -316,13 +288,19 @@ export default function Checkout() {
                 ))}
               </div>
               <div className="mt-3 pt-3 border-t border-border flex justify-between text-body-sm font-semibold">
-                <span>Subtotal</span><span>{formatPrice(total)}</span>
+                <span>Subtotal</span><span>{formatPrice(subtotal)}</span>
               </div>
+              {couponDiscount > 0 && (
+                <div className="mt-1 flex justify-between text-body-sm">
+                  <span className="text-green-600">Coupon discount</span>
+                  <span className="font-semibold text-green-600">-{formatPrice(couponDiscount)}</span>
+                </div>
+              )}
               <button onClick={() => setStep(2)}
                 className="btn-font mt-5 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 btn-lift">
                 Continue to Address
               </button>
-              <Link to="/cart" className="mt-3 block text-center text-caption font-semibold text-green-600 hover:text-green-700">Edit Cart</Link>
+              <Link to="/cart" className="mt-3 block text-center text-caption font-semibold text-green-600 hover:text-green-700">Back to Cart</Link>
             </div>
           </div>
         )}
@@ -427,7 +405,7 @@ export default function Checkout() {
                 ))}
               </div>
               <div className="mt-3 pt-3 border-t border-border flex justify-between text-body-sm font-semibold">
-                <span>Subtotal</span><span>{formatPrice(total)}</span>
+                <span>Subtotal</span><span>{formatPrice(subtotal)}</span>
               </div>
             </div>
           </div>
@@ -483,19 +461,35 @@ export default function Checkout() {
               <h2 className="font-heading mb-4 text-h2 font-bold text-ink">Order Summary</h2>
 
               {/* Coupon */}
-              <div className="flex gap-2 mb-4">
-                <input value={coupon} onChange={(e) => setCoupon(e.target.value.toUpperCase())} placeholder="Coupon code"
-                  className="flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600" />
-                <button onClick={handleApplyCoupon} disabled={couponLoading}
-                  className="rounded-xl border border-green-600/30 bg-green-600/10 px-5 py-2.5 text-caption font-semibold text-green-600 hover:bg-green-600 hover:text-white transition-all disabled:opacity-50">{couponLoading ? '...' : 'Apply'}</button>
-              </div>
+              {appliedCoupon ? (
+                <div className="mb-4 rounded-xl border border-green-300 bg-green-50 p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-caption font-semibold text-green-700">Coupon applied</p>
+                      <p className="text-body-sm font-bold text-green-800">{appliedCoupon.code}</p>
+                      <p className="text-caption text-green-600">Discount: -{formatPrice(couponDiscount)}</p>
+                    </div>
+                    <button onClick={handleRemoveCouponClick}
+                      className="rounded-lg border border-green-300 bg-white px-3 py-1 text-caption font-semibold text-green-700 hover:bg-green-100 transition">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2 mb-4">
+                  <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="Coupon code"
+                    className="flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600" />
+                  <button onClick={handleApplyCouponClick} disabled={couponLoading || !couponCode.trim()}
+                    className="rounded-xl border border-green-600/30 bg-green-600/10 px-5 py-2.5 text-caption font-semibold text-green-600 hover:bg-green-600 hover:text-white transition-all disabled:opacity-50">{couponLoading ? '...' : 'Apply'}</button>
+                </div>
+              )}
               {couponError && <p className="text-caption text-red-600 mb-2">{couponError}</p>}
-              {couponDiscount > 0 && <p className="text-caption text-green-800 font-medium mb-2">Coupon discount: -{formatPrice(couponDiscount)}</p>}
 
               <div className="space-y-2 text-body-sm">
-                <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(total)}</span></div>
-                <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shippingCost === 0 ? 'text-green-600' : ''}`}>{shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}</span></div>
-                <div className="border-t pt-2 flex justify-between text-body-lg"><span className="font-bold text-ink">Grand Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
+                <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(subtotal)}</span></div>
+                {couponDiscount > 0 && <div className="flex justify-between"><span className="text-green-800/50">Coupon discount</span><span className="font-semibold text-green-600">-{formatPrice(couponDiscount)}</span></div>}
+                <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shipping === 0 ? 'text-green-600' : ''}`}>{shipping === 0 ? 'FREE' : formatPrice(shipping)}</span></div>
+                <div className="border-t pt-2 flex justify-between text-body-lg"><span className="font-bold text-ink">Grand Total</span><span className="font-heading font-bold text-green-600">{formatPrice(grandTotal)}</span></div>
               </div>
 
               <button onClick={() => { if (addressComplete) setStep(4); else toast.error('Please fill in your delivery address first') }}
@@ -550,10 +544,10 @@ export default function Checkout() {
               <h2 className="font-heading mb-4 text-h2 font-bold text-ink">Order Summary</h2>
 
               <div className="space-y-2 text-body-sm">
-                <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(total)}</span></div>
+                <div className="flex justify-between"><span className="text-green-800/50">Subtotal</span><span className="font-semibold text-ink">{formatPrice(subtotal)}</span></div>
                 {couponDiscount > 0 && <div className="flex justify-between"><span className="text-green-800/50">Coupon</span><span className="font-semibold text-green-600">-{formatPrice(couponDiscount)}</span></div>}
-                <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shippingCost === 0 ? 'text-green-600' : ''}`}>{shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}</span></div>
-                <div className="border-t pt-2 flex justify-between text-body-lg"><span className="font-bold text-ink">Grand Total</span><span className="font-heading font-bold text-green-600">{formatPrice(totalWithShipping)}</span></div>
+                <div className="flex justify-between"><span className="text-green-800/50">Shipping</span><span className={`font-semibold ${shipping === 0 ? 'text-green-600' : ''}`}>{shipping === 0 ? 'FREE' : formatPrice(shipping)}</span></div>
+                <div className="border-t pt-2 flex justify-between text-body-lg"><span className="font-bold text-ink">Grand Total</span><span className="font-heading font-bold text-green-600">{formatPrice(grandTotal)}</span></div>
               </div>
 
               {showRazorpay && showWhatsApp ? (

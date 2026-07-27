@@ -165,7 +165,7 @@ export default function BundleCard({ bundle, compact }) {
               </div>
               <button onClick={async () => {
                   if (isInCart) await removeFromCart(cartItem.id)
-                  else await addToCart({ bundle_id: id, quantity, bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
+                else await addToCart({ bundle_id: id, quantity, bundle: { _id: id, name, price: bundlePrice, bundle_price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
                 }}
                 className={`flex-1 rounded-lg py-2.5 text-body-sm font-semibold uppercase transition-all ${isInCart ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-green-600 text-white hover:bg-green-700'}`}>
                 {isInCart ? 'Remove' : 'Add to cart'}

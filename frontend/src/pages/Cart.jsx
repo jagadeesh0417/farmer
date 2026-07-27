@@ -3,25 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { formatPrice, getImageUrl } from '../lib/utils'
-
-function getItemName(item) {
-  if (item.bundle) return item.bundle.bundle_name || item.bundle.name || 'Bundle'
-  return item.product?.name || 'Product'
-}
-
-function getItemPrice(item) {
-  if (item.bundle) return item.bundle.bundle_price || 0
-  return item.variant?.price || item.product?.price || item.product?.basePrice || 0
-}
-
-function getItemImage(item) {
-  if (item.bundle) return item.bundle.bundle_image_url || item.bundle.image_url
-  return item.product?.images?.[0] || item.product?.image_url
-}
-
-function getItemVariantName(item) {
-  return item.variant?.weightLabel || item.variant?.weight_label || item.variant?.name || ''
-}
+import { getItemName, getItemPrice, getItemImage, getItemVariantName } from '../lib/pricingService'
 
 export default function Cart() {
   const { cartItems, addToCart, removeFromCart, updateQuantity, totals, loading } = useCart()
@@ -30,7 +12,7 @@ export default function Cart() {
   const [editingVariant, setEditingVariant] = useState(null)
   const [confirmRemove, setConfirmRemove] = useState(null)
 
-  const total = totals?.finalTotal || 0
+  const total = totals?.subtotal || 0
 
   const handleVariantChange = async (item, newVariant) => {
     const qty = item.quantity
@@ -149,14 +131,26 @@ export default function Cart() {
                 <span className="text-green-800/50">Subtotal ({cartItems.length} item{cartItems.length > 1 ? 's' : ''})</span>
                 <span className="font-semibold text-ink">{formatPrice(total)}</span>
               </div>
+              {totals.couponDiscount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-green-800/50">Coupon Discount</span>
+                  <span className="font-semibold text-green-600">-{formatPrice(totals.couponDiscount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-green-800/50">Shipping</span>
                 <span className="font-semibold text-green-800">Calculated at checkout</span>
               </div>
+              {totals.couponDiscount > 0 && (
+                <div className="border-t pt-2 flex justify-between">
+                  <span className="font-bold text-ink">Total</span>
+                  <span className="font-bold text-green-600">{formatPrice(totals.finalTotal)}</span>
+                </div>
+              )}
             </div>
             <button onClick={() => navigate('/checkout')} disabled={cartItems.length === 0}
               className="btn-font mt-6 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift">
-              Proceed to Address
+              Proceed to Checkout
             </button>
             <div className="mt-4 grid grid-cols-2 gap-2 text-center">
               <div className="rounded-xl bg-green-50 p-2"><p className="text-micro font-semibold text-green-800">🔒 Secure Checkout</p></div>
