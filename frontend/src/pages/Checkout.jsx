@@ -52,6 +52,7 @@ export default function Checkout() {
   const paymentMethod = settings?.paymentMethod || (settings?.razorpayEnabled !== false ? 'both' : 'whatsapp')
   const showRazorpay = paymentMethod === 'both' || paymentMethod === 'razorpay'
   const showWhatsApp = paymentMethod === 'both' || paymentMethod === 'whatsapp'
+  const deliveryComplete = delivery.name?.trim() && delivery.phone?.trim() && delivery.address?.trim()
   const total = totals?.finalTotal || 0
   const shippingCost = total >= 1499 ? 0 : (settings?.deliveryCharge || settings?.shipping_cost || settings?.delivery_charge_amount || 0)
   const totalWithShipping = total + shippingCost - (couponDiscount || 0)
@@ -286,28 +287,35 @@ export default function Checkout() {
 
             {showRazorpay && showWhatsApp ? (
               <div className="mt-4 space-y-3">
-                <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0}
+                {!deliveryComplete && <p className="text-caption text-amber-600 font-medium text-center">Fill in delivery details above to proceed</p>}
+                <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0 || !deliveryComplete}
                   className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
                   Pay with Razorpay
                 </button>
                 <div className="flex items-center gap-2"><span className="flex-1 border-t border-border"></span><span className="text-caption text-green-800/30">OR</span><span className="flex-1 border-t border-border"></span></div>
-                <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0}
+                <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0 || !deliveryComplete}
                   className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
-                  Pay via WhatsApp
+                  Place Order via WhatsApp
                 </button>
               </div>
             ) : showRazorpay ? (
-              <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0}
-                className="btn-font mt-6 w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
-                Pay with Razorpay
-              </button>
+              <div className="mt-4">
+                {!deliveryComplete && <p className="text-caption text-amber-600 font-medium text-center mb-3">Fill in delivery details above to proceed</p>}
+                <button onClick={handleRazorpayPayment} disabled={placing || cartItems.length === 0 || !deliveryComplete}
+                  className="btn-font w-full rounded-2xl bg-green-600 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-green-700 hover:-translate-y-1 disabled:opacity-50 btn-lift flex items-center justify-center gap-2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2L8 14l-6-4.8h7.6z"/></svg>
+                  Pay with Razorpay
+                </button>
+              </div>
             ) : (
-              <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0}
-                className="btn-font mt-6 w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
-                {placing ? 'Placing Order...' : 'Place Order via WhatsApp'}
-              </button>
+              <div className="mt-4">
+                {!deliveryComplete && <p className="text-caption text-amber-600 font-medium text-center mb-3">Fill in delivery details above to proceed</p>}
+                <button onClick={sendWhatsAppOrder} disabled={placing || cartItems.length === 0 || !deliveryComplete}
+                  className="btn-font w-full rounded-2xl bg-green-800 py-3.5 text-body-sm font-semibold tracking-[0.06em] uppercase text-white shadow-xl transition-all hover:bg-forest-950 hover:-translate-y-1 disabled:opacity-50 btn-lift">
+                  {placing ? 'Placing Order...' : 'Place Order via WhatsApp'}
+                </button>
+              </div>
             )}
 
             <p className="mt-3 text-center text-caption text-green-800/30">
