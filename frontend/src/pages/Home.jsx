@@ -225,14 +225,32 @@ export default function Home() {
             <div ref={carouselRef} className="flex gap-3.5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
               {loading ? (
                 Array.from({ length: 8 }).map((_, i) => <div key={i} className="lifestyle-card bg-white/80 animate-pulse rounded-xl" />)
-              ) : products.length > 0 ? (
-                products.map((product, i) => (
-                  <LifestyleCard key={product.id || product._id} product={product} priority={i < 4}
-                    headline={i % 3 === 0 ? 'Support your vitality with nature\'s purity' : undefined} />
-                ))
-              ) : (
-                <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No products yet</div>
-              )}
+              ) : (() => {
+                let filtered = products
+                if (activeTab === 'Shop By Category') {
+                  const cat = categories.find(c => c._id === activeCategory) || {}
+                  const slug = cat.slug || cat.name?.toLowerCase()
+                  if (slug) filtered = products.filter(p => getCategoryName(p).toLowerCase() === slug)
+                } else if (activeTab === 'Super Saver Combos') {
+                  return bundles.length > 0 ? (
+                    <div className="flex gap-3.5 overflow-x-auto hide-scrollbar">
+                      {bundles.slice(0, 8).map(b => <BundleCard key={b._id || b.id} bundle={b} compact />)}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No combos yet</div>
+                  )
+                } else if (activeTab === 'Shop By Condition' || activeTab === 'Shop By Goal') {
+                  filtered = products
+                }
+                return filtered.length > 0 ? (
+                  filtered.map((product, i) => (
+                    <LifestyleCard key={product.id || product._id} product={product} priority={i < 4}
+                      headline={i % 3 === 0 ? 'Support your vitality with nature\'s purity' : undefined} />
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No products found</div>
+                )
+              })()}
             </div>
           </div>
         </div>
