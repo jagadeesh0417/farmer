@@ -21,6 +21,7 @@ const FarmerDetail = lazy(() => import('./pages/FarmerDetail'))
 const Impact = lazy(() => import('./pages/Impact'))
 const Journal = lazy(() => import('./pages/Journal'))
 const Contact = lazy(() => import('./pages/Contact'))
+const Payment = lazy(() => import('./pages/Payment'))
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
@@ -53,8 +54,8 @@ function AppLayout() {
             <Route path="/combos" element={<Combos />} />
             <Route path="/combos/:slug" element={<BundleDetail />} />
             <Route path="/cart" element={<Navigate to="/checkout" replace />} />
-            <Route path="/checkout" element={<Navigate to="/" replace />} />
-            <Route path="/payment" element={<Navigate to="/" replace />} />
+            <Route path="/checkout" element={<Payment />} />
+            <Route path="/payment" element={<Payment />} />
             <Route path="/orders" element={<Navigate to="/" replace />} />
             <Route path="/account" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
