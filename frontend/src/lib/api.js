@@ -6,10 +6,10 @@ function getToken() {
     const adminSession = localStorage.getItem('adminSession')
     if (adminSession) {
       const parsed = JSON.parse(adminSession)
-      return parsed.token
+      if (parsed.token) return parsed.token
     }
-    return null
-  } catch { return null }
+    return localStorage.getItem('haifarmer_token')
+  } catch { return localStorage.getItem('haifarmer_token') }
 }
 
 async function request(endpoint, options = {}) {
