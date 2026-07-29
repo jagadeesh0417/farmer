@@ -119,7 +119,7 @@ export default function HorizontalScroll({ children, className = '' }) {
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
         onWheel={handleWheel}
-        className={`flex overflow-x-auto hide-scrollbar scroll-smooth pb-2 pt-0.5 cursor-grab active:cursor-grabbing snap-x snap-mandatory px-2 sm:px-0 -mx-5 sm:mx-0 [&>*]:snap-start [&>*]:flex-shrink-0 max-sm:gap-2 sm:gap-3 ${className}`}
+        className={`flex overflow-x-auto hide-scrollbar scroll-smooth pb-2 pt-0.5 cursor-grab active:cursor-grabbing snap-x snap-mandatory px-2 sm:px-0 -mx-5 sm:mx-0 [&>*]:snap-start [&>*]:flex-shrink-0 max-sm:gap-3 sm:gap-4 ${className}`}
         style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}>
         {children}
       </div>

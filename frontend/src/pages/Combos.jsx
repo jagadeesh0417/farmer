@@ -164,7 +164,7 @@ export default function Combos() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {filteredBundles.map(bundle => <BundleCard key={bundle._id || bundle.id} bundle={bundle} />)}
                 </div>
                 {totalPages > 1 && (
