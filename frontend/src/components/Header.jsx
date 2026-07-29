@@ -53,11 +53,11 @@ export default function Header() {
           {/* Left: Logo + Brand */}
           <Link to="/" className="flex items-center gap-2 shrink-0" onClick={closeAll}>
             {logo ? (
-              <img src={logo} alt="HaiFarmer" loading="eager" className="h-[80px] lg:h-[100px] w-auto object-contain" />
+              <img src={logo} alt="HaiFarmer" loading="eager" className="h-[36px] lg:h-[40px] w-auto object-contain" />
               ) : (
                 <div className="flex items-center gap-2">
-                  <div className="flex h-11 w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full bg-green-600">
-                    <svg viewBox="0 0 32 32" fill="none" className="h-6 w-6 lg:h-7 lg:w-7 text-white">
+                  <div className="flex h-8 w-8 lg:h-9 lg:w-9 items-center justify-center rounded-full bg-green-600">
+                    <svg viewBox="0 0 32 32" fill="none" className="h-5 w-5 lg:h-5 lg:w-5 text-white">
                     <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
                     <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
                   </svg>
