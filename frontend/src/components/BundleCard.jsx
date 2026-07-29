@@ -50,7 +50,7 @@ export default function BundleCard({ bundle }) {
 
   return (
     <div className="group flex flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden
-      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] max-sm:h-[430px] max-sm:min-h-[430px] max-sm:max-h-[430px]
+      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] max-sm:h-[360px] max-sm:min-h-[360px] max-sm:max-h-[360px]
       sm:h-full sm:w-full">
       {/* Image */}
       <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0 max-sm:h-[170px] sm:aspect-square sm:w-full">
@@ -75,7 +75,7 @@ export default function BundleCard({ bundle }) {
       {/* Content area */}
       <div className="flex flex-1 flex-col overflow-hidden max-sm:px-2 max-sm:pb-2 sm:px-2.5 sm:pb-2.5 sm:pt-2">
         {/* Title */}
-        <Link to={`/combos/${slug}`} className="flex-shrink-0 max-sm:h-[52px] sm:min-h-[2.5rem] flex items-center justify-center overflow-hidden">
+        <Link to={`/combos/${slug}`} className="flex-shrink-0 max-sm:h-[48px] sm:min-h-[2.5rem] flex items-center justify-center overflow-hidden">
           <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black
             overflow-hidden text-ellipsis break-word max-sm:text-[12px] max-sm:leading-[14px]">
             {name}
@@ -84,7 +84,7 @@ export default function BundleCard({ bundle }) {
 
         {/* Price */}
         <div className="flex-shrink-0 flex items-center justify-center gap-1
-          max-sm:h-[42px] sm:min-h-[1.5rem] sm:mt-1">
+          max-sm:h-[36px] sm:min-h-[1.5rem] sm:mt-1">
           <span className="font-product text-body font-bold text-black max-sm:text-[13px]">{formatPrice(bundlePrice)}</span>
           {originalTotal > bundlePrice && (
             <span className="font-product text-caption font-medium text-gray-400 line-through max-sm:text-[11px]">{formatPrice(originalTotal)}</span>
@@ -94,11 +94,8 @@ export default function BundleCard({ bundle }) {
           <p className="flex-shrink-0 text-center font-product text-micro font-semibold text-[#F5A623] max-sm:text-[10px] max-sm:leading-[12px]">Save {formatPrice(savings)}</p>
         )}
 
-        {/* Variant placeholder for consistency */}
-        <div className="max-sm:hidden sm:hidden" />
-
-        {/* Spacer + Button */}
-        <div className="mt-auto flex-shrink-0">
+        {/* Button */}
+        <div className="max-sm:mt-2 sm:mt-auto flex-shrink-0">
           {isInCart ? (
             <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px]">
               <button type="button"
