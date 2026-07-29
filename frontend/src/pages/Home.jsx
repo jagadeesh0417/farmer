@@ -64,6 +64,18 @@ export default function Home() {
   }, [reels, products])
 
   const bestSellers = useMemo(() => getSectionProducts(products, settings, 'bestSellers'), [products, settings])
+  const milletProducts = useMemo(() => products.filter(p => {
+    const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
+    return cat.toLowerCase() === 'millets' && p.showOnHome !== false
+  }), [products])
+  const lentilProducts = useMemo(() => products.filter(p => {
+    const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
+    return cat.toLowerCase() === 'lentils-beans' && p.showOnHome !== false
+  }), [products])
+  const spiceProducts = useMemo(() => products.filter(p => {
+    const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
+    return cat.toLowerCase() === 'spices' && p.showOnHome !== false
+  }), [products])
 
   useEffect(() => {
     let cancelled = false
@@ -337,7 +349,88 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Shop by Category */}
+      {/* 7. Traditional Grains — Millets */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
+            <Link to="/products?category=millets" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-white border border-border h-72 animate-pulse rounded-xl" />)}
+            </div>
+          ) : milletProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {milletProducts.slice(0, 8).map(product => (
+                <ProductCard key={product.id || product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No millet products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 8. Protein Rich — Lentils & Beans */}
+      <section className="py-10 lg:py-14 bg-off-white">
+        <div className="section-container">
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
+            <Link to="/products?category=lentils-beans" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-white border border-border h-72 animate-pulse rounded-xl" />)}
+            </div>
+          ) : lentilProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {lentilProducts.slice(0, 8).map(product => (
+                <ProductCard key={product.id || product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No lentil or bean products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 9. Aromatic & Wild — Spices */}
+      <section className="py-10 lg:py-14 bg-white">
+        <div className="section-container">
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
+            <Link to="/products?category=spices" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-white border border-border h-72 animate-pulse rounded-xl" />)}
+            </div>
+          ) : spiceProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {spiceProducts.slice(0, 8).map(product => (
+                <ProductCard key={product.id || product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No spice products yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 10. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -414,7 +507,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Testimonials */}
+      {/* 11. Testimonials */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
