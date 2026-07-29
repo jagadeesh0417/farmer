@@ -16,10 +16,10 @@ import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCa
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
-function getSectionCombos(bundles, settings) {
-  const ids = settings?.homeSections?.superSaverCombos
-  if (!ids || ids.length === 0) return bundles.filter(b => b.showOnHome !== false)
-  return bundles.filter(b => ids.includes(b.id || b._id) && b.showOnHome !== false)
+function getSectionCombos(bundles) {
+  const superSaver = bundles.filter(b => b.isSuperSaver && b.showOnHome !== false)
+  if (superSaver.length > 0) return superSaver
+  return bundles.filter(b => b.showOnHome !== false)
 }
 
 function getSectionProducts(products, settings, sectionKey) {
@@ -64,6 +64,8 @@ export default function Home() {
   }, [reels, products])
 
   const bestSellers = useMemo(() => getSectionProducts(products, settings, 'bestSellers'), [products, settings])
+  const groceries = useMemo(() => products.filter(p => p.showOnHome !== false), [products])
+  const combos = useMemo(() => bundles.filter(b => b.showOnHome !== false), [bundles])
   const milletProducts = useMemo(() => products.filter(p => {
     const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
     return cat.toLowerCase() === 'millets' && p.showOnHome !== false
@@ -212,7 +214,7 @@ export default function Home() {
           ) : bundles.length > 0 ? (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {getSectionCombos(bundles, settings).slice(0, 8).map(bundle => (
+                {getSectionCombos(bundles).slice(0, 8).map(bundle => (
                   <BundleCard key={bundle._id || bundle.id} bundle={bundle} />
                 ))}
               </div>
@@ -328,7 +330,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Full screen video */}
+      {/* 6. Groceries — horizontal scroll */}
+      <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
+        <div className="section-container">
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Everyday Essentials</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Groceries</h2>
+            <Link to="/products" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {loading ? (
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </div>
+          ) : groceries.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+              {groceries.map(product => (
+                <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] shrink-0">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No products available yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 7. Combos — horizontal scroll */}
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+        <div className="section-container">
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Curated Bundles</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Combos</h2>
+            <Link to="/combos" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          </div>
+          {loading ? (
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </div>
+          ) : combos.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+              {combos.map(bundle => (
+                <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] shrink-0">
+                  <BundleCard bundle={bundle} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No combos available yet.</p>
+              <Link to="/combos" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Combos →</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 8. Full screen video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -349,7 +409,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Traditional Grains — Millets */}
+      {/* 9. Traditional Grains — Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -376,7 +436,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Protein Rich — Lentils & Beans */}
+      {/* 10. Protein Rich — Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -403,7 +463,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. Aromatic & Wild — Spices */}
+      {/* 11. Aromatic & Wild — Spices */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -430,7 +490,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. Shop by Category */}
+      {/* 12. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -507,7 +567,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. Testimonials */}
+      {/* 13. Testimonials */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">

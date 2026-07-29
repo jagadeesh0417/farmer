@@ -139,6 +139,12 @@ export default function AdminBundles() {
     catch (err) { toast.error(err.message) }
   }
 
+  const handleToggleSuperSaver = async (id) => {
+    if (isDemoMode()) { toggleItem('bundles', id, 'isSuperSaver'); toast.success('Super saver toggled'); load(); return }
+    try { const b = bundles.find(x => x._id === id); await api.updateBundle(id, { isSuperSaver: !b?.isSuperSaver }); toast.success('Super saver toggled'); load() }
+    catch (err) { toast.error(err.message) }
+  }
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -278,6 +284,7 @@ export default function AdminBundles() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => handleToggle(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{b.isActive ? 'On' : 'Off'}</button>
+                <button onClick={() => handleToggleSuperSaver(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isSuperSaver ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>{b.isSuperSaver ? 'Super' : 'Normal'}</button>
                 <button onClick={() => handleToggleHome(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.showOnHome !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>{b.showOnHome !== false ? 'Home' : 'NoHome'}</button>
                 <button onClick={() => handleEdit(b)} className="text-xs font-semibold text-brand-600">Edit</button>
                 <button onClick={() => handleDelete(b._id)} className="text-xs font-semibold text-red-600">Del</button>
