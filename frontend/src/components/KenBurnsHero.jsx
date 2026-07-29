@@ -98,7 +98,7 @@ function SingleSlide({ slide }) {
       )}
       {mobile && (
         <img src={getImg(mobile, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
-          className="block md:hidden w-full h-auto invisible" loading="eager" />
+          className="block md:hidden w-full aspect-[1/1] invisible" loading="eager" />
       )}
       <div className="absolute inset-0">
         <SlideImage slide={slide} active index={0} priority />
@@ -140,7 +140,7 @@ function Carousel({ slides }) {
       )}
       {mobile && (
         <img src={getImg(mobile, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
-          className="block md:hidden w-full h-auto invisible" loading="eager" />
+          className="block md:hidden w-full aspect-[1/1] invisible" loading="eager" />
       )}
 
       {/* Slide stack for crossfade */}
