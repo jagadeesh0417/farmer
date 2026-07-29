@@ -49,10 +49,10 @@ export default function BundleCard({ bundle }) {
   }
 
   return (
-    <div className="group flex flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden
+    <div className="group flex flex-col rounded-[18px] border-2 border-[#D7E8C8] bg-gradient-to-b from-[#FCFDFB] to-[#F4F9EF] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.7),0_6px_18px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-[5px] hover:border-[#4CAF50] hover:shadow-[0_12px_28px_rgba(76,175,80,0.18)] overflow-hidden border-t-[5px] border-t-[#2E7D32]
       max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] sm:w-full sm:h-full">
       {/* Fixed image container */}
-      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0 overflow-hidden bg-[#F0E6D3] max-sm:h-[170px] sm:h-[220px]">
+      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0 max-sm:h-[170px] sm:h-[220px] p-2.5 sm:p-3">
         {discountPct > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
             {discountPct}% OFF
@@ -63,14 +63,16 @@ export default function BundleCard({ bundle }) {
             {items.length} Items
           </span>
         )}
-        <img src={getImageUrl(image)} alt={name}
-          className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-          onError={(e) => { e.target.src = bundleFallback }} />
+        <div className="w-full h-full overflow-hidden rounded-[14px] bg-white">
+          <img src={getImageUrl(image)} alt={name}
+            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            onError={(e) => { e.target.src = bundleFallback }} />
+        </div>
       </Link>
 
       {/* Content — fixed sections with equal gaps */}
-      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2.5 max-sm:px-2 max-sm:pb-2 max-sm:pt-2">
+      <div className="flex flex-1 flex-col px-4 pb-4 max-sm:px-3 max-sm:pb-3">
         {/* Title — 2 lines fixed height */}
         <Link to={`/combos/${slug}`} className="flex-shrink-0 flex items-start justify-center overflow-hidden max-sm:h-[44px] sm:h-[48px]">
           <h3 className="text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black max-sm:text-[12px] max-sm:leading-[14px] line-clamp-2">
