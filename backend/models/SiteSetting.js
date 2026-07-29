@@ -37,6 +37,12 @@ const siteSettingSchema = new mongoose.Schema({
   headerText2: String,
   headerText3: String,
   announcementEnabled: { type: Boolean, default: true },
+  announcements: [{
+    text: { type: String, default: '' },
+    icon: { type: String, default: '' },
+    isActive: { type: Boolean, default: true },
+    sortOrder: { type: Number, default: 0 },
+  }],
 
   // SEO
   seo: {

@@ -196,12 +196,49 @@ export default function AdminSettings() {
               <Input label="Address" value={getNestedValue(settings, 'address')} onChange={e => handleChange('address', e.target.value)} />
               <Input label="Google Maps URL" value={getNestedValue(settings, 'googleMapsUrl')} onChange={e => handleChange('googleMapsUrl', e.target.value)} />
               <Input label="Business Hours" value={getNestedValue(settings, 'businessHours')} onChange={e => handleChange('businessHours', e.target.value)} />
-              <Input label="Announcement Bar Text" value={getNestedValue(settings, 'headerText1')} onChange={e => handleChange('headerText1', e.target.value)} />
-              <Input label="Announcement Bar 2" value={getNestedValue(settings, 'headerText2')} onChange={e => handleChange('headerText2', e.target.value)} />
-              <div className="flex items-center gap-3">
-                <input type="checkbox" checked={getNestedValue(settings, 'announcementEnabled') !== false} onChange={e => handleChange('announcementEnabled', e.target.checked)}
-                  className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
-                <label className="text-sm text-slate-700">Announcement Bar Enabled</label>
+              <div className="col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="text-base font-bold text-slate-900 mb-4">Announcement Bar</h3>
+                <div className="flex items-center gap-3 mb-4">
+                  <input type="checkbox" checked={getNestedValue(settings, 'announcementEnabled') !== false} onChange={e => handleChange('announcementEnabled', e.target.checked)}
+                    className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                  <label className="text-sm text-slate-700 font-medium">Enable Announcement Bar</label>
+                </div>
+                <div className="space-y-3">
+                  {(getNestedValue(settings, 'announcements') || []).map((ann, idx) => (
+                    <div key={idx} className="flex items-start gap-2 p-3 rounded-lg border border-slate-100 bg-slate-50">
+                      <div className="flex-1 space-y-2">
+                        <input value={ann.text || ''} onChange={e => {
+                          const updated = [...(settings.announcements || [])]
+                          updated[idx] = { ...updated[idx], text: e.target.value }
+                          handleChange('announcements', updated)
+                        }} placeholder="Announcement text..." className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-brand-500" />
+                        <div className="flex items-center gap-3">
+                          <input value={ann.icon || ''} onChange={e => {
+                            const updated = [...(settings.announcements || [])]
+                            updated[idx] = { ...updated[idx], icon: e.target.value }
+                            handleChange('announcements', updated)
+                          }} placeholder="Icon (emoji)" className="w-16 rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-center outline-none focus:border-brand-500" />
+                          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+                            <input type="checkbox" checked={ann.isActive !== false} onChange={e => {
+                              const updated = [...(settings.announcements || [])]
+                              updated[idx] = { ...updated[idx], isActive: e.target.checked }
+                              handleChange('announcements', updated)
+                            }} className="rounded border-slate-300 text-brand-600" />
+                            Active
+                          </label>
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => {
+                        const updated = (settings.announcements || []).filter((_, i) => i !== idx)
+                        handleChange('announcements', updated)
+                      }} className="text-red-500 hover:text-red-700 text-xs font-semibold shrink-0 mt-1">Remove</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => {
+                    const updated = [...(settings.announcements || []), { text: '', icon: '🚚', isActive: true, sortOrder: (settings.announcements || []).length }]
+                    handleChange('announcements', updated)
+                  }} className="text-sm font-semibold text-brand-600 hover:text-brand-700 transition">+ Add Announcement</button>
+                </div>
               </div>
               <Input label="GST" value={getNestedValue(settings, 'gst')} onChange={e => handleChange('gst', e.target.value)} />
               <Input label="Tax (%)" type="number" value={getNestedValue(settings, 'tax')} onChange={e => handleChange('tax', e.target.value)} />

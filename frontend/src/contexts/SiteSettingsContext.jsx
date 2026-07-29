@@ -11,6 +11,7 @@ const defaultSettings = {
   address: '',
   headerText1: 'Free delivery over ₹1499',
   announcementEnabled: true,
+  announcements: [],
   logo: '',
   favicon: '',
   deliveryCharge: 0,

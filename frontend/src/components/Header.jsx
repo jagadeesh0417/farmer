@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useCart } from '../contexts/CartContext'
 import { fetchSiteSettings } from '../contexts/SiteSettingsContext'
 import { CartIcon, MenuIcon, CloseIcon } from './Icons'
@@ -12,6 +12,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [settings, setSettings] = useState(null)
+  const [announceIdx, setAnnounceIdx] = useState(0)
 
   const totalItems = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
@@ -37,12 +38,18 @@ export default function Header() {
   return (
     <>
       {/* Announcement bar */}
-      {settings?.announcementEnabled !== false && settings?.headerText1 && (
+      {settings?.announcementEnabled !== false && (settings?.announcements?.filter(a => a.isActive !== false)?.length > 0 || settings?.headerText1) && (
         <div className="announcement-bar bg-green-600 text-white text-nav font-medium tracking-[0.06em] overflow-hidden h-9 flex items-center">
           <div className="announcement-marquee">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <span key={i} className="mx-12 inline-block whitespace-nowrap">{settings.headerText1}</span>
-            ))}
+            {(() => {
+              const activeAnnouncements = settings?.announcements?.filter(a => a.isActive !== false) || []
+              const texts = activeAnnouncements.length > 0
+                ? activeAnnouncements.map(a => `${a.icon || ''} ${a.text || ''}`.trim())
+                : [settings.headerText1]
+              return texts.map((text, i) => (
+                <span key={i} className="mx-12 inline-block whitespace-nowrap">{text}</span>
+              ))
+            })()}
           </div>
         </div>
       )}
