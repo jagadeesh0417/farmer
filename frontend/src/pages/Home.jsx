@@ -278,9 +278,9 @@ export default function Home() {
             <h2 className="font-heading text-h2 font-bold text-ink">Stories from the Soil</h2>
             <p className="text-body-sm text-muted mt-0.5">Short videos from our tribal communities</p>
           </div>
-          <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+          <HorizontalScroll>
             {reelProducts.map((reel, i) => (
-              <div key={i} className="flex-shrink-0 w-[200px] sm:w-[220px] lg:w-[240px] cursor-pointer" onClick={() => { setViewerIndex(i); setViewerOpen(true) }}>
+              <div key={i} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0 cursor-pointer" onClick={() => { setViewerIndex(i); setViewerOpen(true) }}>
                 <div className="aspect-[9/16] rounded-xl overflow-hidden bg-green-50 relative group">
                   {reel.poster ? (
                     <img src={reel.poster} alt={reel.alt} loading="lazy" className="h-full w-full object-cover object-center" />
@@ -303,7 +303,7 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
+          </HorizontalScroll>
 
           {/* Story Viewer */}
           {viewerOpen && (
@@ -360,17 +360,17 @@ export default function Home() {
             <Link to="/products" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
           </div>
           {loading ? (
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[170px] sm:min-w-[220px] w-[170px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : groceries.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+            <HorizontalScroll>
               {groceries.map(product => (
-                <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] shrink-0">
+                <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                   <ProductCard product={product} />
                 </div>
               ))}
-            </div>
+            </HorizontalScroll>
           ) : (
             <div className="text-center py-10 bg-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No products available yet.</p>
@@ -636,9 +636,9 @@ export default function Home() {
                       <div className="flex items-center justify-center h-full min-h-[180px] bg-white rounded-xl border border-border">
                         <p className="text-body-sm text-muted">No products in this category yet.</p>
                       </div>
-                    )}
-                  </div>
-                </div>
+                )}
+              </div>
+            </div>
                 {catProducts && catProducts.length > 6 && (
                   <div className="mt-5 text-center">
                     <Link to={`/products?category=${catName}`}
@@ -668,8 +668,8 @@ export default function Home() {
                     <svg key={j} className={`h-4 w-4 ${j < t.rating ? 'text-amber-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                  ))}
-                </div>
+            ))}
+          </div>
                 <p className="text-body-sm text-muted leading-relaxed flex-1">"{t.text}"</p>
                 <div className="mt-4 pt-3 border-t border-border">
                   <p className="font-product text-caption font-bold text-ink">{t.name}</p>
