@@ -5,13 +5,11 @@ const storySchema = new mongoose.Schema({
   description: String,
   thumbnail: String,
   thumbnailPublicId: String,
-  videoUrl: String,
+  videoUrl: { type: String, required: true },
   videoPublicId: String,
-  duration: String,
-  order: { type: Number, default: 0 },
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  productName: String,
   isActive: { type: Boolean, default: true },
 }, { timestamps: true })
-
-storySchema.index({ order: 1 })
 
 export default mongoose.model('Story', storySchema)

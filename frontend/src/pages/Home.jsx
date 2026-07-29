@@ -4,6 +4,7 @@ import ProductCard from '../components/ProductCard'
 import BundleCard from '../components/BundleCard'
 import HorizontalScroll from '../components/HorizontalScroll'
 import KenBurnsHero from '../components/KenBurnsHero'
+import StoryViewer from '../components/StoryViewer'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
@@ -51,6 +52,8 @@ export default function Home() {
   const [banners, setBanners] = useState([])
   const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products' })
   const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, buttonLink: '/products', enabled: true })
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [viewerIndex, setViewerIndex] = useState(0)
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -277,30 +280,20 @@ export default function Home() {
           </div>
           <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
             {reelProducts.map((reel, i) => (
-              <div key={i} className="flex-shrink-0 w-[200px] sm:w-[220px] lg:w-[240px]">
-                <div className="aspect-[9/16] rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
-                  {reel.src ? (
-                    <video muted loop playsInline preload="none"
-                      className="h-full w-full object-cover object-center"
-                      poster={reel.poster}
-                      onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
-                      onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0 }}
-                      onTouchStart={(e) => {
-                        const v = e.currentTarget
-                        v.paused ? v.play().catch(() => {}) : v.pause()
-                      }}>
-                      <source src={reel.src} type="video/mp4" />
-                    </video>
+              <div key={i} className="flex-shrink-0 w-[200px] sm:w-[220px] lg:w-[240px] cursor-pointer" onClick={() => { setViewerIndex(i); setViewerOpen(true) }}>
+                <div className="aspect-[9/16] rounded-xl overflow-hidden bg-green-50 relative group">
+                  {reel.poster ? (
+                    <img src={reel.poster} alt={reel.alt} loading="lazy" className="h-full w-full object-cover object-center" />
                   ) : (
-                    <>
-                      <img src={reel.poster} alt={reel.alt} loading="lazy" className="h-full w-full object-cover object-center" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm">
-                          <svg className="h-5 w-5 text-ink ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                        </div>
-                      </div>
-                    </>
+                    <div className="h-full w-full flex items-center justify-center bg-green-100">
+                      <svg className="h-8 w-8 text-green-600/40" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    </div>
                   )}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm">
+                      <svg className="h-5 w-5 text-ink ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    </div>
+                  </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
                     {reel.duration && (
                       <span className="inline-block rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-micro font-medium text-white mb-1">{reel.duration}</span>
@@ -308,25 +301,18 @@ export default function Home() {
                     <p className="text-caption font-medium text-white drop-shadow-sm line-clamp-1">{reel.alt}</p>
                   </div>
                 </div>
-                {reel.taggedProduct && (
-                  <Link to={`/products/${(reel.taggedProduct.name || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`}
-                    className="mt-2 block rounded-lg border border-border bg-white p-2.5 hover:shadow-sm transition">
-                    <div className="flex items-center gap-2">
-                      <img src={getImageUrl(reel.taggedProduct.image_url || reel.taggedProduct.images?.[0])} alt=""
-                        className="h-10 w-10 rounded-lg object-cover bg-[#F0E6D3]"
-                        onError={(e) => { e.target.src = generatePlaceholder('product', reel.taggedProduct.name) }} />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-product text-caption font-semibold text-ink line-clamp-1">{reel.taggedProduct.name}</p>
-                        <p className="font-product text-caption font-bold text-green-600">
-                          {formatPrice(reel.taggedProduct.base_price || reel.taggedProduct.price || 0)}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                )}
               </div>
             ))}
           </div>
+
+          {/* Story Viewer */}
+          {viewerOpen && (
+            <StoryViewer
+              stories={reelProducts}
+              initialIndex={viewerIndex}
+              onClose={() => setViewerOpen(false)}
+            />
+          )}
         </div>
       </section>
 
