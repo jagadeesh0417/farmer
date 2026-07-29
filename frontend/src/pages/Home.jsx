@@ -196,7 +196,7 @@ export default function Home() {
                 )}
                 <img src={cld(promoBanner.mobileImage || promoBanner.desktopImage, 'f_auto,q_auto,w_600')}
                   alt="Promotional banner" loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover object-center" />
+                  className="absolute inset-0 h-full w-full object-cover object-center animate-promo-kenburns" />
               </picture>
             ) : (
               <div className="w-full h-32 sm:h-40 bg-green-50 rounded-xl flex items-center justify-center text-muted text-body-sm">
@@ -205,6 +205,25 @@ export default function Home() {
             )}
           </Link>
         </div>
+        <style>{`
+          @keyframes promo-kenburns {
+            0% { transform: scale(1) translateX(0); }
+            50% { transform: scale(1.08) translateX(-1.5%); }
+            100% { transform: scale(1) translateX(0); }
+          }
+          .animate-promo-kenburns {
+            animation: promo-kenburns 12s ease-in-out infinite;
+          }
+          .animate-promo-kenburns:hover {
+            animation-play-state: paused;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-promo-kenburns {
+              animation: none !important;
+              transform: none !important;
+            }
+          }
+        `}</style>
       </section>
 
       {/* 3. Super Savers */}
