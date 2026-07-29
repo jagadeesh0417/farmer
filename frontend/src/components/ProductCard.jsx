@@ -42,7 +42,7 @@ export default function ProductCard({ product, priority }) {
   }, [pid, selectedVariant?.id, selectedVariant?._id, selection.variantId, setProductSelection])
 
   const handleVariantChange = (variantId) => {
-    setProductSelection(product.id, { variantId })
+    setProductSelection(pid, { variantId })
   }
 
   const handleQuantityChange = async (newQty) => {
