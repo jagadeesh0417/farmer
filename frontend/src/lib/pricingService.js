@@ -73,8 +73,6 @@ export function calculateCartTotals(items, appliedCoupon, settings) {
   const couponDiscount = calculateCouponDiscount(appliedCoupon, subtotal)
   const shipping = calculateShipping(subtotal, settings)
   const tax = calculateTax(subtotal, settings)
-  const raw = subtotal - comboDiscount - couponDiscount + shipping + tax
-  const grandTotal = Number(raw.toFixed(2))
-  console.log({ subtotal, comboDiscount, couponDiscount, deliveryCharge: shipping, tax, grandTotal })
+  const grandTotal = Math.max(0, Math.round(subtotal - comboDiscount - couponDiscount + shipping + tax))
   return { subtotal, comboDiscount, couponDiscount, shipping, tax, grandTotal }
 }

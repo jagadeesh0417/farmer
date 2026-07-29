@@ -57,9 +57,7 @@ export function getImageProps(path, { width = 600, sizes, priority } = {}) {
   }
 }
 
-export function calculateTotal(items) {
-  return items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0)
-}
+export { calculateSubtotal as calculateTotal } from './pricingService'
 
 export function calculateSavings(items) {
   return items.reduce((sum, item) => {
@@ -70,7 +68,4 @@ export function calculateSavings(items) {
   }, 0)
 }
 
-export function getShippingCost(total, settings) {
-  if (total >= 1499) return 0
-  return settings?.shipping_cost || 0
-}
+export { calculateShipping as getShippingCost } from './pricingService'

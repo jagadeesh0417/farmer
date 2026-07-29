@@ -15,11 +15,4 @@ export async function applyCoupon(code, cartValue, cartItems) {
   }
 }
 
-export function getCouponDiscount(coupon, cartValue) {
-  if (!coupon) return 0
-  if (coupon.discountType === 'percentage') {
-    const disc = Math.round((cartValue * coupon.discountValue) / 100)
-    return coupon.maxDiscount ? Math.min(disc, coupon.maxDiscount) : disc
-  }
-  return coupon.discountValue || 0
-}
+export { calculateCouponDiscount as getCouponDiscount } from './pricingService'
