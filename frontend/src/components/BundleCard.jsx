@@ -53,8 +53,8 @@ export default function BundleCard({ bundle }) {
   }
 
   return (
-    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
-      <Link to={`/combos/${slug}`} className="relative block w-full">
+    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden">
+      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0">
         {discountPct > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
             {discountPct}% OFF
@@ -74,24 +74,24 @@ export default function BundleCard({ bundle }) {
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col px-3 pb-3 pt-2.5">
+      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2">
         <Link to={`/combos/${slug}`}>
           <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black min-h-[2.5rem]">
             {name}
           </h3>
         </Link>
 
-        <div className="mt-1.5 flex items-baseline justify-center gap-2 min-h-[1.5rem]">
+        <div className="mt-1 flex items-baseline justify-center gap-1.5 min-h-[1.5rem] flex-shrink-0">
           <span className="font-product text-body font-bold text-black">{formatPrice(bundlePrice)}</span>
           {originalTotal > bundlePrice && (
             <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(originalTotal)}</span>
           )}
         </div>
         {savings > 0 && (
-          <p className="mt-0.5 text-center font-product text-micro font-semibold text-[#F5A623]">Save {formatPrice(savings)}</p>
+          <p className="mt-0.5 text-center font-product text-micro font-semibold text-[#F5A623] flex-shrink-0">Save {formatPrice(savings)}</p>
         )}
 
-        <div className="mt-auto pt-2.5">
+        <div className="mt-auto pt-2">
           {isInCart ? (
             <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
               <button type="button"

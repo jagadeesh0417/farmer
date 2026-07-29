@@ -63,8 +63,8 @@ export default function ProductCard({ product, priority }) {
   const variantLabel = (v) => v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
 
   return (
-    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
-      <Link to={`/products/${slugify(product.name)}`} className="relative block w-full">
+    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden">
+      <Link to={`/products/${slugify(product.name)}`} className="relative block w-full flex-shrink-0">
         {discountPercent > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
             {discountPercent}% OFF
@@ -85,14 +85,14 @@ export default function ProductCard({ product, priority }) {
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col px-3 pb-3 pt-2.5">
+      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2">
         <Link to={`/products/${slugify(product.name)}`}>
           <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black min-h-[2.5rem]">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-1.5 flex items-baseline justify-center gap-2 min-h-[1.5rem]">
+        <div className="mt-1 flex items-baseline justify-center gap-1.5 min-h-[1.5rem] flex-shrink-0">
           <span className="font-product text-body font-bold text-black">{formatPrice(price)}</span>
           {mrp > price && (
             <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(mrp)}</span>
@@ -100,7 +100,7 @@ export default function ProductCard({ product, priority }) {
         </div>
 
         {hasVariants && (
-          <div className="relative mt-2">
+          <div className="relative mt-1.5 flex-shrink-0">
             <select
               value={selectedVariantId || ''}
               onChange={(e) => handleVariantChange(e.target.value)}
@@ -122,7 +122,7 @@ export default function ProductCard({ product, priority }) {
           </div>
         )}
 
-        <div className="mt-auto pt-2.5">
+        <div className="mt-auto pt-2">
           {isInCart ? (
             <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
               <button
