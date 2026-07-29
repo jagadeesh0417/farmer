@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { CartProvider } from './contexts/CartContext'
+import { ProductProvider } from './contexts/ProductContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import { checkBackend } from './lib/withDemoFallback'
 import './index.css'
@@ -27,7 +28,9 @@ function Root() {
         <BrowserRouter>
           <AuthProvider>
             <CartProvider>
-              <App />
+              <ProductProvider>
+                <App />
+              </ProductProvider>
             </CartProvider>
           </AuthProvider>
         </BrowserRouter>

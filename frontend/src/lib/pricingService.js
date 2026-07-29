@@ -4,9 +4,39 @@ function debugPricing(label, data) {
   if (PRICING_DEBUG) console.log(`[Pricing] ${label}:`, JSON.stringify(data, (k, v) => v === undefined ? null : v, 2))
 }
 
-export function getItemPrice(item) {
+export function getItemPrice(item, productMap) {
   if (item.bundle) return Number(item.bundle.bundle_price || item.bundle.price || 0)
+  // If a productMap is provided, look up fresh product data by ID
+  if (productMap) {
+    const pid = item.product_id || item.product?._id
+    const fresh = pid ? productMap[pid] : null
+    if (fresh) {
+      const vid = item.variant_id || item.variant?._id
+      if (vid) {
+        const freshVariant = (fresh.variants || fresh.product_variants || []).find(v => (v._id || v.id) === vid)
+        if (freshVariant?.price !== undefined) return Number(freshVariant.price)
+      }
+      if (fresh.basePrice !== undefined) return Number(fresh.basePrice)
+      if (fresh.price !== undefined) return Number(fresh.price)
+    }
+  }
   return Number(item.variant?.price || item.product?.price || item.product?.basePrice || 0)
+}
+
+export function enrichCartItem(item, productMap) {
+  if (!productMap || !item) return item
+  const pid = item.product_id || item.product?._id
+  if (!pid) return item
+  const fresh = productMap[pid]
+  if (!fresh) return item
+  return {
+    ...item,
+    product: fresh,
+    variant: item.variant?._id ? {
+      ...item.variant,
+      price: (fresh.variants || fresh.product_variants || []).find(v => (v._id || v.id) === item.variant._id)?.price || item.variant.price,
+    } : item.variant,
+  }
 }
 
 export function getItemName(item) {
