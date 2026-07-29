@@ -18,6 +18,14 @@ const defaultSettings = {
   razorpayKeyId: 'rzp_live_SeagFUXcQMCgdT',
   paymentMethod: 'both',
   placeholder_image: '',
+  footer: {
+    socialLinks: {
+      facebook: '',
+      instagram: '',
+      twitter: '',
+      youtube: '',
+    },
+  },
 }
 
 function getSavedHomeSections() {
