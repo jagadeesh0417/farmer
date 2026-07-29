@@ -29,11 +29,12 @@ function SlideImage({ slide, active, index, priority }) {
 
   return (
     <picture>
-      <source media="(min-width: 768px)" srcSet={getImg(desktop, 'f_auto,q_80,w_2400,h_900,c_fill,g_auto')} />
-      <img src={getImg(mobile, 'f_auto,q_80,w_1080,h_1350,c_fill,g_auto')}
+      <source media="(min-width: 768px)" srcSet={getImg(desktop, 'f_auto,q_70,w_1920,h_900,c_fill,g_auto')} />
+      <img src={getImg(mobile, 'f_auto,q_70,w_1080,h_1350,c_fill,g_auto')}
         alt={slide.alt || slide.heading || 'Banner'}
-        loading={priority ? 'eager' : 'lazy'}
-        fetchPriority={priority ? 'high' : undefined}
+        loading={priority ? 'eager' : active ? 'eager' : 'lazy'}
+        fetchPriority={priority || active ? 'high' : undefined}
+        decoding={active ? 'sync' : 'async'}
         className={`absolute inset-0 h-full w-full object-cover object-center will-change-transform ${active ? directionClass : ''}`}
       />
     </picture>
@@ -220,6 +221,18 @@ export default function KenBurnsHero({ slides = defaultSlides }) {
             height: auto;
             aspect-ratio: 4 / 5;
           }
+        }
+        section.ken-hero {
+          background: linear-gradient(135deg, #166534 0%, #14532d 50%, #166534 100%);
+          background-size: 200% 200%;
+          animation: hero-shimmer 2s ease-in-out infinite;
+        }
+        @keyframes hero-shimmer {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        section.ken-hero img {
+          animation-fill-mode: forwards;
         }
       `}</style>
     </>
