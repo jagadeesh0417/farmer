@@ -5,10 +5,12 @@ import { deleteFromCloudinary } from '../utils/cloudinary.js'
 
 const router = express.Router()
 
-// Public: get all active stories
+const POPULATE_OPTS = 'name slug basePrice price images description variants'
+
+// Public: get all active stories with populated product
 router.get('/', async (req, res) => {
   try {
-    const stories = await Story.find({ isActive: true }).sort({ order: 1 })
+    const stories = await Story.find({ isActive: true }).populate('productId', POPULATE_OPTS).sort({ createdAt: -1 })
     res.json(stories)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -18,7 +20,7 @@ router.get('/', async (req, res) => {
 // Admin: get all stories
 router.get('/all', protect, adminOnly, async (req, res) => {
   try {
-    const stories = await Story.find().sort({ order: 1 })
+    const stories = await Story.find().populate('productId', POPULATE_OPTS).sort({ createdAt: -1 })
     res.json(stories)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -28,7 +30,7 @@ router.get('/all', protect, adminOnly, async (req, res) => {
 // Admin: create story
 router.post('/', protect, adminOnly, async (req, res) => {
   try {
-    const story = await Story.create(req.body)
+    const story = await (await Story.create(req.body)).populate('productId', POPULATE_OPTS)
     res.status(201).json(story)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -46,7 +48,7 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
     if (req.body.videoUrl && req.body.videoUrl !== existing.videoUrl && existing.videoPublicId) {
       await deleteFromCloudinary(existing.videoPublicId).catch(() => {})
     }
-    const story = await Story.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+    const story = await Story.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate('productId', POPULATE_OPTS)
     res.json(story)
   } catch (err) {
     res.status(500).json({ error: err.message })

@@ -34,43 +34,44 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
   if (!story) return null
 
-  const product = story.taggedProduct || null
+  const product = story.taggedProduct || story.productId || null
+  const productAvailable = product && (product._id || product.id)
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-black/95" onClick={onClose}>
-      {/* Close button */}
+      {/* Close */}
       <button onClick={onClose} className="absolute top-4 right-4 z-10 text-white/80 hover:text-white" aria-label="Close">
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
       </button>
 
-      {/* Story counter */}
       {stories.length > 1 && (
         <div className="absolute top-4 left-4 z-10 text-white/60 text-xs font-medium">
           {current + 1} / {stories.length}
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full" onClick={e => e.stopPropagation()}>
-        {/* Progress bar */}
-        <div className="w-full h-1 bg-white/20 rounded-full mb-4 overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Progress */}
+        <div className="w-full h-1 bg-white/20 rounded-full mb-4 overflow-hidden flex-shrink-0">
           <div className="h-full bg-white rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
 
-        {/* Video container */}
-        <div className="w-full max-h-[65vh] rounded-xl overflow-hidden bg-black relative">
-          <video ref={videoRef}
-            src={story.src || story.videoUrl}
-            muted={muted}
-            playsInline
-            loop
-            onTimeUpdate={handleTimeUpdate}
-            onEnded={goNext}
-            className="w-full h-full max-h-[65vh] object-contain"
-            onClick={(e) => { e.stopPropagation(); if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause() } }}
-          />
-
-          {/* Play/Pause overlay */}
+        {/* Video */}
+        <div className="w-full rounded-xl overflow-hidden bg-black relative flex-shrink-0" style={{ maxHeight: '60vh' }}>
+          {story.src || story.videoUrl ? (
+            <video ref={videoRef}
+              src={story.src || story.videoUrl}
+              muted={muted}
+              playsInline
+              loop
+              onTimeUpdate={handleTimeUpdate}
+              onEnded={goNext}
+              className="w-full h-full max-h-[60vh] object-contain"
+              onClick={(e) => { e.stopPropagation(); if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause() } }}
+            />
+          ) : (
+            <div className="w-full h-48 flex items-center justify-center text-white/40 text-sm">Unable to load video</div>
+          )}
           <button onClick={(e) => { e.stopPropagation(); if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause() } }}
             className="absolute bottom-3 left-3 text-white/70 hover:text-white">
             {playing ? (
@@ -79,8 +80,6 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
             )}
           </button>
-
-          {/* Mute/Unmute */}
           <button onClick={(e) => { e.stopPropagation(); setMuted(!muted) }}
             className="absolute bottom-3 right-3 text-white/70 hover:text-white">
             {muted ? (
@@ -91,9 +90,9 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           </button>
         </div>
 
-        {/* Navigation arrows */}
+        {/* Navigation */}
         {stories.length > 1 && (
-          <div className="flex items-center justify-between w-full mt-3">
+          <div className="flex items-center justify-between w-full mt-3 flex-shrink-0">
             <button onClick={(e) => { e.stopPropagation(); goPrev() }} disabled={current === 0}
               className="text-white/50 hover:text-white disabled:opacity-30 text-sm font-semibold">← Previous</button>
             <button onClick={(e) => { e.stopPropagation(); goNext() }} disabled={current >= stories.length - 1}
@@ -101,27 +100,31 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           </div>
         )}
 
-        {/* Story description */}
-        <div className="w-full mt-4 text-center">
-          <h3 className="text-white text-lg font-bold">{story.alt || story.title}</h3>
-          {story.duration && <p className="text-white/50 text-xs mt-0.5">{story.duration}</p>}
+        {/* Story info */}
+        <div className="w-full mt-4 text-center flex-shrink-0">
+          <h3 className="text-white text-lg font-bold">{story.alt || story.title || 'Story'}</h3>
+          {story.description && <p className="text-white/50 text-sm mt-1">{story.description}</p>}
         </div>
 
-        {/* Tagged product card */}
-        {product && (
+        {/* Product card */}
+        {productAvailable ? (
           <Link to={`/products/${slugify(product.name)}`} onClick={onClose}
-            className="mt-4 w-full flex items-center gap-3 rounded-xl border border-white/20 bg-white/10 p-3 hover:bg-white/20 transition">
-            <img src={getImageUrl(product.image_url || product.images?.[0])} alt={product.name}
-              className="h-14 w-14 rounded-lg object-cover bg-[#F0E6D3] shrink-0"
+            className="mt-4 w-full flex items-center gap-3 rounded-xl border border-white/20 bg-white/10 p-3 hover:bg-white/20 transition flex-shrink-0">
+            <img src={getImageUrl(product.images?.[0] || product.image_url)} alt={product.name}
+              className="h-16 w-16 rounded-lg object-cover bg-[#F0E6D3] shrink-0"
               onError={(e) => { e.target.src = generatePlaceholder('product', product.name) }} />
             <div className="min-w-0 flex-1">
               <p className="text-white font-semibold text-sm truncate">{product.name}</p>
-              <p className="text-green-400 font-bold text-sm">{formatPrice(product.base_price || product.price || 0)}</p>
+              <p className="text-green-400 font-bold text-sm">{formatPrice(product.basePrice || product.base_price || product.price || 0)}</p>
               {product.description && <p className="text-white/50 text-xs truncate mt-0.5">{product.description}</p>}
             </div>
-            <span className="text-white/70 text-xs font-semibold shrink-0 hover:text-white">View →</span>
+            <span className="text-white/70 text-xs font-semibold shrink-0 bg-white/10 rounded-lg px-3 py-1.5 hover:bg-white/20">View Product →</span>
           </Link>
-        )}
+        ) : story.productId ? (
+          <div className="mt-4 w-full text-center py-4 rounded-xl border border-white/10 bg-white/5 text-white/40 text-sm flex-shrink-0">
+            Product unavailable
+          </div>
+        ) : null}
       </div>
     </div>
   )

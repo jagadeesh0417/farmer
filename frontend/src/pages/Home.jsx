@@ -62,13 +62,11 @@ export default function Home() {
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
   const reelProducts = useMemo(() => {
-    const available = products.filter(p => p.showOnHome !== false)
-    if (available.length === 0) return reels
-    return reels.map((reel, i) => ({
+    return reels.map(reel => ({
       ...reel,
-      taggedProduct: available[i % available.length],
+      taggedProduct: reel.productId || null,
     }))
-  }, [reels, products])
+  }, [reels])
 
   const bestSellers = useMemo(() => getSectionProducts(products, settings, 'bestSellers'), [products, settings])
   const groceries = useMemo(() => products.filter(p => p.showOnHome !== false), [products])
@@ -110,10 +108,12 @@ export default function Home() {
         setProducts(productsData)
         setBundles(Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || [])
         setReels(Array.isArray(storiesData) ? storiesData.map(s => ({
+          ...s,
           poster: s.thumbnail,
           alt: s.title,
           src: s.videoUrl,
-          duration: s.duration,
+          productId: s.productId,
+          taggedProduct: s.productId,
         })) : [])
         const bs = bannerSettings || {}
         const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
