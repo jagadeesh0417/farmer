@@ -68,15 +68,6 @@ function OverlayContent({ slide, active }) {
             {subtext}
           </p>
         )}
-        {ctaLabel && ctaHref && (
-          <Link to={ctaHref}
-            className="btn-font mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-green-600 px-7 py-3 text-btn font-semibold tracking-[0.06em] uppercase text-white shadow-2xl shadow-green-600/30 transition-all hover:bg-green-700 hover:-translate-y-0.5 active:scale-[0.97] md:mt-8 md:px-8 md:py-3.5">
-            {ctaLabel}
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-        )}
       </div>
     </div>
   )
