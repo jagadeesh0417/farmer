@@ -33,6 +33,11 @@ export default function AdminProducts() {
   const [editingDiscount, setEditingDiscount] = useState(null)
   const [priceValue, setPriceValue] = useState('')
   const [discountValue, setDiscountValue] = useState('')
+  const [selected, setSelected] = useState(new Set())
+  const [bulkAction, setBulkAction] = useState('')
+  const [showDeleteAll, setShowDeleteAll] = useState(false)
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState('')
+  const [showDeleteAllFinal, setShowDeleteAllFinal] = useState(false)
   const dragItem = useRef(null)
   const fileInputRef = useRef(null)
   const [imageUploadTarget, setImageUploadTarget] = useState(null)
@@ -82,6 +87,67 @@ export default function AdminProducts() {
     if (isDemoMode()) { demoDelete('products', id); toast.success('Product hidden'); load(); return }
     try { await api.deleteProduct(id); toast.success('Product hidden'); load() }
     catch (err) { toast.error(err.message) }
+  }
+
+  const toggleSelect = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  const selectAll = () => setSelected(new Set(products.map(p => p._id)))
+  const deselectAll = () => setSelected(new Set())
+  const selectVisible = () => setSelected(new Set(products.map(p => p._id)))
+  const invertSelection = () => {
+    const ids = new Set(products.map(p => p._id))
+    setSelected(prev => {
+      const next = new Set()
+      ids.forEach(id => { if (!prev.has(id)) next.add(id) })
+      return next
+    })
+  }
+
+  const handleBulkAction = async () => {
+    if (selected.size === 0) return toast.error('No products selected')
+    if (bulkAction === 'delete') {
+      if (!confirm(`Delete ${selected.size} product(s)? This cannot be undone.`)) return
+      if (isDemoMode()) {
+        selected.forEach(id => demoDelete('products', id))
+        toast.success(`Deleted ${selected.size} products`)
+        setSelected(new Set()); setBulkAction(''); load(); return
+      }
+      try {
+        await Promise.all(Array.from(selected).map(id => api.deleteProduct(id)))
+        toast.success(`Deleted ${selected.size} products`)
+        setSelected(new Set()); setBulkAction(''); load()
+      } catch (err) { toast.error(err.message) }
+    } else if (bulkAction === 'enable') {
+      await Promise.all(Array.from(selected).map(id => api.updateProduct(id, { isActive: true })))
+      toast.success(`Enabled ${selected.size} products`); setBulkAction(''); load()
+    } else if (bulkAction === 'disable') {
+      await Promise.all(Array.from(selected).map(id => api.updateProduct(id, { isActive: false })))
+      toast.success(`Disabled ${selected.size} products`); setBulkAction(''); load()
+    }
+  }
+
+  const handleDeleteAll = async () => {
+    if (!confirm('This will permanently remove ALL products. Type DELETE to continue.')) return
+    if (deleteAllConfirm !== 'DELETE') return toast.error('Type DELETE to confirm')
+    if (!confirm('Final confirmation. All products will be permanently removed.')) return
+    if (isDemoMode()) {
+      localStorage.removeItem('haifarmer_demo_products')
+      toast.success('All products deleted (demo)')
+      setShowDeleteAll(false); setDeleteAllConfirm(''); load(); return
+    }
+    try {
+      const all = await api.getProducts({ limit: 10000, active: 'all' })
+      const ids = (all.data || []).map(p => p._id)
+      await Promise.all(ids.map(id => api.deleteProduct(id)))
+      toast.success(`Deleted ${ids.length} products`)
+      setShowDeleteAll(false); setDeleteAllConfirm(''); load()
+    } catch (err) { toast.error(err.message) }
   }
 
   const startEditPrice = (p) => {
@@ -190,6 +256,30 @@ export default function AdminProducts() {
         <button type="submit" className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white hover:bg-brand-700 transition">Search</button>
       </form>
 
+      {/* Bulk toolbar */}
+      {products.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-3 p-3 rounded-xl border border-slate-200 bg-white">
+          <button onClick={selectAll} className="text-xs font-semibold text-brand-600 hover:text-brand-700 px-2 py-1">Select All</button>
+          <span className="text-slate-300">|</span>
+          <button onClick={deselectAll} className="text-xs font-semibold text-slate-500 hover:text-slate-700 px-2 py-1">Deselect All</button>
+          <span className="text-slate-300">|</span>
+          <button onClick={selectVisible} className="text-xs font-semibold text-slate-500 hover:text-slate-700 px-2 py-1">Select Visible</button>
+          <span className="text-slate-300">|</span>
+          <button onClick={invertSelection} className="text-xs font-semibold text-slate-500 hover:text-slate-700 px-2 py-1">Invert</button>
+          <span className="text-slate-300 mx-1">|</span>
+          {selected.size > 0 && <span className="text-xs text-slate-500">{selected.size} selected</span>}
+          <select value={bulkAction} onChange={e => setBulkAction(e.target.value)} className="ml-auto rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none">
+            <option value="">Bulk Actions</option>
+            <option value="delete">Delete Selected</option>
+            <option value="enable">Enable Selected</option>
+            <option value="disable">Disable Selected</option>
+          </select>
+          {bulkAction && selected.size > 0 && (
+            <button onClick={handleBulkAction} className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-bold text-white hover:bg-brand-700 transition">Apply</button>
+          )}
+        </div>
+      )}
+
       {!search && products.length > 1 && (
         <p className="mb-2 text-xs text-slate-400">Drag rows to reorder products. Click price or discount to edit inline.</p>
       )}
@@ -203,6 +293,10 @@ export default function AdminProducts() {
           <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-slate-100 bg-slate-50 text-left text-xs text-slate-500 uppercase">
+                <th className="p-3 font-medium w-8">
+                  <input type="checkbox" onChange={e => e.target.checked ? selectAll() : deselectAll()} checked={selected.size === products.length && products.length > 0}
+                    className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                </th>
                 <th className="p-3 font-medium w-8"></th>
                 <th className="p-3 font-medium">Product</th><th className="p-3 font-medium">Category</th><th className="p-3 font-medium">Price</th><th className="p-3 font-medium">Discount</th><th className="p-3 font-medium">Stock</th><th className="p-3 font-medium">Status</th><th className="p-3 font-medium">Best Seller</th><th className="p-3 font-medium">Home</th><th className="p-3 font-medium">Actions</th>
               </tr></thead>
@@ -219,6 +313,10 @@ export default function AdminProducts() {
                       dragIdx === idx ? 'opacity-40' : ''
                     } ${overIdx === idx && dragIdx !== idx ? 'border-t-2 border-t-brand-500' : 'hover:bg-slate-50/50'}`}
                   >
+                    <td className="p-3 text-center">
+                      <input type="checkbox" checked={selected.has(p._id)} onChange={() => toggleSelect(p._id)}
+                        className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                    </td>
                     <td className="p-3 text-center text-slate-300 cursor-grab active:cursor-grabbing select-none">
                       <svg className="h-4 w-4 mx-auto" fill="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
                     </td>
@@ -295,6 +393,24 @@ export default function AdminProducts() {
               <button disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(p => p + 1)} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50">Next</button>
             </div>
           )}
+
+          {/* Delete All Products — danger section */}
+          <div className="mt-10 rounded-xl border-2 border-red-200 bg-red-50 p-6">
+            <h3 className="text-lg font-bold text-red-800 mb-2">Danger Zone</h3>
+            <p className="text-sm text-red-600 mb-4">Permanently delete ALL products. This action cannot be undone. Categories, coupons, orders, and customers will not be affected.</p>
+            {!showDeleteAll ? (
+              <button onClick={() => setShowDeleteAll(true)} className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition">Delete All Products</button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-red-700">Type <span className="font-mono bg-red-100 px-2 py-0.5 rounded">DELETE</span> to confirm:</p>
+                <input value={deleteAllConfirm} onChange={e => setDeleteAllConfirm(e.target.value)} placeholder="Type DELETE" className="w-full max-w-xs rounded-lg border border-red-300 px-3 py-2 text-sm outline-none focus:border-red-500" />
+                <div className="flex gap-2">
+                  <button onClick={handleDeleteAll} disabled={deleteAllConfirm !== 'DELETE'} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50 transition">Confirm Delete All</button>
+                  <button onClick={() => { setShowDeleteAll(false); setDeleteAllConfirm('') }} className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
