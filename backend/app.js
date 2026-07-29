@@ -16,6 +16,7 @@ import seedRoutes from './routes/seed.js'
 import bannerSettingRoutes from './routes/bannerSettings.js'
 import generateImageRoutes from './routes/generateImage.js'
 import qrCodeRoutes from './routes/qrcodes.js'
+import storyRoutes from './routes/stories.js'
 
 const app = express()
 
@@ -49,6 +50,7 @@ app.use('/api', seedRoutes)
 app.use('/api/generate-image', generateImageRoutes)
 app.use('/api/qrcodes', qrCodeRoutes)
 app.use('/api/banner-settings', bannerSettingRoutes)
+app.use('/api/stories', storyRoutes)
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }))
 

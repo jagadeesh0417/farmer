@@ -18,7 +18,7 @@ export default function Footer() {
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               {logo ? (
-                <img src={logo} alt={storeName} className="h-16 w-auto" />
+                <img src={logo} alt={storeName} className="h-20 w-auto" />
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500">

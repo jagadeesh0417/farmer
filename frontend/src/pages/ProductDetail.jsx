@@ -6,6 +6,7 @@ import { generatePlaceholder } from '../lib/placeholders'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import { useCart } from '../contexts/CartContext'
 import ProductCard from '../components/ProductCard'
+import HorizontalScroll from '../components/HorizontalScroll'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
 import { api } from '../lib/api'
@@ -74,7 +75,7 @@ export default function ProductDetail() {
           const firstInStock = data.variants.find(v => v.stock === undefined || Number(v.stock) > 0) || data.variants[0]
           setSelectedVariant(firstInStock)
         }
-        const related = await api.getProducts({ limit: 4, category: data?.category, sort: 'created_at' })
+        const related = await api.getProducts({ limit: 8, category: data?.category, sort: 'created_at' })
         setRelatedProducts((related?.data || []).filter(p => p._id !== data?._id))
       } catch (e) {
         console.error('ProductDetail error:', e)
@@ -300,9 +301,13 @@ export default function ProductDetail() {
         {relatedProducts.length > 0 && (
           <div className="mt-12">
             <h3 className="font-heading text-h3 font-bold text-ink mb-6 text-center">You may also like</h3>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {relatedProducts.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 2} />)}
-            </div>
+            <HorizontalScroll>
+              {relatedProducts.slice(0, 8).map((p, i) => (
+                <div key={p.id || p._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <ProductCard product={p} priority={i < 2} />
+                </div>
+              ))}
+            </HorizontalScroll>
           </div>
         )}
       </div>

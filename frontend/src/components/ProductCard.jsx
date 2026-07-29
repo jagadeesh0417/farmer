@@ -62,7 +62,7 @@ export default function ProductCard({ product, priority }) {
 
   return (
     <div className="group flex flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden
-      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] max-sm:h-[360px] max-sm:min-h-[360px] max-sm:max-h-[360px]
+      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] max-sm:h-[340px] max-sm:min-h-[340px] max-sm:max-h-[340px]
       sm:h-full sm:w-full">
       {/* Image */}
       <Link to={`/products/${slugify(product.name)}`} className="relative block w-full flex-shrink-0 max-sm:h-[170px] sm:aspect-square sm:w-full">
@@ -88,9 +88,9 @@ export default function ProductCard({ product, priority }) {
       {/* Content area — fixed sections */}
       <div className="flex flex-1 flex-col overflow-hidden max-sm:px-2 max-sm:pb-2 sm:px-2.5 sm:pb-2.5 sm:pt-2">
         {/* Title — fixed height */}
-        <Link to={`/products/${slugify(product.name)}`} className="flex-shrink-0 max-sm:h-[48px] sm:min-h-[2.5rem] flex items-center justify-center overflow-hidden">
-          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black
-            overflow-hidden text-ellipsis break-word max-sm:text-[12px] max-sm:leading-[14px]">
+        <Link to={`/products/${slugify(product.name)}`} className="flex-shrink-0 max-sm:h-[32px] sm:h-8 flex items-center justify-center overflow-hidden">
+          <h3 className="truncate text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black
+            max-sm:text-[12px]">
             {product.name}
           </h3>
         </Link>

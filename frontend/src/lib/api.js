@@ -180,4 +180,11 @@ export const api = {
     request('/generate-image', { method: 'POST', body: JSON.stringify({ entity, name, existingPublicId }) }),
   previewImage: (entity, name) =>
     request('/generate-image/preview', { method: 'POST', body: JSON.stringify({ entity, name }) }),
+
+  // Stories
+  getStories: () => request('/stories'),
+  getAllStories: () => request('/stories/all'),
+  createStory: (data) => request('/stories', { method: 'POST', body: JSON.stringify(data) }),
+  updateStory: (id, data) => request(`/stories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteStory: (id) => request(`/stories/${id}`, { method: 'DELETE' }),
 }

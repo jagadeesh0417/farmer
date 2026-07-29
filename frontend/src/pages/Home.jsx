@@ -13,7 +13,7 @@ import { cld } from '../lib/cloudinary'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
-import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
+import { demoProducts, demoCombos, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
@@ -92,20 +92,26 @@ export default function Home() {
         const savedBundles = getItems('bundles')
         setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
         setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
-        setReels(demoStories.map(s => ({ poster: s.image, alt: s.title, src: null, duration: s.duration })))
+        setReels([])
         setLoading(false)
         return
       }
       try {
-        const [productsData, bundlesData, bannerSettings] = await Promise.all([
+        const [productsData, bundlesData, bannerSettings, storiesData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
           api.getBundles({ combo: 'true' }).then(r => r?.data || r || []).catch(() => []),
           api.getBannerSettings().catch(() => ({})),
+          api.getStories().catch(() => []),
         ])
         if (cancelled) return
         setProducts(productsData)
         setBundles(Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || [])
-        setReels(HOME_ASSETS.reels)
+        setReels(Array.isArray(storiesData) ? storiesData.map(s => ({
+          poster: s.thumbnail,
+          alt: s.title,
+          src: s.videoUrl,
+          duration: s.duration,
+        })) : [])
         const bs = bannerSettings || {}
         const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
           id: k,
