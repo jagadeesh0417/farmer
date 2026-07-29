@@ -36,14 +36,14 @@ function SlideImage({ slide, active, index, priority }) {
       {desktop && (
         <source media="(min-width: 768px)"
           sizes="100vw"
-          srcSet={srcSet(desktop, [640, 1024, 1920, 2400], 'h_900,c_fill,g_auto')} />
+          srcSet={srcSet(desktop, [640, 1024, 1920, 2200, 2800], 'h_700,c_fill,g_auto')} />
       )}
       {mobile && (
         <source media="(max-width: 767px)"
           sizes="100vw"
           srcSet={srcSet(mobile, [480, 768, 1080], 'h_1920,c_fill,g_auto')} />
       )}
-      <img src={getImg(desktop || mobile, 'f_auto,q_70,w_800,c_fill,g_auto')}
+      <img src={getImg(desktop || mobile, 'f_auto,q_70,w_800,h_700,c_fill,g_auto')}
         alt={slide.alt || slide.heading || 'Banner'}
         loading={priority ? 'eager' : active ? 'eager' : 'lazy'}
         fetchPriority={priority || active ? 'high' : undefined}

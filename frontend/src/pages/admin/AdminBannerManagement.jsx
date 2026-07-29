@@ -9,7 +9,7 @@ const BANNER_SECTIONS = [
   { key: 'promotional', sectionName: 'Promotional Banner', group: 'Homepage' },
 ]
 
-const DESKTOP_DIMENSIONS = { width: 1920, height: 700, label: '16:9 (1920×700)' }
+const DESKTOP_DIMENSIONS = { width: 2200, height: 700, label: '≈3:1 (2200×700)' }
 const MOBILE_DIMENSIONS = { width: 1080, height: 1920, label: '9:16 (1080×1920)' }
 
 function ImagePreview({ src, onUpload, onRemove, label, dimensions }) {
