@@ -161,7 +161,9 @@ export default function AdminBannerManagement() {
                     <input value={b.title || ''} onChange={e => handleChange(s.key, 'title', e.target.value)} placeholder="Banner Title" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
                     <input value={b.subtitle || ''} onChange={e => handleChange(s.key, 'subtitle', e.target.value)} placeholder="Subtitle (optional)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
                     <input value={b.buttonText || ''} onChange={e => handleChange(s.key, 'buttonText', e.target.value)} placeholder="Button text (e.g. Shop Now)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                    <input value={b.buttonLink || ''} onChange={e => handleChange(s.key, 'buttonLink', e.target.value)} placeholder="Button link (e.g. /products)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                    {s.key === 'promotional' && (
+                      <input value={b.buttonLink || ''} onChange={e => handleChange(s.key, 'buttonLink', e.target.value)} placeholder="Button link (e.g. /products)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                    )}
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
