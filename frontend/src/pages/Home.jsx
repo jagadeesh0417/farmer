@@ -250,7 +250,7 @@ export default function Home() {
             <>
               <HorizontalScroll>
                 {superSaverCombos.map(bundle => (
-                  <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={bundle._id || bundle.id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <BundleCard bundle={bundle} />
                   </div>
                 ))}
@@ -342,13 +342,13 @@ export default function Home() {
           </div>
           {loading ? (
             <HorizontalScroll>
-              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[170px] sm:min-w-[220px] w-[170px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
             </HorizontalScroll>
           ) : bestSellers.length > 0 ? (
             <>
               <HorizontalScroll>
                 {bestSellers.map(product => (
-                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -412,7 +412,7 @@ export default function Home() {
             <>
               <HorizontalScroll>
                 {normalCombos.map(bundle => (
-                  <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={bundle._id || bundle.id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <BundleCard bundle={bundle} />
                   </div>
                 ))}
@@ -463,13 +463,13 @@ export default function Home() {
           </div>
           {loading ? (
             <HorizontalScroll>
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[170px] sm:min-w-[220px] w-[170px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
             </HorizontalScroll>
           ) : milletProducts.length > 0 ? (
             <>
               <HorizontalScroll>
                 {milletProducts.map(product => (
-                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -499,13 +499,13 @@ export default function Home() {
           </div>
           {loading ? (
             <HorizontalScroll>
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[170px] sm:min-w-[220px] w-[170px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
             </HorizontalScroll>
           ) : lentilProducts.length > 0 ? (
             <>
               <HorizontalScroll>
                 {lentilProducts.map(product => (
-                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -535,14 +535,14 @@ export default function Home() {
           </div>
           {loading ? (
             <HorizontalScroll>
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[170px] sm:min-w-[220px] w-[170px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
             </HorizontalScroll>
           ) : spiceProducts.length > 0 ? (
             <>
 
               <HorizontalScroll>
                 {spiceProducts.map(product => (
-                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -641,7 +641,7 @@ export default function Home() {
                     ) : catProducts && catProducts.length > 0 ? (
                       <HorizontalScroll>
                         {catProducts.slice(0, 8).map(product => (
-                          <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                          <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
                             <ProductCard product={product} />
                           </div>
                         ))}
