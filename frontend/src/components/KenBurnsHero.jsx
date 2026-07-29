@@ -84,7 +84,7 @@ function OverlayContent({ slide, active }) {
 
 function SingleSlide({ slide }) {
   return (
-    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[45vh] sm:h-[55vh] lg:h-[75vh]" role="banner" aria-label={slide.heading || 'Banner'}>
+    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px]" role="banner" aria-label={slide.heading || 'Banner'}>
       <SlideImage slide={slide} active index={0} priority />
       <GradientOverlay align={slide.align} />
       <OverlayContent slide={slide} active />
@@ -123,7 +123,7 @@ function Carousel({ slides }) {
   }
 
   return (
-    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[45vh] sm:h-[55vh] lg:h-[75vh] select-none"
+    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px] select-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}

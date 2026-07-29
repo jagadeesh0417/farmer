@@ -8,6 +8,7 @@ import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
 import { formatPrice, getImageUrl } from '../lib/utils'
+import { cld } from '../lib/cloudinary'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
@@ -45,6 +46,7 @@ export default function Home() {
   const [bundles, setBundles] = useState([])
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
+  const [promoBanner, setPromoBanner] = useState(null)
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -101,6 +103,7 @@ export default function Home() {
           id: s.title, ...s,
           heading: s.title, subtext: s.subtitle, ctaLabel: s.buttonText, ctaHref: '/products',
         })))
+        setPromoBanner(bs.promotional?.image || null)
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
@@ -151,7 +154,19 @@ export default function Home() {
       {/* 1. Hero banner */}
       <KenBurnsHero slides={banners} />
 
-      {/* 2. Super Saver Combos */}
+      {/* 2. Promotional banner */}
+      <section className="py-4 sm:py-5 lg:py-6 bg-white">
+        <div className="section-container">
+          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
+            <picture>
+              <source srcSet={cld(promoBanner || HOME_ASSETS.adBanner.desktopImage, 'f_auto,q_auto,w_1200')} media="(min-width: 768px)" />
+              <img src={cld(promoBanner || HOME_ASSETS.adBanner.mobileImage, 'f_auto,q_auto,w_600')} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+            </picture>
+          </Link>
+        </div>
+      </section>
+
+      {/* 3. Super Saver Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -186,7 +201,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. 9:16 Vertical Videos — Reels with tagged products */}
+      {/* 4. 9:16 Vertical Videos — Reels with tagged products */}
       <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -248,7 +263,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Best Sellers */}
+      {/* 5. Best Sellers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -282,7 +297,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Full screen video */}
+      {/* 6. Full screen video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -303,7 +318,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Shop by Category */}
+      {/* 7. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -380,7 +395,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Testimonials */}
+      {/* 8. Testimonials */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
