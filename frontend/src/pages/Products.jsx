@@ -140,7 +140,7 @@ export default function Products() {
         <div className="flex gap-8">
           {/* Sidebar filters - Desktop */}
           <aside className="hidden lg:block w-64 shrink-0">
-            <div className="sticky top-6 space-y-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="font-heading text-h4 font-bold text-ink">Filters</h3>
                 {hasFilters && (
@@ -233,7 +233,7 @@ export default function Products() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                   {products.map(product => <ProductCard key={product.id || product._id} product={product} />)}
                 </div>
                 {totalPages > 1 && (

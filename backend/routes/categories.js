@@ -42,6 +42,24 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
   }
 })
 
+router.patch('/:id', protect, adminOnly, async (req, res) => {
+  try {
+    const { name } = req.body
+    if (name !== undefined) {
+      const trimmed = name?.trim()
+      if (!trimmed) return res.status(400).json({ error: 'Name is required' })
+      if (trimmed.length > 60) return res.status(400).json({ error: 'Name must be 60 characters or less' })
+      const category = await Category.findByIdAndUpdate(req.params.id, { name: trimmed }, { new: true })
+      if (!category) return res.status(404).json({ error: 'Category not found' })
+      return res.json(category)
+    }
+    return res.status(400).json({ error: 'No fields to update' })
+  } catch (err) {
+    if (err.code === 11000) return res.status(409).json({ error: 'A category with this name already exists' })
+    res.status(500).json({ error: err.message })
+  }
+})
+
 router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const category = await Category.findById(req.params.id)

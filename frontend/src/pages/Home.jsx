@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import LifestyleCard from '../components/LifestyleCard'
 import BundleCard from '../components/BundleCard'
-import HeroSlider from '../components/HeroSlider'
+import HeroBanner from '../components/HeroBanner'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
@@ -183,8 +183,8 @@ export default function Home() {
     <div className="bg-white">
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
-      {/* 1. Hero slider */}
-      <HeroSlider banners={banners.length > 0 ? banners : HOME_ASSETS.hero} />
+      {/* 1. Hero banner */}
+      <HeroBanner banner={banners[0] || HOME_ASSETS.hero[0]} />
 
       {/* 2. Advertisement banner — cinematic strip */}
       <section className="py-4 sm:py-5 lg:py-6 bg-white">

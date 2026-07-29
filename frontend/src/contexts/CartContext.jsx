@@ -188,7 +188,17 @@ export function CartProvider({ children }) {
     }
   }, [user])
 
+  function getMaxStock(item) {
+    if (item.variant?.stock !== undefined) return Number(item.variant.stock)
+    if (item.product?.stock !== undefined) return Number(item.product.stock)
+    return Infinity
+  }
+
   const updateQuantity = useCallback(async function(itemId, qty) {
+    if (qty < 1) { qty = 0 }
+    const item = cartItems.find(i => i.id === itemId)
+    const max = item ? getMaxStock(item) : Infinity
+    if (qty > 0 && max > 0) qty = Math.min(qty, max)
     if (user) {
       try {
         if (qty < 1) {
@@ -276,9 +286,14 @@ export function CartProvider({ children }) {
     return { subtotal, discountTotal: 0, couponDiscount, finalTotal: subtotal - couponDiscount }
   }, [subtotal, couponDiscount])
 
+  const itemCount = useMemo(() =>
+    cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0),
+    [cartItems]
+  )
+
   const value = {
     cartItems, setCartItems, addToCart, removeFromCart, updateQuantity,
-    clearCartAfterOrder,
+    clearCartAfterOrder, itemCount,
     productSelections,
     setProductSelection: function(productId, sel) { setProductSelection(prev => ({ ...prev, [productId]: { ...prev[productId], ...sel } })) },
     bundleSelections,

@@ -78,6 +78,7 @@ export const api = {
   getAllCategories: () => request('/categories/all'),
   createCategory: (data) => request('/categories', { method: 'POST', body: JSON.stringify(data) }),
   updateCategory: (id, data) => request(`/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  renameCategory: (id, name) => request(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify({ name }) }),
   deleteCategory: (id) => request(`/categories/${id}`, { method: 'DELETE' }),
   toggleCategoryActive: (id) => request(`/categories/${id}/toggle-active`, { method: 'PATCH' }),
   reorderCategories: (orders) => request('/categories/reorder', { method: 'PATCH', body: JSON.stringify({ orders }) }),

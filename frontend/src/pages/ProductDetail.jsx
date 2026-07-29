@@ -70,7 +70,10 @@ export default function ProductDetail() {
         console.log('ProductDetail: slug=', slug, 'data=', data ? 'found' : 'null')
         if (!data) { console.warn('ProductDetail: API returned null for slug:', slug); toast.error('Product not found in database'); setLoading(false); return }
         setProduct(data)
-        if (data?.variants?.length) setSelectedVariant(data.variants[0])
+        if (data?.variants?.length) {
+          const firstInStock = data.variants.find(v => v.stock === undefined || Number(v.stock) > 0) || data.variants[0]
+          setSelectedVariant(firstInStock)
+        }
         const related = await api.getProducts({ limit: 4, category: data?.category, sort: 'created_at' })
         setRelatedProducts((related?.data || []).filter(p => p._id !== data?._id))
       } catch (e) {
@@ -206,27 +209,33 @@ export default function ProductDetail() {
             {/* Select Pack Size */}
             {hasVariants && (
               <div>
-                <h3 className="font-heading text-h4 font-bold text-ink mb-2">Select Pack Size</h3>
-                <select
-                  value={selectedVariant?.id || selectedVariant?._id}
-                  onChange={(e) => {
-                    const found = variants.find(v => (v.id || v._id) === e.target.value)
-                    if (found) setSelectedVariant(found)
-                  }}
-                  className="w-full rounded-xl border-2 border-[#222] bg-white px-4 py-3 text-body-sm font-semibold text-ink outline-none focus:border-[#0E9F3E] transition"
-                >
+                <h3 className="font-heading text-h4 font-bold text-ink mb-3">Select Pack Size</h3>
+                <div className="flex flex-wrap gap-2">
                   {variants.map((v) => {
                     const vid = v.id || v._id
+                    const isSelected = (selectedVariant?.id || selectedVariant?._id) === vid
+                    const outOfStock = v.stock !== undefined && Number(v.stock) <= 0
                     const vPrice = v.price || price
                     const vMrp = v.original_price || v.originalPrice || v.mrp || mrp
                     const vLabel = v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
                     return (
-                      <option key={vid} value={vid}>
-                        {vLabel} — {formatPrice(vPrice)}{vMrp > vPrice ? ` (MRP ${formatPrice(vMrp)})` : ''}
-                      </option>
+                      <button key={vid} onClick={() => !outOfStock && setSelectedVariant(v)} disabled={outOfStock}
+                        className={`relative rounded-xl border-2 px-4 py-3 text-left transition-all font-product flex-1 min-w-[120px] ${
+                          isSelected
+                            ? 'border-[#0E9F3E] bg-[#0E9F3E]/5 text-[#0E9F3E]'
+                            : outOfStock
+                              ? 'border-border text-gray-300 cursor-not-allowed'
+                              : 'border-[#222] text-ink hover:border-[#0E9F3E]'
+                        }`}>
+                        <span className="block text-body-sm font-semibold">{vLabel}</span>
+                        <span className={`block mt-0.5 text-caption ${isSelected ? 'text-[#0E9F3E]' : outOfStock ? 'text-gray-300' : 'text-muted'}`}>
+                          {formatPrice(vPrice)}{vMrp > vPrice ? `  MRP ${formatPrice(vMrp)}` : ''}
+                        </span>
+                        {outOfStock && <span className="block text-caption text-gray-300 mt-0.5">Out of stock</span>}
+                      </button>
                     )
                   })}
-                </select>
+                </div>
               </div>
             )}
 
