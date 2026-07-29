@@ -29,7 +29,7 @@ function SlideImage({ slide, active, index, priority }) {
 
   return (
     <picture>
-      <source media="(min-width: 768px)" srcSet={getImg(desktop, 'f_auto,q_70,w_1920,h_900,c_fill,g_auto')} />
+      <source media="(min-width: 768px)" srcSet={getImg(desktop, 'f_auto,q_70,w_2400,h_900,c_fill,g_auto')} />
       <img src={getImg(mobile, 'f_auto,q_70,w_1080,h_1350,c_fill,g_auto')}
         alt={slide.alt || slide.heading || 'Banner'}
         loading={priority ? 'eager' : active ? 'eager' : 'lazy'}
