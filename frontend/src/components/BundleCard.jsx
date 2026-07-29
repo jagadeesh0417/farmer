@@ -1,9 +1,7 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
-import { useSiteSettings } from '../contexts/SiteSettingsContext'
 
 function calculateBundlePrice(bundle) {
   const items = bundle?.items || bundle?.bundle_items || []
@@ -17,12 +15,10 @@ function calculateBundlePrice(bundle) {
 
 export default function BundleCard({ bundle }) {
   const { addToCart, removeFromCart, cartItems, updateQuantity } = useCart()
-  const { settings } = useSiteSettings()
 
   const id = bundle._id || bundle.id
   const name = bundle.name || bundle.bundle_name
   const image = bundle.image || bundle.bundle_image_url || bundle.image_url
-  const description = bundle.description || bundle.bundle_description || ''
   const discountPct = Math.round(bundle.discountPercent || bundle.bundle_discount_percent || 0)
   const items = bundle?.items || bundle?.bundle_items || []
   const slug = bundle.slug || id
@@ -53,8 +49,11 @@ export default function BundleCard({ bundle }) {
   }
 
   return (
-    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden">
-      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0">
+    <div className="group flex flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden
+      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] max-sm:h-[430px] max-sm:min-h-[430px] max-sm:max-h-[430px]
+      sm:h-full sm:w-full">
+      {/* Image */}
+      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0 max-sm:h-[170px] sm:aspect-square sm:w-full">
         {discountPct > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
             {discountPct}% OFF
@@ -65,47 +64,55 @@ export default function BundleCard({ bundle }) {
             {items.length} Items
           </span>
         )}
-
-        <div className="relative w-full overflow-hidden rounded-t-xl bg-[#F0E6D3]">
-          <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
-            className="aspect-square w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+        <div className="relative w-full h-full overflow-hidden rounded-t-xl bg-[#F0E6D3]">
+          <img src={getImageUrl(image)} alt={name}
+            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             onError={(e) => { e.target.src = bundleFallback }} />
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2">
-        <Link to={`/combos/${slug}`}>
-          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black min-h-[2.5rem]">
+      {/* Content area */}
+      <div className="flex flex-1 flex-col overflow-hidden max-sm:px-2 max-sm:pb-2 sm:px-2.5 sm:pb-2.5 sm:pt-2">
+        {/* Title */}
+        <Link to={`/combos/${slug}`} className="flex-shrink-0 max-sm:h-[52px] sm:min-h-[2.5rem] flex items-center justify-center overflow-hidden">
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black
+            overflow-hidden text-ellipsis break-word max-sm:text-[12px] max-sm:leading-[14px]">
             {name}
           </h3>
         </Link>
 
-        <div className="mt-1 flex items-baseline justify-center gap-1.5 min-h-[1.5rem] flex-shrink-0">
-          <span className="font-product text-body font-bold text-black">{formatPrice(bundlePrice)}</span>
+        {/* Price */}
+        <div className="flex-shrink-0 flex items-center justify-center gap-1
+          max-sm:h-[42px] sm:min-h-[1.5rem] sm:mt-1">
+          <span className="font-product text-body font-bold text-black max-sm:text-[13px]">{formatPrice(bundlePrice)}</span>
           {originalTotal > bundlePrice && (
-            <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(originalTotal)}</span>
+            <span className="font-product text-caption font-medium text-gray-400 line-through max-sm:text-[11px]">{formatPrice(originalTotal)}</span>
           )}
         </div>
         {savings > 0 && (
-          <p className="mt-0.5 text-center font-product text-micro font-semibold text-[#F5A623] flex-shrink-0">Save {formatPrice(savings)}</p>
+          <p className="flex-shrink-0 text-center font-product text-micro font-semibold text-[#F5A623] max-sm:text-[10px] max-sm:leading-[12px]">Save {formatPrice(savings)}</p>
         )}
 
-        <div className="mt-auto pt-2">
+        {/* Variant placeholder for consistency */}
+        <div className="max-sm:hidden sm:hidden" />
+
+        {/* Spacer + Button */}
+        <div className="mt-auto flex-shrink-0">
           {isInCart ? (
-            <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
+            <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px]">
               <button type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
+                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product max-sm:w-8"
                 disabled={cartQuantity <= 1}>−</button>
               <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
               <button type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product">+</button>
+                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-8">+</button>
             </div>
           ) : (
             <button onClick={handleAddToCart}
-              className="h-9 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]">
+              className="h-9 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px]">
               Add to Cart
             </button>
           )}
