@@ -5,18 +5,31 @@ export default function HorizontalScroll({ children, className = '' }) {
   const [showLeft, setShowLeft] = useState(false)
   const [showRight, setShowRight] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const autoScrollTimer = useRef(null)
   const rafRef = useRef(null)
   const isDragging = useRef(false)
-  const startX = useRef(0)
-  const scrollLeftStart = useRef(0)
+  const dragStartX = useRef(0)
+  const dragStartScroll = useRef(0)
+  const lastMoveX = useRef(0)
+  const lastMoveTime = useRef(0)
   const velocityRef = useRef(0)
+  const hoverRef = useRef(false)
+
+  const getCardWidth = useCallback(() => {
+    const el = scrollRef.current
+    if (!el || !el.children[0]) return 300
+    const child = el.children[0]
+    const style = getComputedStyle(child)
+    const gap = parseInt(getComputedStyle(el).columnGap) || 12
+    return child.offsetWidth + gap
+  }, [])
 
   const checkScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
-    setShowLeft(el.scrollLeft > 4)
-    setShowRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
+    const atStart = el.scrollLeft <= 2
+    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2
+    setShowLeft(!atStart)
+    setShowRight(!atEnd)
   }, [])
 
   useEffect(() => {
@@ -29,18 +42,22 @@ export default function HorizontalScroll({ children, className = '' }) {
     return () => { el.removeEventListener('scroll', checkScroll); ro.disconnect() }
   }, [checkScroll])
 
+  // Also check on children change
+  useEffect(() => { checkScroll() }, [children, checkScroll])
+
   const scrollBy = useCallback((dir) => {
     const el = scrollRef.current
     if (!el) return
-    const card = el.children[0]
-    const cardWidth = card ? card.offsetWidth + 16 : 300
-    el.scrollBy({ left: dir * cardWidth * 2, behavior: 'smooth' })
-  }, [])
+    const step = getCardWidth()
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }, [getCardWidth])
 
   const handleMouseDown = useCallback((e) => {
     isDragging.current = true
-    startX.current = e.pageX
-    scrollLeftStart.current = scrollRef.current.scrollLeft
+    dragStartX.current = e.pageX
+    dragStartScroll.current = scrollRef.current.scrollLeft
+    lastMoveX.current = e.pageX
+    lastMoveTime.current = performance.now()
     velocityRef.current = 0
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
   }, [])
@@ -49,51 +66,61 @@ export default function HorizontalScroll({ children, className = '' }) {
     if (!isDragging.current) return
     isDragging.current = false
     const el = scrollRef.current
-    if (el && Math.abs(velocityRef.current) > 2) {
-      const v = velocityRef.current * 8
+    if (el && Math.abs(velocityRef.current) > 0.3) {
       const animate = () => {
-        el.scrollLeft += v * 0.016
-        velocityRef.current *= 0.95
-        if (Math.abs(velocityRef.current) > 0.5) rafRef.current = requestAnimationFrame(animate)
+        el.scrollLeft += velocityRef.current
+        velocityRef.current *= 0.92
+        if (Math.abs(velocityRef.current) > 0.1) rafRef.current = requestAnimationFrame(animate)
       }
-      animate()
+      rafRef.current = requestAnimationFrame(animate)
     }
   }, [])
 
   const handleMouseMove = useCallback((e) => {
     if (!isDragging.current) return
     e.preventDefault()
-    const x = e.pageX - startX.current
-    velocityRef.current = x
-    scrollRef.current.scrollLeft = scrollLeftStart.current - x
+    const now = performance.now()
+    const dt = now - lastMoveTime.current
+    if (dt > 0) {
+      velocityRef.current = (e.pageX - lastMoveX.current) / dt * 16
+    }
+    lastMoveX.current = e.pageX
+    lastMoveTime.current = now
+    scrollRef.current.scrollLeft = dragStartScroll.current - (e.pageX - dragStartX.current)
   }, [])
 
   const handleWheel = useCallback((e) => {
     const el = scrollRef.current
     if (!el) return
-    const delta = e.deltaY || e.deltaX
-    el.scrollLeft += delta
+    const delta = e.deltaX || e.deltaY
+    if (Math.abs(delta) < 5) return
+    const atStart = el.scrollLeft <= 0
+    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1
+    const scrollingUp = delta < 0
+    const scrollingDown = delta > 0
+    if ((scrollingUp && atStart) || (scrollingDown && atEnd)) return
+    el.scrollLeft += delta * 0.8
     e.preventDefault()
   }, [])
 
-  // Auto-scroll
+  // Auto-scroll — using ref for isHovered to avoid stale closures
+  useEffect(() => { hoverRef.current = isHovered }, [isHovered])
+
   useEffect(() => {
     const el = scrollRef.current
-    if (!el || isHovered) return
-    const card = el.children[0]
-    if (!card) return
-    const cardWidth = card.offsetWidth + 16
+    if (!el) return
     const timer = setInterval(() => {
-      if (isHovered) return
+      if (hoverRef.current) return
+      const step = getCardWidth()
       const maxScroll = el.scrollWidth - el.clientWidth
-      if (el.scrollLeft >= maxScroll - 10) {
+      if (el.scrollLeft >= maxScroll - step) {
         el.scrollTo({ left: 0, behavior: 'smooth' })
       } else {
-        el.scrollBy({ left: cardWidth, behavior: 'smooth' })
+        el.scrollBy({ left: step, behavior: 'smooth' })
       }
-    }, 4000)
+    }, 5000)
     return () => clearInterval(timer)
-  }, [isHovered])
+  }, [getCardWidth])
 
   return (
     <div className="relative"
@@ -120,7 +147,7 @@ export default function HorizontalScroll({ children, className = '' }) {
         onMouseMove={handleMouseMove}
         onWheel={handleWheel}
         className={`flex overflow-x-auto hide-scrollbar scroll-smooth pb-2 pt-0.5 cursor-grab active:cursor-grabbing snap-x snap-mandatory px-2 sm:px-0 -mx-5 sm:mx-0 [&>*]:snap-start [&>*]:flex-shrink-0 max-sm:gap-3 sm:gap-4 ${className}`}
-        style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}>
+        style={{ WebkitOverflowScrolling: 'touch' }}>
         {children}
       </div>
     </div>
