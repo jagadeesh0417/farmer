@@ -41,7 +41,7 @@ router.get('/:key', async (req, res) => {
 // Admin: create or update banner by key
 router.put('/:key', protect, adminOnly, async (req, res) => {
   try {
-    const { image, cloudinaryPublicId, desktopImage, desktopPublicId, mobileImage, mobilePublicId, title, subtitle, buttonText, buttonLink, enabled, sectionName, order } = req.body
+    const { image, cloudinaryPublicId, desktopImage, desktopPublicId, mobileImage, mobilePublicId, buttonLink, enabled, sectionName, order } = req.body
     const existing = await BannerSetting.findOne({ bannerKey: req.params.key })
 
     // If legacy image changed, delete old Cloudinary image
@@ -59,7 +59,7 @@ router.put('/:key', protect, adminOnly, async (req, res) => {
 
     const banner = await BannerSetting.findOneAndUpdate(
       { bannerKey: req.params.key },
-      { $set: { image, cloudinaryPublicId, desktopImage, desktopPublicId, mobileImage, mobilePublicId, title, subtitle, buttonText, buttonLink, sectionName, order, enabled: enabled ?? true } },
+      { $set: { image, cloudinaryPublicId, desktopImage, desktopPublicId, mobileImage, mobilePublicId, buttonLink, sectionName, order, enabled: enabled ?? true } },
       { upsert: true, new: true }
     )
     res.json(banner)

@@ -49,8 +49,8 @@ export default function Home() {
   const [bundles, setBundles] = useState([])
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
-  const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products', alt: '' })
-  const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, title: '', subtitle: '', buttonText: '', buttonLink: '', enabled: true })
+  const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products' })
+  const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, buttonLink: '/products', enabled: true })
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -112,9 +112,6 @@ export default function Home() {
           desktopImage: bs[k].desktopImage || bs[k].image,
           mobileImage: bs[k].mobileImage || bs[k].image,
           image: bs[k].image,
-          heading: bs[k].title || '',
-          subtext: bs[k].subtitle || '',
-          ctaLabel: bs[k].buttonText || '',
           ctaHref: bs[k].buttonLink || '/products',
         }))
         setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero.map(s => ({
@@ -122,9 +119,6 @@ export default function Home() {
           desktopImage: s.desktopImage || s.image,
           mobileImage: s.mobileImage || s.tabletImage || s.image,
           image: s.image,
-          heading: s.title,
-          subtext: s.subtitle,
-          ctaLabel: s.buttonText,
           ctaHref: '/products',
         })))
         const promo = bs.promotional || {}
@@ -132,15 +126,11 @@ export default function Home() {
           desktopImage: promo.desktopImage || promo.image,
           mobileImage: promo.mobileImage || promo.image,
           link: promo.buttonLink || '/products',
-          alt: promo.title || '',
         })
         const scBanner = bs.shopByCategory || {}
         setShopCategoryBanner({
           desktopImage: scBanner.desktopImage,
           mobileImage: scBanner.mobileImage,
-          title: scBanner.title || '',
-          subtitle: scBanner.subtitle || '',
-          buttonText: scBanner.buttonText || 'Shop Now',
           buttonLink: scBanner.buttonLink || '/products',
           enabled: scBanner.enabled !== false,
         })
@@ -205,7 +195,7 @@ export default function Home() {
                     srcSet={cld(promoBanner.desktopImage, 'f_auto,q_auto,w_1200')} />
                 )}
                 <img src={cld(promoBanner.mobileImage || promoBanner.desktopImage, 'f_auto,q_auto,w_600')}
-                  alt={promoBanner.alt} loading="lazy"
+                  alt="Promotional banner" loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover object-center" />
               </picture>
             ) : (
@@ -585,28 +575,18 @@ export default function Home() {
                     className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
                     {shopCategoryBanner.enabled !== false && shopCategoryBanner.desktopImage ? (
                       <picture>
-                        {shopCategoryBanner.desktopImage && <source media="(min-width: 768px)" srcSet={cld(shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_800')} />}
+                        <source media="(min-width: 768px)" srcSet={cld(shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_800')} />
                         <img src={cld(shopCategoryBanner.mobileImage || shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_600')}
-                          alt={shopCategoryBanner.title || cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+                          alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
                       </picture>
                     ) : (
                       <img src={cat.image_url || cat.image ? getImageUrl(cat.image_url || cat.image) : '/banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
-                      {shopCategoryBanner.enabled !== false && shopCategoryBanner.title ? (
-                        <>
-                          <h3 className="font-heading text-h3 font-bold text-white">{shopCategoryBanner.title}</h3>
-                          {shopCategoryBanner.subtitle && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{shopCategoryBanner.subtitle}</p>}
-                          <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">{shopCategoryBanner.buttonText || 'Shop Now'} →</span>
-                        </>
-                      ) : (
-                        <>
-                          <h3 className="font-heading text-h3 font-bold text-white">{cat.name}</h3>
-                          {cat.description && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{cat.description}</p>}
-                          <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
-                        </>
-                      )}
+                      <h3 className="font-heading text-h3 font-bold text-white">{cat.name}</h3>
+                      {cat.description && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{cat.description}</p>}
+                      <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
                     </div>
                   </Link>
                   <div className="lg:col-span-2">
