@@ -36,14 +36,14 @@ function SlideImage({ slide, active, index, priority }) {
       {desktop && (
         <source media="(min-width: 768px)"
           sizes="100vw"
-          srcSet={srcSet(desktop, [640, 1024, 1920, 2200, 2800], 'h_700,c_fill,g_auto')} />
+          srcSet={srcSet(desktop, [640, 1024, 1920, 2200, 2800], 'c_limit')} />
       )}
       {mobile && (
         <source media="(max-width: 767px)"
           sizes="100vw"
-          srcSet={srcSet(mobile, [480, 768, 1080], 'h_1920,c_fill,g_auto')} />
+          srcSet={srcSet(mobile, [480, 768, 1080], 'c_limit')} />
       )}
-      <img src={getImg(desktop || mobile, 'f_auto,q_70,w_800,h_700,c_fill,g_auto')}
+      <img src={getImg(desktop || mobile, 'f_auto,q_70,w_800,c_limit')}
         alt={slide.alt || slide.heading || 'Banner'}
         loading={priority ? 'eager' : active ? 'eager' : 'lazy'}
         fetchPriority={priority || active ? 'high' : undefined}
@@ -89,9 +89,18 @@ function OverlayContent({ slide, active }) {
 }
 
 function SingleSlide({ slide }) {
+  const desktop = slide.desktopImage || slide.image
+  const mobile = slide.mobileImage || slide.tabletImage || desktop
+  const src = desktop || mobile
   return (
-    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px] rounded-2xl" role="banner" aria-label={slide.heading || 'Banner'}>
-      <SlideImage slide={slide} active index={0} priority />
+    <section className="ken-hero relative w-full overflow-hidden bg-green-800 rounded-2xl" role="banner" aria-label={slide.heading || 'Banner'}>
+      {src && (
+        <img src={getImg(src, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
+          className="block w-full h-auto invisible" loading="eager" />
+      )}
+      <div className="absolute inset-0">
+        <SlideImage slide={slide} active index={0} priority />
+      </div>
       <GradientOverlay align={slide.align} />
       <OverlayContent slide={slide} active />
     </section>
@@ -115,9 +124,21 @@ function Carousel({ slides }) {
     setAnimTick(t => t + 1)
   }, [active])
 
+  const activeSlide = slides[active]
+  const desktop = activeSlide?.desktopImage || activeSlide?.image
+  const mobile = activeSlide?.mobileImage || activeSlide?.tabletImage || desktop
+  const spacerSrc = desktop || mobile
+
   return (
-    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px] rounded-2xl select-none"
+    <section className="ken-hero relative w-full overflow-hidden bg-green-800 rounded-2xl select-none"
       role="region" aria-label="Promotional banner carousel" aria-roledescription="carousel">
+      {/* Spacer image — sets container height to match active slide's natural aspect ratio */}
+      {spacerSrc && (
+        <img src={getImg(spacerSrc, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
+          className="block w-full h-auto invisible" loading="eager" />
+      )}
+
+      {/* Slide stack for crossfade */}
       {slides.map((slide, i) => (
         <div key={slide.id}
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === active ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
@@ -165,21 +186,8 @@ export default function KenBurnsHero({ slides = defaultSlides }) {
             transform: none !important;
           }
         }
-        @media (max-width: 767px) {
-          section.ken-hero {
-            height: auto;
-            aspect-ratio: 9 / 16;
-            min-height: 60vh;
-          }
-        }
         section.ken-hero {
-          background: linear-gradient(135deg, #166534 0%, #14532d 50%, #166534 100%);
-          background-size: 200% 200%;
-          animation: hero-shimmer 2s ease-in-out infinite;
-        }
-        @keyframes hero-shimmer {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+          background: #166534;
         }
       `}</style>
     </>
