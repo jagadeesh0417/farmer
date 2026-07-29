@@ -22,19 +22,34 @@ function getImg(url, transform) {
   return url
 }
 
+function srcSet(url, sizes, transform) {
+  if (!url) return undefined
+  return sizes.map(w => `${getImg(url, `f_auto,q_70,w_${w},${transform}`)} ${w}w`).join(', ')
+}
+
 function SlideImage({ slide, active, index, priority }) {
   const desktop = slide.desktopImage || slide.image
   const mobile = slide.mobileImage || slide.tabletImage || desktop
 
   return (
     <picture>
-      <source media="(min-width: 768px)" srcSet={getImg(desktop, 'f_auto,q_70,w_2400,h_900,c_fill,g_auto')} />
-      <img src={getImg(mobile, 'f_auto,q_70,w_1080,h_1350,c_fill,g_auto')}
+      {desktop && (
+        <source media="(min-width: 768px)"
+          sizes="100vw"
+          srcSet={srcSet(desktop, [640, 1024, 1920, 2400], 'h_900,c_fill,g_auto')} />
+      )}
+      {mobile && (
+        <source media="(max-width: 767px)"
+          sizes="100vw"
+          srcSet={srcSet(mobile, [480, 768, 1080], 'h_1920,c_fill,g_auto')} />
+      )}
+      <img src={getImg(desktop || mobile, 'f_auto,q_70,w_800,c_fill,g_auto')}
         alt={slide.alt || slide.heading || 'Banner'}
         loading={priority ? 'eager' : active ? 'eager' : 'lazy'}
         fetchPriority={priority || active ? 'high' : undefined}
         decoding={active ? 'sync' : 'async'}
         className="absolute inset-0 h-full w-full object-cover object-center"
+        style={!priority && active ? { contentVisibility: 'auto' } : undefined}
       />
     </picture>
   )
@@ -153,7 +168,8 @@ export default function KenBurnsHero({ slides = defaultSlides }) {
         @media (max-width: 767px) {
           section.ken-hero {
             height: auto;
-            aspect-ratio: 4 / 5;
+            aspect-ratio: 9 / 16;
+            min-height: 60vh;
           }
         }
         section.ken-hero {

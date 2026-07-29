@@ -9,6 +9,10 @@ const bannerSettingSchema = new mongoose.Schema({
   buttonLink: String,
   image: String,
   cloudinaryPublicId: String,
+  desktopImage: String,
+  desktopPublicId: String,
+  mobileImage: String,
+  mobilePublicId: String,
   enabled: { type: Boolean, default: true },
   order: { type: Number, default: 0 },
 }, { timestamps: true })

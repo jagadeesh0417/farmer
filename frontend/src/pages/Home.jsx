@@ -104,18 +104,23 @@ export default function Home() {
         const bs = bannerSettings || {}
         const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
           id: k,
-          desktopImage: bs[k].image,
-          tabletImage: bs[k].image,
-          mobileImage: bs[k].image,
+          desktopImage: bs[k].desktopImage || bs[k].image,
+          mobileImage: bs[k].mobileImage || bs[k].image,
           image: bs[k].image,
           heading: bs[k].title || '',
           subtext: bs[k].subtitle || '',
           ctaLabel: bs[k].buttonText || '',
-          ctaHref: '/products',
+          ctaHref: bs[k].buttonLink || '/products',
         }))
         setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero.map(s => ({
-          id: s.title, ...s,
-          heading: s.title, subtext: s.subtitle, ctaLabel: s.buttonText, ctaHref: '/products',
+          id: s.title,
+          desktopImage: s.desktopImage || s.image,
+          mobileImage: s.mobileImage || s.tabletImage || s.image,
+          image: s.image,
+          heading: s.title,
+          subtext: s.subtitle,
+          ctaLabel: s.buttonText,
+          ctaHref: '/products',
         })))
         setPromoBanner(bs.promotional?.image || null)
       } catch (err) { console.error(err) }

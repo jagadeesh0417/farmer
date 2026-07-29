@@ -9,11 +9,41 @@ const BANNER_SECTIONS = [
   { key: 'promotional', sectionName: 'Promotional Banner', group: 'Homepage' },
 ]
 
+const DESKTOP_DIMENSIONS = { width: 1920, height: 700, label: '16:9 (1920×700)' }
+const MOBILE_DIMENSIONS = { width: 1080, height: 1920, label: '9:16 (1080×1920)' }
+
+function ImagePreview({ src, onUpload, onRemove, label, dimensions }) {
+  const inputRef = useRef(null)
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-600">{label}</span>
+        <span className="text-[10px] text-slate-400">Recommended: {dimensions.label}</span>
+      </div>
+      {src ? (
+        <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+          <img src={src} alt={label} className="w-full object-cover" style={{ maxHeight: label.startsWith('Desktop') ? 180 : 240 }} />
+          <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition flex items-end justify-end p-1">
+            <button type="button" onClick={onRemove}
+              className="rounded bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-red-700 transition">Remove</button>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-brand-400 hover:text-brand-600 transition"
+          style={{ height: label.startsWith('Desktop') ? 140 : 200 }} onClick={() => inputRef.current?.click()}>
+          <svg className="h-6 w-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+          <span className="text-xs">Upload {label}</span>
+        </div>
+      )}
+      <input ref={inputRef} type="file" accept="image/*" onChange={onUpload} hidden />
+    </div>
+  )
+}
+
 export default function AdminBannerManagement() {
   const [banners, setBanners] = useState({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(null)
-  const fileRefs = useRef({})
 
   useEffect(() => { load() }, [])
 
@@ -32,14 +62,26 @@ export default function AdminBannerManagement() {
     setBanners(prev => ({ ...prev, [key]: { ...prev[key], [field]: value } }))
   }
 
-  const handleImageUpload = async (e, key) => {
+  const handleDesktopUpload = async (e, key) => {
     const file = e.target.files[0]
     if (!file) return
     try {
       const result = await api.uploadImage(file, 'haifarmer/banners')
-      handleChange(key, 'image', result.url)
-      handleChange(key, 'cloudinaryPublicId', result.publicId)
-      toast.success('Image uploaded')
+      handleChange(key, 'desktopImage', result.url)
+      handleChange(key, 'desktopPublicId', result.publicId)
+      toast.success('Desktop image uploaded')
+    } catch (err) { toast.error(err.message) }
+    if (e.target) e.target.value = ''
+  }
+
+  const handleMobileUpload = async (e, key) => {
+    const file = e.target.files[0]
+    if (!file) return
+    try {
+      const result = await api.uploadImage(file, 'haifarmer/banners')
+      handleChange(key, 'mobileImage', result.url)
+      handleChange(key, 'mobilePublicId', result.publicId)
+      toast.success('Mobile image uploaded')
     } catch (err) { toast.error(err.message) }
     if (e.target) e.target.value = ''
   }
@@ -50,15 +92,16 @@ export default function AdminBannerManagement() {
       const b = banners[key] || {}
       const payload = {
         sectionName: BANNER_SECTIONS.find(s => s.key === key)?.sectionName || key,
-        image: b.image || '',
-        cloudinaryPublicId: b.cloudinaryPublicId || '',
+        desktopImage: b.desktopImage || '',
+        desktopPublicId: b.desktopPublicId || '',
+        mobileImage: b.mobileImage || '',
+        mobilePublicId: b.mobilePublicId || '',
         title: b.title || '',
         subtitle: b.subtitle || '',
+        buttonText: b.buttonText || '',
+        buttonLink: b.buttonLink || '',
         enabled: b.enabled !== false,
-      }
-      if (key === 'promotional') {
-        payload.buttonText = b.buttonText || ''
-        payload.buttonLink = b.buttonLink || ''
+        order: b.order || 0,
       }
       await api.updateBannerSetting(key, payload)
       toast.success(`${BANNER_SECTIONS.find(s => s.key === key)?.sectionName || key} saved`)
@@ -95,43 +138,38 @@ export default function AdminBannerManagement() {
                     </label>
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div>
-                        {b.image ? (
-                          <div className="relative rounded-lg overflow-hidden border border-slate-200 mb-2">
-                            <img src={b.image} alt="" className="w-full h-32 object-cover" onError={e => { e.target.style.display = 'none' }} />
-                          </div>
-                        ) : (
-                          <div className="w-full h-32 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-sm mb-2">No image</div>
-                        )}
-                        <div className="flex gap-2">
-                          <button type="button" onClick={() => fileRefs.current[s.key]?.click()} className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-400 hover:text-brand-600 transition text-center">
-                            {b.image ? 'Replace Image' : 'Upload Image'}
-                          </button>
-                          {b.image && (
-                            <button type="button" onClick={() => { handleChange(s.key, 'image', ''); handleChange(s.key, 'cloudinaryPublicId', '') }} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition">
-                              Remove
-                            </button>
-                          )}
-                        </div>
-                        <input ref={el => fileRefs.current[s.key] = el} type="file" accept="image/*" onChange={e => handleImageUpload(e, s.key)} hidden />
-                      </div>
-                    </div>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    {/* Desktop image */}
+                    <ImagePreview
+                      src={b.desktopImage}
+                      label="Desktop Image"
+                      dimensions={DESKTOP_DIMENSIONS}
+                      onUpload={(e) => handleDesktopUpload(e, s.key)}
+                      onRemove={() => { handleChange(s.key, 'desktopImage', ''); handleChange(s.key, 'desktopPublicId', '') }} />
 
-                    <div className="space-y-2">
-                      <input value={b.title || ''} onChange={e => handleChange(s.key, 'title', e.target.value)} placeholder="Title" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                      <input value={b.subtitle || ''} onChange={e => handleChange(s.key, 'subtitle', e.target.value)} placeholder="Subtitle" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                      {s.key === 'promotional' && (
-                        <div className="grid grid-cols-2 gap-2 pt-1">
-                          <input value={b.buttonText || ''} onChange={e => handleChange(s.key, 'buttonText', e.target.value)} placeholder="Button text" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                          <input value={b.buttonLink || ''} onChange={e => handleChange(s.key, 'buttonLink', e.target.value)} placeholder="Button link (e.g. /products)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                        </div>
-                      )}
-                    </div>
+                    {/* Mobile image */}
+                    <ImagePreview
+                      src={b.mobileImage}
+                      label="Mobile Image"
+                      dimensions={MOBILE_DIMENSIONS}
+                      onUpload={(e) => handleMobileUpload(e, s.key)}
+                      onRemove={() => { handleChange(s.key, 'mobileImage', ''); handleChange(s.key, 'mobilePublicId', '') }} />
                   </div>
 
-                  <div className="mt-4 flex justify-end">
+                  {/* Fields */}
+                  <div className="mt-4 grid sm:grid-cols-2 gap-3">
+                    <input value={b.title || ''} onChange={e => handleChange(s.key, 'title', e.target.value)} placeholder="Banner Title" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                    <input value={b.subtitle || ''} onChange={e => handleChange(s.key, 'subtitle', e.target.value)} placeholder="Subtitle (optional)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                    <input value={b.buttonText || ''} onChange={e => handleChange(s.key, 'buttonText', e.target.value)} placeholder="Button text (e.g. Shop Now)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                    <input value={b.buttonLink || ''} onChange={e => handleChange(s.key, 'buttonLink', e.target.value)} placeholder="Button link (e.g. /products)" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">Order:</span>
+                      <input type="number" value={b.order ?? 0} onChange={e => handleChange(s.key, 'order', parseInt(e.target.value) || 0)}
+                        className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none focus:border-brand-500" min="0" />
+                    </div>
                     <button onClick={() => handleSave(s.key)} disabled={saving === s.key}
                       className="rounded-lg bg-brand-600 px-5 py-2 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-50 transition">
                       {saving === s.key ? 'Saving...' : 'Save'}
