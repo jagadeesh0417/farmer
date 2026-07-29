@@ -50,7 +50,7 @@ export default function Home() {
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
   const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products', alt: '' })
-  const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, title: '', subtitle: '', buttonText: '', buttonLink: '' })
+  const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, title: '', subtitle: '', buttonText: '', buttonLink: '', enabled: true })
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -548,28 +548,6 @@ export default function Home() {
       {/* 12. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          {/* Shop by Category Banner */}
-          {shopCategoryBanner.desktopImage || shopCategoryBanner.mobileImage ? (
-            <Link to={shopCategoryBanner.buttonLink} className="group relative block rounded-xl overflow-hidden mb-8">
-              <picture>
-                {shopCategoryBanner.desktopImage && (
-                  <source media="(min-width: 768px)" srcSet={cld(shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_1400')} />
-                )}
-                <img src={cld(shopCategoryBanner.mobileImage || shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_700')}
-                  alt={shopCategoryBanner.title} loading="lazy" className="w-full h-auto object-contain" />
-              </picture>
-              {shopCategoryBanner.title && (
-                <div className="absolute inset-0 flex flex-col justify-center px-8 lg:px-16 bg-gradient-to-r from-black/30 to-transparent">
-                  <h3 className="text-white text-h3 lg:text-h2 font-bold drop-shadow-lg">{shopCategoryBanner.title}</h3>
-                  {shopCategoryBanner.subtitle && <p className="text-white/80 text-body-sm mt-1 max-w-md">{shopCategoryBanner.subtitle}</p>}
-                  {shopCategoryBanner.buttonText && (
-                    <span className="mt-3 inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-lg text-caption font-semibold w-fit hover:bg-green-700 transition">{shopCategoryBanner.buttonText}</span>
-                  )}
-                </div>
-              )}
-            </Link>
-          ) : null}
-
           <div className="text-center mb-8">
             <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Shop by</span>
             <h2 className="mt-1 text-h2 font-bold">Category</h2>
@@ -603,13 +581,32 @@ export default function Home() {
             return (
               <div key={cid}>
                 <div className="grid lg:grid-cols-3 gap-4">
-                  <Link to={`/products?category=${catName}`} className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
-                    <img src={cat.image_url || cat.image ? getImageUrl(cat.image_url || cat.image) : '/banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+                  <Link to={shopCategoryBanner.enabled !== false && shopCategoryBanner.desktopImage ? shopCategoryBanner.buttonLink || `/products?category=${catName}` : `/products?category=${catName}`}
+                    className="group relative rounded-xl overflow-hidden min-h-[240px] lg:min-h-full flex flex-col justify-end p-5 lg:col-span-1">
+                    {shopCategoryBanner.enabled !== false && shopCategoryBanner.desktopImage ? (
+                      <picture>
+                        {shopCategoryBanner.desktopImage && <source media="(min-width: 768px)" srcSet={cld(shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_800')} />}
+                        <img src={cld(shopCategoryBanner.mobileImage || shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_600')}
+                          alt={shopCategoryBanner.title || cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+                      </picture>
+                    ) : (
+                      <img src={cat.image_url || cat.image ? getImageUrl(cat.image_url || cat.image) : '/banner.png'} alt={cat.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent" />
                     <div className="relative z-10">
-                      <h3 className="font-heading text-h3 font-bold text-white">{cat.name}</h3>
-                      {cat.description && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{cat.description}</p>}
-                      <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
+                      {shopCategoryBanner.enabled !== false && shopCategoryBanner.title ? (
+                        <>
+                          <h3 className="font-heading text-h3 font-bold text-white">{shopCategoryBanner.title}</h3>
+                          {shopCategoryBanner.subtitle && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{shopCategoryBanner.subtitle}</p>}
+                          <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">{shopCategoryBanner.buttonText || 'Shop Now'} →</span>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="font-heading text-h3 font-bold text-white">{cat.name}</h3>
+                          {cat.description && <p className="mt-1 text-body-sm text-white/70 line-clamp-1">{cat.description}</p>}
+                          <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
+                        </>
+                      )}
                     </div>
                   </Link>
                   <div className="lg:col-span-2">
