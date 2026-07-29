@@ -1,3 +1,9 @@
+const PRICING_DEBUG = true
+
+function debugPricing(label, data) {
+  if (PRICING_DEBUG) console.log(`[Pricing] ${label}:`, JSON.stringify(data, (k, v) => v === undefined ? null : v, 2))
+}
+
 export function getItemPrice(item) {
   if (item.bundle) return Number(item.bundle.bundle_price || item.bundle.price || 0)
   return Number(item.variant?.price || item.product?.price || item.product?.basePrice || 0)
@@ -73,6 +79,25 @@ export function calculateCartTotals(items, appliedCoupon, settings) {
   const couponDiscount = calculateCouponDiscount(appliedCoupon, subtotal)
   const shipping = calculateShipping(subtotal, settings)
   const tax = calculateTax(subtotal, settings)
-  const grandTotal = Math.max(0, Math.round(subtotal - comboDiscount - couponDiscount + shipping + tax))
+  const grandTotal = Math.max(0, Math.round(subtotal - couponDiscount + shipping + tax))
+
+  debugPricing('item-details', items.map(item => ({
+    name: item.bundle?.name || item.product?.name || item.bundle?.bundle_name || 'Unknown',
+    id: item.bundle?._id || item.product?._id || item.product_id || item.bundle_id,
+    originalPrice: item.bundle ? (() => {
+      const bis = item.bundle.items || item.bundle.bundle_items || []
+      return bis.reduce((s, bi) => s + Number(bi.price || bi.variant?.price || bi.variant_price || 0) * Number(bi.quantity || 1), 0)
+    })() : null,
+    sellingPrice: getItemPrice(item),
+    discount: item.bundle ? (() => {
+      const bis = item.bundle.items || item.bundle.bundle_items || []
+      const orig = bis.reduce((s, bi) => s + Number(bi.price || bi.variant?.price || bi.variant_price || 0) * Number(bi.quantity || 1), 0)
+      return orig > 0 ? orig - getItemPrice(item) : 0
+    })() : 0,
+    quantity: item.quantity,
+    lineTotal: getItemPrice(item) * (item.quantity || 0),
+  })))
+  debugPricing('totals', { subtotal, comboDiscount, couponDiscount, shipping, tax, grandTotal })
+
   return { subtotal, comboDiscount, couponDiscount, shipping, tax, grandTotal }
 }
