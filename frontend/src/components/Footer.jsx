@@ -18,7 +18,7 @@ export default function Footer() {
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               {logo ? (
-                <img src={logo} alt={storeName} className="h-20 w-auto" />
+                <img src={logo} alt={storeName} className="h-28 w-auto" />
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500">
@@ -87,22 +87,8 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Trust badges */}
-      <div className="border-t border-white/10">
-        <div className="section-container py-6 flex flex-wrap items-center justify-center gap-6">
-          {[
-            { icon: '🌿', label: '100% Organic' },
-            { icon: '🤲', label: 'Ethically Sourced' },
-            { icon: '🚜', label: 'Farm to Home' },
-            { icon: '🔬', label: 'Lab Tested' },
-          ].map(badge => (
-            <div key={badge.label} className="flex items-center gap-1.5 text-body-sm text-white/50">
-              <span>{badge.icon}</span>
-              <span className="text-caption font-medium">{badge.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Spacer */}
+      <div className="border-t border-white/10" />
 
       {/* Social + Copyright */}
       <div className="border-t border-white/10">
