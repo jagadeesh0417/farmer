@@ -7,6 +7,7 @@ const BANNER_SECTIONS = [
   { key: 'hero2', sectionName: 'Hero Banner 2', group: 'Hero' },
   { key: 'hero3', sectionName: 'Hero Banner 3', group: 'Hero' },
   { key: 'promotional', sectionName: 'Promotional Banner', group: 'Homepage' },
+  { key: 'shopByCategory', sectionName: 'Shop by Category Banner', group: 'Homepage' },
 ]
 
 const DESKTOP_DIMENSIONS = { width: 2200, height: 700, label: '≈3:1 (2200×700)' }

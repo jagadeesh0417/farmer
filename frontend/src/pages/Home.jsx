@@ -47,7 +47,8 @@ export default function Home() {
   const [bundles, setBundles] = useState([])
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
-  const [promoBanner, setPromoBanner] = useState(null)
+  const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products', alt: '' })
+  const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, title: '', subtitle: '', buttonText: '', buttonLink: '' })
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
@@ -123,7 +124,23 @@ export default function Home() {
           ctaLabel: s.buttonText,
           ctaHref: '/products',
         })))
-        setPromoBanner(bs.promotional?.image || null)
+        const promo = bs.promotional || {}
+        setPromoBanner({
+          desktopImage: promo.desktopImage || promo.image,
+          mobileImage: promo.mobileImage || promo.image,
+          link: promo.buttonLink || '/products',
+          alt: promo.title || '',
+        })
+        const scBanner = bs.shopByCategory || {}
+        setShopCategoryBanner({
+          desktopImage: scBanner.desktopImage,
+          mobileImage: scBanner.mobileImage,
+          title: scBanner.title || '',
+          subtitle: scBanner.subtitle || '',
+          buttonText: scBanner.buttonText || 'Shop Now',
+          buttonLink: scBanner.buttonLink || '/products',
+          enabled: scBanner.enabled !== false,
+        })
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
@@ -177,32 +194,24 @@ export default function Home() {
       {/* 2. Promotional banner */}
       <section className="py-4 sm:py-5 lg:py-6 bg-white">
         <div className="section-container">
-          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
-            <picture>
-              <source srcSet={cld(promoBanner || HOME_ASSETS.adBanner.desktopImage, 'f_auto,q_auto,w_1200')} media="(min-width: 768px)" />
-              <img src={cld(promoBanner || HOME_ASSETS.adBanner.mobileImage, 'f_auto,q_auto,w_600')} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center animate-kenburns-banner" />
-            </picture>
+          <Link to={promoBanner.link} className="group relative block rounded-xl overflow-hidden">
+            {(promoBanner.desktopImage || promoBanner.mobileImage) ? (
+              <picture>
+                {promoBanner.desktopImage && (
+                  <source media="(min-width: 768px)"
+                    srcSet={cld(promoBanner.desktopImage, 'f_auto,q_auto,w_1200')} />
+                )}
+                <img src={cld(promoBanner.mobileImage || promoBanner.desktopImage, 'f_auto,q_auto,w_600')}
+                  alt={promoBanner.alt} loading="lazy"
+                  className="w-full h-auto object-contain" />
+              </picture>
+            ) : (
+              <div className="w-full h-32 sm:h-40 bg-green-50 rounded-xl flex items-center justify-center text-muted text-body-sm">
+                Promotional Banner — Upload from Admin Panel
+              </div>
+            )}
           </Link>
         </div>
-        <style>{`
-          @keyframes kenburns-banner {
-            0% { transform: scale(1) translateX(0); }
-            50% { transform: scale(1.08) translateX(-1.5%); }
-            100% { transform: scale(1) translateX(0); }
-          }
-          .animate-kenburns-banner {
-            animation: kenburns-banner 12s ease-in-out infinite;
-          }
-          .animate-kenburns-banner:hover {
-            animation-play-state: paused;
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .animate-kenburns-banner {
-              animation: none !important;
-              transform: none !important;
-            }
-          }
-        `}</style>
       </section>
 
       {/* 3. Super Savers */}
@@ -536,6 +545,28 @@ export default function Home() {
       {/* 12. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
+          {/* Shop by Category Banner */}
+          {shopCategoryBanner.desktopImage || shopCategoryBanner.mobileImage ? (
+            <Link to={shopCategoryBanner.buttonLink} className="group relative block rounded-xl overflow-hidden mb-8">
+              <picture>
+                {shopCategoryBanner.desktopImage && (
+                  <source media="(min-width: 768px)" srcSet={cld(shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_1400')} />
+                )}
+                <img src={cld(shopCategoryBanner.mobileImage || shopCategoryBanner.desktopImage, 'f_auto,q_auto,w_700')}
+                  alt={shopCategoryBanner.title} loading="lazy" className="w-full h-auto object-contain" />
+              </picture>
+              {shopCategoryBanner.title && (
+                <div className="absolute inset-0 flex flex-col justify-center px-8 lg:px-16 bg-gradient-to-r from-black/30 to-transparent">
+                  <h3 className="text-white text-h3 lg:text-h2 font-bold drop-shadow-lg">{shopCategoryBanner.title}</h3>
+                  {shopCategoryBanner.subtitle && <p className="text-white/80 text-body-sm mt-1 max-w-md">{shopCategoryBanner.subtitle}</p>}
+                  {shopCategoryBanner.buttonText && (
+                    <span className="mt-3 inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-lg text-caption font-semibold w-fit hover:bg-green-700 transition">{shopCategoryBanner.buttonText}</span>
+                  )}
+                </div>
+              )}
+            </Link>
+          ) : null}
+
           <div className="text-center mb-8">
             <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Shop by</span>
             <h2 className="mt-1 text-h2 font-bold">Category</h2>
