@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../../lib/api'
-import { generatePlaceholder } from '../../lib/placeholders'
-import ImageGenerator from '../../components/admin/ImageGenerator'
+
+
 import { demoCategories } from '../../lib/demoData'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
@@ -11,8 +11,7 @@ export default function AdminCategories() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState({ name: '', description: '', image: '', cloudinaryPublicId: '', order: 0, isActive: true })
-  const fileRef = useRef(null)
+  const [form, setForm] = useState({ name: '', description: '', order: 0, isActive: true })
   const [editingNameId, setEditingNameId] = useState(null)
   const [editNameValue, setEditNameValue] = useState('')
   const [nameError, setNameError] = useState('')
@@ -43,12 +42,12 @@ export default function AdminCategories() {
 
   const resetForm = () => {
     setEditing(null)
-    setForm({ name: '', description: '', image: '', cloudinaryPublicId: '', order: 0, isActive: true })
+    setForm({ name: '', description: '', order: 0, isActive: true })
   }
 
   const handleEdit = (cat) => {
     setEditing(cat._id)
-    setForm({ name: cat.name, description: cat.description || '', image: cat.image || '', cloudinaryPublicId: cat.cloudinaryPublicId || '', order: cat.order || 0, isActive: cat.isActive })
+    setForm({ name: cat.name, description: cat.description || '', order: cat.order || 0, isActive: cat.isActive })
   }
 
   const handleSubmit = async (e) => {
@@ -84,23 +83,6 @@ export default function AdminCategories() {
     if (isDemoMode()) { toggleItem('categories', id); toast.success('Toggled'); load(); return }
     try { await api.toggleCategoryActive(id); load() }
     catch (err) { toast.error(err.message) }
-  }
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    if (isDemoMode()) {
-      const reader = new FileReader()
-      reader.onload = () => { setForm(prev => ({ ...prev, image: reader.result })); toast.success('Image set') }
-      reader.readAsDataURL(file)
-      e.target.value = ''
-      return
-    }
-    try {
-      const result = await api.uploadImage(file, 'haifarmer/categories')
-      setForm(prev => ({ ...prev, image: result.url, cloudinaryPublicId: result.publicId }))
-      toast.success('Image uploaded')
-    } catch (err) { toast.error(err.message) }
   }
 
   const handleStartRename = (cat) => {
@@ -204,24 +186,7 @@ export default function AdminCategories() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <input value={form.name} onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))} placeholder="Category Name *" required className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
               <input value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))} placeholder="Description" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-              <input type="number" value={form.order} onChange={e => setForm(prev => ({ ...prev, order: Number(e.target.value) }))} placeholder="Order" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
-              <div>
-                {form.image ? (
-                  <img src={form.image} alt="" className="w-full h-32 rounded-xl object-cover mb-2"
-                    onError={(e) => { if (!e.currentTarget.dataset.fallback) { e.currentTarget.dataset.fallback = 'true'; e.currentTarget.src = generatePlaceholder('category', form.name) } }} />
-                ) : (
-                  <div className="w-full h-32 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-sm mb-2">No image</div>
-                )}
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => fileRef.current?.click()} className="flex-1 rounded-xl border-2 border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition text-center">
-                    {form.image ? 'Change Image' : 'Upload Image'}
-                  </button>
-                  <ImageGenerator entity="category" name={form.name} currentImage={form.image} currentPublicId={form.cloudinaryPublicId}
-                    onImageChange={(url, publicId) => setForm(prev => ({ ...prev, image: url, cloudinaryPublicId: publicId }))}
-                    fileInputRef={fileRef} />
-                </div>
-                <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} hidden />
-              </div>
+               <input type="number" value={form.order} onChange={e => setForm(prev => ({ ...prev, order: Number(e.target.value) }))} placeholder="Order" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
               <div className="flex gap-2">
                 <button type="submit" className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 transition">
                   {editing ? 'Update' : 'Create'}
