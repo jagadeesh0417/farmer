@@ -199,12 +199,12 @@ export default function Home() {
         `}</style>
       </section>
 
-      {/* 3. Super Saver Combos */}
+      {/* 3. Super Savers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
             <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
-            <h2 className="mt-1 text-h2 font-bold">Super Saver Combos</h2>
+            <h2 className="mt-1 text-h2 font-bold">Super Savers</h2>
             <p className="text-body-sm text-muted mt-1 max-w-md mx-auto">Curated bundles with the best savings</p>
           </div>
           {loading ? (
@@ -219,8 +219,8 @@ export default function Home() {
                 ))}
               </div>
               <div className="mt-8 text-center">
-                <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
-                  View All Combos
+                <Link to="/combos?tab=super-savers" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
+                  View All Super Savers
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </Link>
               </div>
@@ -359,30 +359,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Combos — horizontal scroll */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      {/* 7. Combos */}
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Curated Bundles</span>
             <h2 className="mt-0.5 text-h2 font-bold">Combos</h2>
-            <Link to="/combos" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+            <p className="text-body-sm text-muted mt-1">Save more with our specially priced combos</p>
           </div>
           {loading ? (
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-56 animate-pulse" />)}
             </div>
           ) : combos.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-              {combos.map(bundle => (
-                <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] shrink-0">
-                  <BundleCard bundle={bundle} />
-                </div>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {combos.slice(0, 8).map(bundle => (
+                  <BundleCard key={bundle._id || bundle.id} bundle={bundle} />
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
+                  View All Combos
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </Link>
+              </div>
+            </>
           ) : (
             <div className="text-center py-10 bg-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No combos available yet.</p>
-              <Link to="/combos" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Combos →</Link>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
             </div>
           )}
         </div>

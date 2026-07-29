@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { demoCombos } from '../lib/demoData'
@@ -22,6 +22,7 @@ export default function Combos() {
   const page = parseInt(searchParams.get('page') || '1')
   const search = searchParams.get('search') || ''
   const sort = searchParams.get('sort') || 'newest'
+  const tab = searchParams.get('tab') || 'all'
 
   const updateParams = (updates) => {
     setSearchParams(prev => {
@@ -64,6 +65,11 @@ export default function Combos() {
     load()
   }, [page, search, sort])
 
+  const filteredBundles = useMemo(() => {
+    if (tab === 'super-savers') return bundles.filter(b => b.isSuperSaver)
+    return bundles
+  }, [bundles, tab])
+
   const totalPages = Math.ceil(total / 50)
 
   const handleSearchSubmit = (e) => {
@@ -71,9 +77,14 @@ export default function Combos() {
     updateParams({ search: localSearch || null, page: '1' })
   }
 
+  const setTab = (t) => updateParams({ tab: t === 'all' ? null : t, page: '1' })
+
+  const pageTitle = tab === 'super-savers' ? 'Super Savers' : 'Combos'
+  const pageDesc = tab === 'super-savers' ? 'Best value bundles with maximum savings. Curated for you.' : 'Browse all our specially priced combo bundles.'
+
   return (
     <div className="bg-white min-h-screen">
-      <SeoHead title="Super Saver Combos" description="Save big with curated product bundles from HaiFarmer. Best value, pure quality." />
+      <SeoHead title={pageTitle} description={pageDesc} />
 
       {/* Breadcrumb + Header */}
       <div className="bg-white border-b border-border">
@@ -81,10 +92,22 @@ export default function Combos() {
           <div className="flex items-center justify-center gap-2 text-body-sm text-muted">
             <Link to="/" className="hover:text-green-600">Home</Link>
             <span>/</span>
-            <span className="text-ink font-semibold">Super Saver Combos</span>
+            <span className="text-ink font-semibold">{pageTitle}</span>
           </div>
-          <h1 className="font-heading text-h2 lg:text-h1 font-bold text-ink mt-2">Super Saver Combos</h1>
-          <p className="text-body text-muted mt-1 max-w-xl mx-auto">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
+          <h1 className="font-heading text-h2 lg:text-h1 font-bold text-ink mt-2">{pageTitle}</h1>
+          <p className="text-body text-muted mt-1 max-w-xl mx-auto">{pageDesc}</p>
+
+          {/* Tab filters */}
+          <div className="flex items-center justify-center gap-2 mt-5">
+            <button onClick={() => setTab('all')}
+              className={`px-5 py-2 rounded-full text-caption font-semibold transition-all border ${
+                tab !== 'super-savers' ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
+              }`}>All Combos</button>
+            <button onClick={() => setTab('super-savers')}
+              className={`px-5 py-2 rounded-full text-caption font-semibold transition-all border ${
+                tab === 'super-savers' ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
+              }`}>Super Savers</button>
+          </div>
         </div>
       </div>
 
@@ -122,7 +145,7 @@ export default function Combos() {
           <div className="flex-1 min-w-0">
             {/* Top bar */}
             <div className="flex items-center justify-between mb-6">
-              <p className="text-body-sm text-muted">Showing <span className="font-semibold text-ink">{bundles.length}</span> of <span className="font-semibold text-ink">{total}</span> combos</p>
+              <p className="text-body-sm text-muted">Showing <span className="font-semibold text-ink">{filteredBundles.length}</span> of <span className="font-semibold text-ink">{total}</span> {tab === 'super-savers' ? 'super savers' : 'combos'}</p>
               <select value={sort} onChange={(e) => updateParams({ sort: e.target.value, page: '1' })}
                 className="border border-border px-3 py-2 text-body-sm text-ink outline-none focus:border-green-600 bg-white rounded-lg">
                 {sortOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -131,7 +154,7 @@ export default function Combos() {
 
             {loading ? (
               <div className="flex min-h-[40vh] items-center justify-center"><div className="h-10 w-10 animate-spin border-2 border-border border-t-green-600 rounded-full" /></div>
-            ) : bundles.length === 0 ? (
+            ) : filteredBundles.length === 0 ? (
               <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
                 <p className="text-body font-semibold text-ink">No combos found</p>
                 <p className="text-body-sm text-muted mt-1">Try adjusting your search.</p>
@@ -142,7 +165,7 @@ export default function Combos() {
             ) : (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {bundles.map(bundle => <BundleCard key={bundle._id || bundle.id} bundle={bundle} />)}
+                  {filteredBundles.map(bundle => <BundleCard key={bundle._id || bundle.id} bundle={bundle} />)}
                 </div>
                 {totalPages > 1 && (
                   <div className="mt-10 flex items-center justify-center gap-2">
