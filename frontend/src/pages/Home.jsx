@@ -17,10 +17,12 @@ import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCa
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
-function getSectionCombos(bundles) {
-  const superSaver = bundles.filter(b => b.isSuperSaver && b.showOnHome !== false)
-  if (superSaver.length > 0) return superSaver
-  return bundles.filter(b => b.showOnHome !== false)
+function getSuperSaverCombos(bundles) {
+  return bundles.filter(b => (b.comboType === 'super_saver' || b.isSuperSaver) && b.showOnHome !== false)
+}
+
+function getNormalCombos(bundles) {
+  return bundles.filter(b => (b.comboType || 'normal') !== 'super_saver' && !b.isSuperSaver && b.showOnHome !== false)
 }
 
 function getSectionProducts(products, settings, sectionKey) {
@@ -67,7 +69,8 @@ export default function Home() {
 
   const bestSellers = useMemo(() => getSectionProducts(products, settings, 'bestSellers'), [products, settings])
   const groceries = useMemo(() => products.filter(p => p.showOnHome !== false), [products])
-  const combos = useMemo(() => bundles.filter(b => b.showOnHome !== false), [bundles])
+  const superSaverCombos = useMemo(() => getSuperSaverCombos(bundles), [bundles])
+  const normalCombos = useMemo(() => getNormalCombos(bundles), [bundles])
   const milletProducts = useMemo(() => products.filter(p => {
     const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
     return cat.toLowerCase() === 'millets' && p.showOnHome !== false
@@ -228,10 +231,10 @@ export default function Home() {
             <HorizontalScroll>
               {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
             </HorizontalScroll>
-          ) : bundles.length > 0 ? (
+          ) : superSaverCombos.length > 0 ? (
             <>
               <HorizontalScroll>
-                {getSectionCombos(bundles).map(bundle => (
+                {superSaverCombos.map(bundle => (
                   <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <BundleCard bundle={bundle} />
                   </div>
@@ -390,10 +393,10 @@ export default function Home() {
             <HorizontalScroll>
               {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
             </HorizontalScroll>
-          ) : combos.length > 0 ? (
+          ) : normalCombos.length > 0 ? (
             <>
               <HorizontalScroll>
-                {combos.map(bundle => (
+                {normalCombos.map(bundle => (
                   <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
                     <BundleCard bundle={bundle} />
                   </div>

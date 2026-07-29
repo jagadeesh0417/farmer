@@ -21,6 +21,7 @@ const bundleSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   isCombo: { type: Boolean, default: true },
   items: [bundleItemSchema],
+  comboType: { type: String, enum: ['super_saver', 'normal'], default: 'normal' },
   totalSold: { type: Number, default: 0 },
 }, { timestamps: true })
 

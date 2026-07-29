@@ -66,7 +66,7 @@ export default function Combos() {
   }, [page, search, sort])
 
   const filteredBundles = useMemo(() => {
-    if (tab === 'super-savers') return bundles.filter(b => b.isSuperSaver)
+    if (tab === 'super-savers') return bundles.filter(b => b.comboType === 'super_saver' || b.isSuperSaver)
     return bundles
   }, [bundles, tab])
 

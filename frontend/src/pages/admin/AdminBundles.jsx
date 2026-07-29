@@ -39,10 +39,11 @@ export default function AdminBundles() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [filterType, setFilterType] = useState('all')
   const fileRef = useRef(null)
   const [form, setForm] = useState({
     name: '', description: '', image: '', cloudinaryPublicId: '',
-    discountPercent: 0, isActive: true, isCombo: true,
+    discountPercent: 0, isActive: true, isCombo: true, comboType: 'normal',
     items: [{ product: '', variantId: '', variantName: '', quantity: 1, price: 0 }],
   })
 
@@ -71,7 +72,7 @@ export default function AdminBundles() {
 
   const resetForm = () => {
     setEditing(null)
-    setForm({ name: '', description: '', image: '', cloudinaryPublicId: '', discountPercent: 0, isActive: true, isCombo: true, items: [{ product: '', variantId: '', variantName: '', quantity: 1, price: 0 }] })
+    setForm({ name: '', description: '', image: '', cloudinaryPublicId: '', discountPercent: 0, isActive: true, isCombo: true, comboType: 'normal', items: [{ product: '', variantId: '', variantName: '', quantity: 1, price: 0 }] })
   }
 
   const handleEdit = (b) => {
@@ -84,6 +85,7 @@ export default function AdminBundles() {
       discountPercent: Math.round(b.discountPercent || 0),
       isActive: b.isActive,
       isCombo: b.isCombo,
+      comboType: b.comboType || (b.isSuperSaver ? 'super_saver' : 'normal'),
       items: b.items?.length > 0 ? b.items.map(i => ({
         product: i.product?._id || i.product || '',
         variantId: i.variantId || '',
@@ -111,6 +113,7 @@ export default function AdminBundles() {
       const payload = {
         ...form,
         discountPercent: Number(form.discountPercent) || 0,
+        comboType: form.comboType || 'normal',
         items: form.items.map(i => ({ ...i, quantity: Number(i.quantity) || 1, price: Number(i.price) || 0 })),
       }
       if (editing) { await api.updateBundle(editing, payload); toast.success('Bundle updated') }
@@ -140,8 +143,8 @@ export default function AdminBundles() {
   }
 
   const handleToggleSuperSaver = async (id) => {
-    if (isDemoMode()) { toggleItem('bundles', id, 'isSuperSaver'); toast.success('Super saver toggled'); load(); return }
-    try { const b = bundles.find(x => x._id === id); await api.updateBundle(id, { isSuperSaver: !b?.isSuperSaver }); toast.success('Super saver toggled'); load() }
+    if (isDemoMode()) { toggleItem('bundles', id, 'comboType'); toast.success('Combo type toggled'); load(); return }
+    try { const b = bundles.find(x => x._id === id); await api.updateBundle(id, { comboType: b?.comboType === 'super_saver' ? 'normal' : 'super_saver' }); toast.success('Combo type toggled'); load() }
     catch (err) { toast.error(err.message) }
   }
 
@@ -210,6 +213,11 @@ export default function AdminBundles() {
               <textarea value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))} placeholder="Description" rows={2} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
               <input type="number" value={form.discountPercent} onChange={e => setForm(prev => ({ ...prev, discountPercent: e.target.value }))} placeholder="Discount %" min="0" max="100" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
 
+              <select value={form.comboType} onChange={e => setForm(prev => ({ ...prev, comboType: e.target.value }))} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500">
+                <option value="normal">Normal Combo</option>
+                <option value="super_saver">Super Saver Combo</option>
+              </select>
+
               <div className="border-t border-slate-100 pt-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-semibold text-slate-700">Bundle Items</span>
@@ -269,12 +277,20 @@ export default function AdminBundles() {
         </div>
 
         <div className="space-y-3">
-          {bundles.length === 0 ? (
+          {/* Filter tabs */}
+          <div className="flex items-center gap-2 pb-1">
+            <button onClick={() => setFilterType('all')} className={`rounded-full px-3 py-1 text-[10px] font-semibold ${filterType === 'all' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>All</button>
+            <button onClick={() => setFilterType('super_saver')} className={`rounded-full px-3 py-1 text-[10px] font-semibold ${filterType === 'super_saver' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Super Saver</button>
+            <button onClick={() => setFilterType('normal')} className={`rounded-full px-3 py-1 text-[10px] font-semibold ${filterType === 'normal' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Normal</button>
+          </div>
+          {(filterType === 'all' ? bundles : bundles.filter(b => (b.comboType || (b.isSuperSaver ? 'super_saver' : 'normal')) === filterType)).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-slate-200 bg-white shadow-sm">
               <p className="text-lg font-medium text-slate-400 mb-1">No bundles yet</p>
               <p className="text-sm text-slate-400">Create your first combo bundle</p>
             </div>
-          ) : bundles.map(b => (
+          ) : (filterType === 'all' ? bundles : bundles.filter(b => (b.comboType || (b.isSuperSaver ? 'super_saver' : 'normal')) === filterType)).map(b => {
+            const ct = b.comboType || (b.isSuperSaver ? 'super_saver' : 'normal')
+            return (
             <div key={b._id} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
               {b.image && <img src={cld(b.image, 'f_auto,q_auto,w_200,c_fill')} alt="" className="h-16 w-20 rounded-lg object-cover shrink-0" />}
               <div className="flex-1 min-w-0">
@@ -283,8 +299,8 @@ export default function AdminBundles() {
                 <p className="text-[10px] text-slate-400">{b.items?.length || 0} items</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${ct === 'super_saver' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>{ct === 'super_saver' ? 'Super Saver' : 'Combo'}</span>
                 <button onClick={() => handleToggle(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{b.isActive ? 'On' : 'Off'}</button>
-                <button onClick={() => handleToggleSuperSaver(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.isSuperSaver ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>{b.isSuperSaver ? 'Super' : 'Normal'}</button>
                 <button onClick={() => handleToggleHome(b._id)} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${b.showOnHome !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>{b.showOnHome !== false ? 'Home' : 'NoHome'}</button>
                 <button onClick={() => handleEdit(b)} className="text-xs font-semibold text-brand-600">Edit</button>
                 <button onClick={() => handleDelete(b._id)} className="text-xs font-semibold text-red-600">Del</button>
