@@ -164,11 +164,7 @@ export default function Home() {
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Hero banner */}
-      <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8">
-        <div className="rounded-2xl overflow-hidden">
-          <KenBurnsHero slides={banners} />
-        </div>
-      </div>
+      <KenBurnsHero slides={banners} />
 
       {/* 2. Promotional banner */}
       <section className="py-4 sm:py-5 lg:py-6 bg-white">
