@@ -8,6 +8,7 @@ import MobileBottomNav from './components/MobileBottomNav'
 import FloatingWhatsApp from './components/FloatingWhatsApp'
 import ScrollToTop from './components/ScrollToTop'
 import PageTracker from './components/PageTracker'
+import CartToastContainer from './components/CartToast'
 import AdminLayout from './components/admin/AdminLayout'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -75,6 +76,7 @@ function AppLayout() {
       <Footer />
       <MobileBottomNav />
       <FloatingWhatsApp />
+      <CartToastContainer />
     </div>
   )
 }

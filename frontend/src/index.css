@@ -192,6 +192,16 @@ img, video, canvas, svg { max-width: 100%; }
   border: 1px solid rgba(255,255,255,0.15);
 }
 
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(60px) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .gradient-overlay {
   background: linear-gradient(135deg, rgba(0,91,87,0.08) 0%, rgba(0,122,117,0.04) 50%, transparent 100%);
 }

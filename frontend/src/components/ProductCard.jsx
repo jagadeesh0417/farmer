@@ -1,15 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { formatPrice, getImageProps, getImageSizes } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
+import { flyToCart, triggerBadgePop } from '../lib/cartAnimations'
+import { showCartToast } from '../components/CartToast'
 
 function slugify(name) {
   return (name || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
 }
 
 export default function ProductCard({ product, priority }) {
-  const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection, itemCount } = useCart()
+  const [added, setAdded] = useState(false)
+  const imgRef = useRef(null)
 
   const variants = product.product_variants || product.variants || []
   const hasVariants = variants.length > 1
@@ -55,7 +59,30 @@ export default function ProductCard({ product, priority }) {
   const handleAddToCart = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    await addToCart({ product_id: product.id, variant_id: selectedVariantId, quantity: 1, product, variant: selectedVariant })
+    if (added) return
+    setAdded(true)
+    try {
+      await addToCart({ product_id: product.id, variant_id: selectedVariantId, quantity: 1, product, variant: selectedVariant })
+      if (imgRef.current) flyToCart(imgRef.current, productImage || imgProps.src)
+      if (typeof itemCount === 'number') {
+        requestAnimationFrame(() => {
+          const badge = document.querySelector('.cart-badge')
+          if (badge) triggerBadgePop(badge)
+        })
+      }
+      showCartToast({
+        productName: product.name,
+        productImage: productImage || imgProps.src,
+        price: price,
+        quantity: 1,
+        slug: slugify(product.name),
+        isUpdate: Boolean(cartItem),
+      })
+    } catch {
+      setAdded(false)
+      return
+    }
+    setTimeout(() => setAdded(false), 1500)
   }
 
   const variantLabel = (v) => v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
@@ -71,7 +98,7 @@ export default function ProductCard({ product, priority }) {
           </span>
         )}
         <div className="w-full h-full overflow-hidden rounded-[14px] bg-white">
-          <img
+          <img ref={imgRef}
             src={imgProps.src}
             alt={product.name}
             loading={imgProps.loading}
@@ -147,8 +174,10 @@ export default function ProductCard({ product, priority }) {
           ) : (
             <button
               onClick={handleAddToCart}
-              className="h-10 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px]"
-            >Add to Cart</button>
+              disabled={added}
+              className="h-10 w-full rounded-full font-product text-btn font-semibold text-white transition active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px] flex items-center justify-center gap-1.5"
+              style={{ background: added ? '#16a34a' : '#0E9F3E' }}
+            >{added ? <><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> Added</> : 'Add to Cart'}</button>
           )}
         </div>
       </div>

@@ -90,7 +90,7 @@ export default function Header() {
             <button onClick={() => navigate('/checkout')} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <CartIcon className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm">{totalItems}</span>
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm cart-badge">{totalItems}</span>
               )}
             </button>
           </div>
@@ -103,7 +103,7 @@ export default function Header() {
             <button onClick={() => navigate('/checkout')} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600">
               <CartIcon className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm">{totalItems}</span>
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm cart-badge">{totalItems}</span>
               )}
             </button>
             <button type="button" className="flex items-center justify-center p-2 text-muted hover:text-green-600" onClick={() => setMenuOpen(!menuOpen)}>
