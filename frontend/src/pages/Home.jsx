@@ -206,7 +206,7 @@ export default function Home() {
       </section>
 
       {/* 3. Super Savers */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -304,7 +304,7 @@ export default function Home() {
       </section>
 
       {/* 5. Best Sellers */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -368,7 +368,7 @@ export default function Home() {
       </section>
 
       {/* 7. Combos */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -425,7 +425,7 @@ export default function Home() {
       </section>
 
       {/* 9. Traditional Grains — Millets */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -461,7 +461,7 @@ export default function Home() {
       </section>
 
       {/* 10. Protein Rich — Lentils & Beans */}
-      <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
+      <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -497,7 +497,7 @@ export default function Home() {
       </section>
 
       {/* 11. Aromatic & Wild — Spices */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="flex items-end justify-between mb-6">
             <div>

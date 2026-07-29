@@ -39,14 +39,14 @@ export default function HorizontalScroll({ children, className = '' }) {
   }
 
   return (
-    <div className="relative group/scroll">
+    <div className="relative">
       <button type="button" onClick={() => scroll(-1)}
-        className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border opacity-0 group-hover/scroll:opacity-100 disabled:opacity-0"
+        className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 shadow-md text-ink hover:text-green-600 hover:bg-white transition border border-border opacity-70 hover:opacity-100"
         aria-label="Scroll left">
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
       </button>
       <button type="button" onClick={() => scroll(1)}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border opacity-0 group-hover/scroll:opacity-100 disabled:opacity-0"
+        className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 shadow-md text-ink hover:text-green-600 hover:bg-white transition border border-border opacity-70 hover:opacity-100"
         aria-label="Scroll right">
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
       </button>
@@ -56,7 +56,7 @@ export default function HorizontalScroll({ children, className = '' }) {
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
         onWheel={handleWheel}
-        className={`flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2 cursor-grab active:cursor-grabbing scroll-smooth ${className}`}
+        className={`flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2 cursor-grab active:cursor-grabbing scroll-smooth px-1 sm:px-2 ${className}`}
         style={{ WebkitOverflowScrolling: 'touch' }}>
         {children}
       </div>
