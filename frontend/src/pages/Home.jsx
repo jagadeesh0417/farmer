@@ -160,10 +160,29 @@ export default function Home() {
           <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
             <picture>
               <source srcSet={cld(promoBanner || HOME_ASSETS.adBanner.desktopImage, 'f_auto,q_auto,w_1200')} media="(min-width: 768px)" />
-              <img src={cld(promoBanner || HOME_ASSETS.adBanner.mobileImage, 'f_auto,q_auto,w_600')} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
+              <img src={cld(promoBanner || HOME_ASSETS.adBanner.mobileImage, 'f_auto,q_auto,w_600')} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center animate-kenburns-banner" />
             </picture>
           </Link>
         </div>
+        <style>{`
+          @keyframes kenburns-banner {
+            0% { transform: scale(1) translateX(0); }
+            50% { transform: scale(1.08) translateX(-1.5%); }
+            100% { transform: scale(1) translateX(0); }
+          }
+          .animate-kenburns-banner {
+            animation: kenburns-banner 12s ease-in-out infinite;
+          }
+          .animate-kenburns-banner:hover {
+            animation-play-state: paused;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-kenburns-banner {
+              animation: none !important;
+              transform: none !important;
+            }
+          }
+        `}</style>
       </section>
 
       {/* 3. Super Saver Combos */}

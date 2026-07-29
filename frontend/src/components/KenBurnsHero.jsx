@@ -53,7 +53,7 @@ function GradientOverlay({ align }) {
 function OverlayContent({ slide, active }) {
   const { heading, subtext, ctaLabel, ctaHref, align } = slide
   const justify = align === 'center' ? 'justify-center text-center' : align === 'right' ? 'justify-end text-right' : 'justify-start text-left'
-  const contentAlign = align === 'center' ? 'items-center' : align === 'right' ? 'items-end' : 'items-start'
+  const contentAlign = align === 'right' ? 'items-end' : 'items-center'
 
   return (
     <div className={`absolute inset-0 z-10 flex ${contentAlign} ${justify} px-[5vw] py-12 sm:py-16 lg:py-20`}>
