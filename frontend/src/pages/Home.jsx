@@ -197,7 +197,7 @@ export default function Home() {
       {/* 2. Promotional banner */}
       <section className="py-4 sm:py-5 lg:py-6 bg-white">
         <div className="section-container">
-          <Link to={promoBanner.link} className="group relative block rounded-xl overflow-hidden">
+          <Link to={promoBanner.link} className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
             {(promoBanner.desktopImage || promoBanner.mobileImage) ? (
               <picture>
                 {promoBanner.desktopImage && (
@@ -206,7 +206,7 @@ export default function Home() {
                 )}
                 <img src={cld(promoBanner.mobileImage || promoBanner.desktopImage, 'f_auto,q_auto,w_600')}
                   alt={promoBanner.alt} loading="lazy"
-                  className="w-full h-auto object-contain" />
+                  className="absolute inset-0 h-full w-full object-cover object-center" />
               </picture>
             ) : (
               <div className="w-full h-32 sm:h-40 bg-green-50 rounded-xl flex items-center justify-center text-muted text-body-sm">
