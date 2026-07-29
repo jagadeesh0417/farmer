@@ -27,12 +27,6 @@ export default function BundleCard({ bundle }) {
   const items = bundle?.items || bundle?.bundle_items || []
   const slug = bundle.slug || id
 
-  const { displayDesc, contains } = (() => {
-    const idx = description.indexOf('[CONTAINS]')
-    if (idx === -1) return { displayDesc: description, contains: '' }
-    return { displayDesc: description.substring(0, idx).trim(), contains: description.substring(idx + 10).trim() }
-  })()
-
   const originalTotal = items.reduce((sum, item) => sum + (item.price || item.variant?.price || 0) * item.quantity, 0) || 0
   const bundlePrice = calculateBundlePrice(bundle)
   const savings = discountPct > 0 && originalTotal > 0 ? Math.round(originalTotal - bundlePrice) : 0
@@ -59,7 +53,7 @@ export default function BundleCard({ bundle }) {
   }
 
   return (
-    <div className="group flex h-full w-full flex-col">
+    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
       <Link to={`/combos/${slug}`} className="relative block w-full">
         {discountPct > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
@@ -72,22 +66,22 @@ export default function BundleCard({ bundle }) {
           </span>
         )}
 
-        <div className="relative w-full overflow-hidden rounded-xl bg-[#F0E6D3]">
+        <div className="relative w-full overflow-hidden rounded-t-xl bg-[#F0E6D3]">
           <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
-            className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="aspect-square w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             onError={(e) => { e.target.src = bundleFallback }} />
         </div>
       </Link>
 
-      <div className="mt-3 flex flex-1 flex-col px-0">
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-2.5">
         <Link to={`/combos/${slug}`}>
-          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black">
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black min-h-[2.5rem]">
             {name}
           </h3>
         </Link>
 
-        <div className="mt-2 flex items-baseline justify-center gap-2">
+        <div className="mt-1.5 flex items-baseline justify-center gap-2 min-h-[1.5rem]">
           <span className="font-product text-body font-bold text-black">{formatPrice(bundlePrice)}</span>
           {originalTotal > bundlePrice && (
             <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(originalTotal)}</span>
@@ -97,21 +91,21 @@ export default function BundleCard({ bundle }) {
           <p className="mt-0.5 text-center font-product text-micro font-semibold text-[#F5A623]">Save {formatPrice(savings)}</p>
         )}
 
-        <div className="mt-auto pt-3">
+        <div className="mt-auto pt-2.5">
           {isInCart ? (
-            <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
+            <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
               <button type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
+                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
                 disabled={cartQuantity <= 1}>−</button>
               <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
               <button type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product">+</button>
+                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product">+</button>
             </div>
           ) : (
             <button onClick={handleAddToCart}
-              className="h-10 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]">
+              className="h-9 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]">
               Add to Cart
             </button>
           )}

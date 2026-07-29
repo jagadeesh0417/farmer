@@ -63,7 +63,7 @@ export default function ProductCard({ product, priority }) {
   const variantLabel = (v) => v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
 
   return (
-    <div className="group flex h-full w-full flex-col">
+    <div className="group flex h-full w-full flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
       <Link to={`/products/${slugify(product.name)}`} className="relative block w-full">
         {discountPercent > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
@@ -71,7 +71,7 @@ export default function ProductCard({ product, priority }) {
           </span>
         )}
 
-        <div className="relative w-full overflow-hidden rounded-xl bg-[#F0E6D3]">
+        <div className="relative w-full overflow-hidden rounded-t-xl bg-[#F0E6D3]">
           <img
             src={imgProps.src}
             alt={product.name}
@@ -79,20 +79,20 @@ export default function ProductCard({ product, priority }) {
             fetchPriority={imgProps.fetchpriority}
             srcSet={imgProps.srcSet}
             sizes={imgProps.sizes}
-            className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="aspect-square w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { if (e.currentTarget.dataset.fallbackApplied !== 'true') { e.currentTarget.dataset.fallbackApplied = 'true'; e.currentTarget.src = fallbackSrc } }}
           />
         </div>
       </Link>
 
-      <div className="mt-3 flex flex-1 flex-col px-0">
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-2.5">
         <Link to={`/products/${slugify(product.name)}`}>
-          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black">
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black min-h-[2.5rem]">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-2 flex items-baseline justify-center gap-2">
+        <div className="mt-1.5 flex items-baseline justify-center gap-2 min-h-[1.5rem]">
           <span className="font-product text-body font-bold text-black">{formatPrice(price)}</span>
           {mrp > price && (
             <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(mrp)}</span>
@@ -100,12 +100,12 @@ export default function ProductCard({ product, priority }) {
         </div>
 
         {hasVariants && (
-          <div className="relative mt-3">
+          <div className="relative mt-2">
             <select
               value={selectedVariantId || ''}
               onChange={(e) => handleVariantChange(e.target.value)}
               aria-label="Select variant"
-              className="h-10 w-full appearance-none rounded-full border-2 border-[#222] bg-white px-4 pr-10 text-center font-product text-caption font-semibold text-[#1a1a1a] outline-none transition-colors focus:border-[#0E9F3E]"
+              className="h-9 w-full appearance-none rounded-full border-2 border-[#222] bg-white px-3 pr-8 text-center font-product text-caption font-semibold text-[#1a1a1a] outline-none transition-colors focus:border-[#0E9F3E]"
             >
               {variants.map(v => {
                 const vid = v.id || v._id
@@ -116,39 +116,33 @@ export default function ProductCard({ product, priority }) {
                 )
               })}
             </select>
-            <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#222]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#222]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
         )}
 
-        <div className="mt-auto pt-3">
+        <div className="mt-auto pt-2.5">
           {isInCart ? (
-            <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
+            <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
+                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
                 disabled={cartQuantity <= 1}
-              >
-                −
-              </button>
+              >−</button>
               <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product"
-              >
-                +
-              </button>
+                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product"
+              >+</button>
             </div>
           ) : (
             <button
               onClick={handleAddToCart}
-              className="h-10 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]"
-            >
-              Add to Cart
-            </button>
+              className="h-9 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]"
+            >Add to Cart</button>
           )}
         </div>
       </div>

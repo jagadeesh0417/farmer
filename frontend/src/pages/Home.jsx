@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import BundleCard from '../components/BundleCard'
+import HorizontalScroll from '../components/HorizontalScroll'
 import KenBurnsHero from '../components/KenBurnsHero'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
@@ -205,29 +206,30 @@ export default function Home() {
       </section>
 
       {/* 3. Super Savers */}
-      <section className="py-10 lg:py-14 bg-white">
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
-            <h2 className="mt-1 text-h2 font-bold">Super Savers</h2>
-            <p className="text-body-sm text-muted mt-1 max-w-md mx-auto">Curated bundles with the best savings</p>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Super Savers</h2>
+            </div>
+            <Link to="/combos?tab=super-savers" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-56 animate-pulse" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : bundles.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {getSectionCombos(bundles).slice(0, 8).map(bundle => (
-                  <BundleCard key={bundle._id || bundle.id} bundle={bundle} />
+              <HorizontalScroll>
+                {getSectionCombos(bundles).map(bundle => (
+                  <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                    <BundleCard bundle={bundle} />
+                  </div>
                 ))}
-              </div>
-              <div className="mt-8 text-center">
-                <Link to="/combos?tab=super-savers" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
-                  View All Super Savers
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </Link>
+              </HorizontalScroll>
+              <div className="mt-6 text-center sm:hidden">
+                <Link to="/combos?tab=super-savers" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All Super Savers</Link>
               </div>
             </>
           ) : (
@@ -302,29 +304,30 @@ export default function Home() {
       </section>
 
       {/* 5. Best Sellers */}
-      <section className="py-10 lg:py-14 bg-white">
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Top Picks</span>
-            <h2 className="mt-1 text-h2 font-bold">Our Best Sellers</h2>
-            <p className="text-body-sm text-muted mt-1">Most loved products by our community</p>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Top Picks</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Our Best Sellers</h2>
+            </div>
+            <Link to="/products" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-64 animate-pulse" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : bestSellers.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {bestSellers.slice(0, 8).map(product => (
-                  <ProductCard key={product.id || product._id} product={product} />
+              <HorizontalScroll>
+                {bestSellers.map(product => (
+                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                    <ProductCard product={product} />
+                  </div>
                 ))}
-              </div>
-              <div className="mt-8 text-center">
-                <Link to="/products" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
-                  View All Products
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </Link>
+              </HorizontalScroll>
+              <div className="mt-6 text-center sm:hidden">
+                <Link to="/products" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All Products</Link>
               </div>
             </>
           ) : (
@@ -365,29 +368,30 @@ export default function Home() {
       </section>
 
       {/* 7. Combos */}
-      <section className="py-10 lg:py-14 bg-white">
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Curated Bundles</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Combos</h2>
-            <p className="text-body-sm text-muted mt-1">Save more with our specially priced combos</p>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Curated Bundles</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Combos</h2>
+            </div>
+            <Link to="/combos" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-56 animate-pulse" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : combos.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {combos.slice(0, 8).map(bundle => (
-                  <BundleCard key={bundle._id || bundle.id} bundle={bundle} />
+              <HorizontalScroll>
+                {combos.map(bundle => (
+                  <div key={bundle._id || bundle.id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                    <BundleCard bundle={bundle} />
+                  </div>
                 ))}
-              </div>
-              <div className="mt-8 text-center">
-                <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
-                  View All Combos
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </Link>
+              </HorizontalScroll>
+              <div className="mt-6 text-center sm:hidden">
+                <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All Combos</Link>
               </div>
             </>
           ) : (
@@ -421,23 +425,32 @@ export default function Home() {
       </section>
 
       {/* 9. Traditional Grains — Millets */}
-      <section className="py-10 lg:py-14 bg-white">
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
-            <Link to="/products?category=millets" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
+            </div>
+            <Link to="/products?category=millets" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-white border border-border h-72 animate-pulse rounded-xl" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : milletProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {milletProducts.slice(0, 8).map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
-            </div>
+            <>
+              <HorizontalScroll>
+                {milletProducts.map(product => (
+                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </HorizontalScroll>
+              <div className="mt-6 text-center sm:hidden">
+                <Link to="/products?category=millets" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All</Link>
+              </div>
+            </>
           ) : (
             <div className="text-center py-10 bg-off-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No millet products yet.</p>
@@ -448,23 +461,32 @@ export default function Home() {
       </section>
 
       {/* 10. Protein Rich — Lentils & Beans */}
-      <section className="py-10 lg:py-14 bg-off-white">
+      <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
         <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
-            <Link to="/products?category=lentils-beans" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
+            </div>
+            <Link to="/products?category=lentils-beans" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-white border border-border h-72 animate-pulse rounded-xl" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : lentilProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {lentilProducts.slice(0, 8).map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
-            </div>
+            <>
+              <HorizontalScroll>
+                {lentilProducts.map(product => (
+                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </HorizontalScroll>
+              <div className="mt-6 text-center sm:hidden">
+                <Link to="/products?category=lentils-beans" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All</Link>
+              </div>
+            </>
           ) : (
             <div className="text-center py-10 bg-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No lentil or bean products yet.</p>
@@ -475,23 +497,33 @@ export default function Home() {
       </section>
 
       {/* 11. Aromatic & Wild — Spices */}
-      <section className="py-10 lg:py-14 bg-white">
+      <section className="py-10 lg:py-14 bg-white overflow-hidden">
         <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
-            <Link to="/products?category=spices" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
+              <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
+            </div>
+            <Link to="/products?category=spices" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-white border border-border h-72 animate-pulse rounded-xl" />)}
-            </div>
+            <HorizontalScroll>
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] sm:min-w-[220px] w-[200px] sm:w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+            </HorizontalScroll>
           ) : spiceProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {spiceProducts.slice(0, 8).map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
-            </div>
+            <>
+
+              <HorizontalScroll>
+                {spiceProducts.map(product => (
+                  <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </HorizontalScroll>
+              <div className="mt-6 text-center sm:hidden">
+                <Link to="/products?category=spices" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All</Link>
+              </div>
+            </>
           ) : (
             <div className="text-center py-10 bg-off-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No spice products yet.</p>
