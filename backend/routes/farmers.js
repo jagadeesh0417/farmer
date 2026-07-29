@@ -33,6 +33,16 @@ router.get('/all', protect, adminOnly, async (req, res) => {
   }
 })
 
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const farmer = await Farmer.findOne({ slug: req.params.slug })
+    if (!farmer) return res.status(404).json({ error: 'Farmer not found' })
+    res.json(farmer)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 router.get('/:id', async (req, res) => {
   try {
     const farmer = await Farmer.findById(req.params.id)
@@ -45,7 +55,9 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', protect, adminOnly, async (req, res) => {
   try {
-    const farmer = await Farmer.create(req.body)
+    const data = { ...req.body }
+    if (!data.slug) data.slug = uuidv4()
+    const farmer = await Farmer.create(data)
     res.status(201).json(farmer)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -66,10 +78,17 @@ router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const farmer = await Farmer.findById(req.params.id)
     if (!farmer) return res.status(404).json({ error: 'Farmer not found' })
+
+    const activeQrs = await QRCode.countDocuments({ farmer: req.params.id, isActive: true })
+    if (activeQrs > 0) {
+      return res.status(400).json({ error: `Cannot delete farmer. ${activeQrs} active QR code(s) still point to this farmer. Deactivate or delete them first.` })
+    }
+
+    await QRCode.deleteMany({ farmer: req.params.id })
+
     for (const publicId of farmer.cloudinaryPublicIds || []) {
       await deleteFromCloudinary(publicId)
     }
-    await QRCode.deleteMany({ farmer: req.params.id })
     await Farmer.findByIdAndDelete(req.params.id)
     res.json({ message: 'Farmer deleted' })
   } catch (err) {
@@ -110,7 +129,7 @@ router.get('/:id/qr', protect, adminOnly, async (req, res) => {
     let qr = await QRCode.findOne({ farmer: req.params.id, isActive: true })
     if (!qr) {
       const code = uuidv4().slice(0, 8).toUpperCase()
-      const url = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/farmers/${code}`
+      const url = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/qr/${code}`
       const qrImage = await QRCodeLib.toDataURL(url)
       qr = await QRCode.create({ farmer: req.params.id, code, url, qrImage })
     }
@@ -124,7 +143,7 @@ router.post('/:id/qr/regenerate', protect, adminOnly, async (req, res) => {
   try {
     await QRCode.updateMany({ farmer: req.params.id }, { isActive: false })
     const code = uuidv4().slice(0, 8).toUpperCase()
-    const url = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/farmers/${code}`
+    const url = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/qr/${code}`
     const qrImage = await QRCodeLib.toDataURL(url)
     const qr = await QRCode.create({ farmer: req.params.id, code, url, qrImage })
     res.json(qr)

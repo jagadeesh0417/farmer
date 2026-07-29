@@ -13,3 +13,5 @@ Disallow: /orders
 Disallow: /account
 Disallow: /forgot-password
 Disallow: /farmers/
+Disallow: /farmer/
+Disallow: /qr/

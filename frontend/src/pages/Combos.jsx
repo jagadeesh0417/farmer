@@ -1,66 +1,168 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { demoCombos } from '../lib/demoData'
 import { api } from '../lib/api'
 import SeoHead from '../components/SeoHead'
 import BundleCard from '../components/BundleCard'
 
+const sortOptions = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'name', label: 'Name: A-Z' },
+]
+
 export default function Combos() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [bundles, setBundles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [total, setTotal] = useState(0)
+  const [localSearch, setLocalSearch] = useState('')
+  const page = parseInt(searchParams.get('page') || '1')
+  const search = searchParams.get('search') || ''
+  const sort = searchParams.get('sort') || 'newest'
+
+  const updateParams = (updates) => {
+    setSearchParams(prev => {
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v === null || v === '' || v === undefined) prev.delete(k)
+        else prev.set(k, v)
+      })
+      return prev
+    })
+  }
+
+  const clearAll = () => {
+    setSearchParams({})
+    setLocalSearch('')
+  }
+
+  const hasFilters = search
 
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      if (isDemoMode()) {
-        setBundles(demoCombos)
-        setLoading(false)
-        return
-      }
       try {
-        const data = await api.getBundles({ combo: 'true' })
-        setBundles(Array.isArray(data) ? data : data?.data || [])
+        const params = { combo: 'true', page, limit: 50, sort }
+        if (search) params.search = search
+        const data = await api.getBundles(params)
+        if (isDemoMode()) {
+          setBundles(demoCombos)
+          setTotal(demoCombos.length)
+        } else {
+          setBundles(Array.isArray(data) ? data : data?.data || [])
+          setTotal(data?.total || (Array.isArray(data) ? data.length : 0))
+        }
       } catch (e) {
         console.error(e)
-        setBundles([])
+        if (isDemoMode()) { setBundles(demoCombos); setTotal(demoCombos.length) }
+        else setBundles([])
       }
       finally { setLoading(false) }
     }
     load()
-  }, [])
+  }, [page, search, sort])
+
+  const totalPages = Math.ceil(total / 50)
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault()
+    updateParams({ search: localSearch || null, page: '1' })
+  }
 
   return (
     <div className="bg-white min-h-screen">
       <SeoHead title="Super Saver Combos" description="Save big with curated product bundles from HaiFarmer. Best value, pure quality." />
 
-      {/* Hero */}
-      <section className="bg-green-600">
-        <div className="section-container py-14 lg:py-20 text-center">
-          <span className="inline-flex items-center text-body-sm font-semibold tracking-[0.12em] uppercase text-white/80">Curated Bundles</span>
-          <h1 className="mt-3 font-heading text-h1 font-bold text-white">Super Saver Combos</h1>
-          <p className="mt-3 text-body text-white/80 max-w-lg mx-auto font-medium">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
+      {/* Breadcrumb + Header */}
+      <div className="bg-white border-b border-border">
+        <div className="section-container py-4 lg:py-5 text-center">
+          <div className="flex items-center justify-center gap-2 text-body-sm text-muted">
+            <Link to="/" className="hover:text-green-600">Home</Link>
+            <span>/</span>
+            <span className="text-ink font-semibold">Super Saver Combos</span>
+          </div>
+          <h1 className="font-heading text-h2 lg:text-h1 font-bold text-ink mt-2">Super Saver Combos</h1>
+          <p className="text-body text-muted mt-1 max-w-xl mx-auto">Save big with our thoughtfully curated product bundles from tribal farms. Best value, pure quality.</p>
         </div>
-      </section>
+      </div>
 
-      <div className="section-container py-10 lg:py-14">
-        {loading ? (
-          <div className="flex min-h-[40vh] items-center justify-center">
-            <div className="h-10 w-10 animate-spin border-2 border-border border-t-green-600" />
+      <div className="section-container py-8 lg:py-10">
+        <div className="flex gap-8">
+          {/* Sidebar filters - Desktop */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="font-heading text-h4 font-bold text-ink">Filters</h3>
+                {hasFilters && (
+                  <button onClick={clearAll}
+                    className="text-caption text-green-600 hover:text-green-700 font-semibold">Clear all</button>
+                )}
+              </div>
+
+              {/* Search */}
+              <div>
+                <div className="mb-2 px-3 py-1.5">
+                  <span className="text-caption font-semibold text-muted uppercase tracking-wider">Search combos</span>
+                </div>
+                <form onSubmit={handleSearchSubmit} className="px-3">
+                  <div className="relative">
+                    <input value={localSearch} onChange={e => setLocalSearch(e.target.value)} placeholder="Search combos" className="w-full rounded-lg border border-border px-3 py-2 text-body-sm outline-none focus:border-green-500 pr-8" />
+                    {localSearch && (
+                      <button type="button" onClick={() => { setLocalSearch(''); updateParams({ search: null, page: '1' }) }} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-sm">&times;</button>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
+            {/* Top bar */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-body-sm text-muted">Showing <span className="font-semibold text-ink">{bundles.length}</span> of <span className="font-semibold text-ink">{total}</span> combos</p>
+              <select value={sort} onChange={(e) => updateParams({ sort: e.target.value, page: '1' })}
+                className="border border-border px-3 py-2 text-body-sm text-ink outline-none focus:border-green-600 bg-white rounded-lg">
+                {sortOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+
+            {loading ? (
+              <div className="flex min-h-[40vh] items-center justify-center"><div className="h-10 w-10 animate-spin border-2 border-border border-t-green-600 rounded-full" /></div>
+            ) : bundles.length === 0 ? (
+              <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
+                <p className="text-body font-semibold text-ink">No combos found</p>
+                <p className="text-body-sm text-muted mt-1">Try adjusting your search.</p>
+                <Link to="/products" className="mt-4 inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 text-body-sm font-semibold hover:bg-green-700 transition-colors rounded-lg">
+                  Browse Products →
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                  {bundles.map(bundle => <BundleCard key={bundle._id || bundle.id} bundle={bundle} />)}
+                </div>
+                {totalPages > 1 && (
+                  <div className="mt-10 flex items-center justify-center gap-2">
+                    <button disabled={page <= 1} onClick={() => updateParams({ page: String(page - 1) })}
+                      className="border border-border px-3 py-2 text-body-sm font-semibold text-muted hover:bg-green-50 disabled:opacity-30 rounded-lg">‹ Prev</button>
+                    {Array.from({ length: Math.min(totalPages <= 5 ? totalPages : 3, totalPages) }, (_, i) => {
+                      let p; if (totalPages <= 5) p = i + 1; else if (page <= 3) p = i + 1; else if (page >= totalPages - 2) p = totalPages - 4 + i; else p = page - 2 + i
+                      return (
+                        <button key={p} onClick={() => updateParams({ page: String(p) })}
+                          className={`flex h-9 w-9 items-center justify-center text-body-sm font-semibold transition-all rounded-lg ${page === p ? 'bg-green-600 text-white' : 'border border-border text-muted hover:bg-green-50'}`}>{p}</button>
+                      )
+                    })}
+                    <button disabled={page >= totalPages} onClick={() => updateParams({ page: String(page + 1) })}
+                      className="border border-border px-3 py-2 text-body-sm font-semibold text-muted hover:bg-green-50 disabled:opacity-30 rounded-lg">Next ›</button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        ) : bundles.length === 0 ? (
-          <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-            <p className="font-heading text-h2 font-bold text-ink">No combos available</p>
-            <p className="mt-1 text-body text-muted font-medium">Check back soon for exciting bundles!</p>
-            <Link to="/products" className="mt-4 inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 text-body font-semibold hover:bg-green-700 transition-colors">
-              Browse Products →
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bundles.map(bundle => <BundleCard key={bundle._id || bundle.id} bundle={bundle} compact />)}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )

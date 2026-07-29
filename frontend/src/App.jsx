@@ -35,6 +35,8 @@ const AdminBundles = lazy(() => import('./pages/admin/AdminBundles'))
 const AdminFarmers = lazy(() => import('./pages/admin/AdminFarmers'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const AdminBannerManagement = lazy(() => import('./pages/admin/AdminBannerManagement'))
+const QRRedirect = lazy(() => import('./pages/QRRedirect'))
+const AdminQRCode = lazy(() => import('./pages/admin/AdminQRCode'))
 
 function LoadingFallback() { return <div className="min-h-[40vh]" /> }
 
@@ -50,6 +52,8 @@ function AppLayout() {
             <Route path="/products" element={<Products />} />
             <Route path="/products/:slug" element={<ProductDetail />} />
             <Route path="/farmers/:code" element={<FarmerDetail />} />
+            <Route path="/farmer/:slug" element={<FarmerDetail />} />
+            <Route path="/qr/:code" element={<QRRedirect />} />
             <Route path="/impact" element={<Impact />} />
             <Route path="/journal" element={<Journal />} />
             <Route path="/contact" element={<Contact />} />
@@ -90,6 +94,7 @@ export default function App() {
           <Route path="coupons" element={<AdminCoupons />} />
           <Route path="bundles" element={<AdminBundles />} />
           <Route path="farmers" element={<AdminFarmers />} />
+          <Route path="qrcodes" element={<AdminQRCode />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="banners" element={<AdminBannerManagement />} />
         </Route>

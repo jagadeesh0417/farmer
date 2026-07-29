@@ -1,32 +1,19 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
-import LifestyleCard from '../components/LifestyleCard'
 import BundleCard from '../components/BundleCard'
-import HeroBanner from '../components/HeroBanner'
+import KenBurnsHero from '../components/KenBurnsHero'
 import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
 import { formatPrice, getImageUrl } from '../lib/utils'
-import { cld } from '../lib/cloudinary'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
-import { demoProducts, demoCombos, demoFarmers, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
+import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
-
-const VALUES = [
-  { label: 'Made in India', icon: '🇮🇳' },
-  { label: 'Eco-Friendly', icon: '♻️' },
-  { label: 'Ethical Practices', icon: '🤝' },
-  { label: '100% Natural', icon: '🌿' },
-  { label: 'Non-GMO', icon: '🌾' },
-  { label: 'Farm Fresh', icon: '🌱' },
-]
-
-const CAROUSEL_TABS = ['All Products', 'Shop By Category', 'Super Saver Combos', 'Shop By Goal']
 
 function getSectionCombos(bundles, settings) {
   const ids = settings?.homeSections?.superSaverCombos
@@ -34,39 +21,21 @@ function getSectionCombos(bundles, settings) {
   return bundles.filter(b => ids.includes(b.id || b._id) && b.showOnHome !== false)
 }
 
-function getCategoryName(p) {
-  const cat = p.category
-  return typeof cat === 'string' ? cat : (cat?.slug || cat?.name || '')
-}
-
-const SECTION_CATEGORY_MAP = {
-  millets: ['millets'],
-  lentilsBeans: ['lentils-beans'],
-  honey: ['honey', 'natural-sweeteners'],
-  spices: ['spices', 'spices-seasonings'],
-  groceries: [],
-}
-
 function getSectionProducts(products, settings, sectionKey) {
-  const catSlugs = SECTION_CATEGORY_MAP[sectionKey]
-  if (sectionKey === 'groceries') return products.filter(p => p.showOnHome !== false)
   if (sectionKey === 'bestSellers') {
-    const ids = settings?.homeSections?.[sectionKey]
+    const ids = settings?.homeSections?.bestSellers
     if (ids && ids.length > 0) return products.filter(p => ids.includes(p.id || p._id) && p.showOnHome !== false)
     return products.filter(p => p.isFeatured && p.showOnHome !== false)
   }
-  const ids = settings?.homeSections?.[sectionKey]
-  let filtered = products
-  if (ids && ids.length > 0) {
-    filtered = products.filter(p => ids.includes(p.id || p._id))
-  } else if (catSlugs && catSlugs.length > 0) {
-    filtered = products.filter(p => {
-      const cat = getCategoryName(p).toLowerCase()
-      return catSlugs.some(s => cat === s || cat === s.replace(/-/g, ''))
-    })
-  }
-  return filtered.filter(p => p.showOnHome !== false)
+  return products.filter(p => p.showOnHome !== false)
 }
+
+const TESTIMONIALS = [
+  { name: 'Priya Sharma', location: 'Mumbai', text: 'The forest honey is pure magic. You can taste the difference — it\'s nothing like the processed stuff from supermarkets. My whole family loves it!', rating: 5 },
+  { name: 'Rajesh Kumar', location: 'Bangalore', text: 'I\'ve been buying millets and lentils for months now. The quality is consistent and knowing it supports tribal farmers makes every purchase meaningful.', rating: 5 },
+  { name: 'Ananya Patel', location: 'Delhi', text: 'The combos are such great value! I ordered the staples bundle and everything was fresh and well-packaged. Perfect for my monthly shopping.', rating: 5 },
+  { name: 'Vikram Singh', location: 'Pune', text: 'Finally a brand that\'s truly natural and transparent. I scanned the QR on my turmeric pack and saw the exact farmer who grew it. Incredible!', rating: 5 },
+]
 
 export default function Home() {
   const { cartItems } = useCart()
@@ -74,25 +43,25 @@ export default function Home() {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [bundles, setBundles] = useState([])
+  const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
-  const [promoBanner, setPromoBanner] = useState(null)
   const [categories, setCategories] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
   const [activeCategory, setActiveCategory] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [milletProducts, setMilletProducts] = useState([])
-  const [grainProducts, setGrainProducts] = useState([])
-  const [farmers, setFarmers] = useState([])
-  const [activeTab, setActiveTab] = useState('All Products')
-  const carouselRef = useRef(null)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
-  const scrollCarousel = useCallback((dir) => {
-    if (!carouselRef.current) return
-    const amt = dir > 0 ? 300 : -300
-    carouselRef.current.scrollBy({ left: amt, behavior: 'smooth' })
-  }, [])
+  const reelProducts = useMemo(() => {
+    const available = products.filter(p => p.showOnHome !== false)
+    if (available.length === 0) return reels
+    return reels.map((reel, i) => ({
+      ...reel,
+      taggedProduct: available[i % available.length],
+    }))
+  }, [reels, products])
+
+  const bestSellers = useMemo(() => getSectionProducts(products, settings, 'bestSellers'), [products, settings])
 
   useEffect(() => {
     let cancelled = false
@@ -102,40 +71,36 @@ export default function Home() {
         const savedBundles = getItems('bundles')
         setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
         setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
-        setMilletProducts(demoProductsByCategory('millets'))
-        setGrainProducts(demoProductsByCategory('lentils-beans'))
-        setFarmers(demoFarmers)
+        setReels(demoStories.map(s => ({ poster: s.image, alt: s.title, src: null, duration: s.duration })))
         setLoading(false)
         return
       }
       try {
-        const [productsData, bundlesData, milletData, grainData, farmersData, bannerSettings] = await Promise.all([
+        const [productsData, bundlesData, bannerSettings] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
           api.getBundles({ combo: 'true' }).then(r => r?.data || r || []).catch(() => []),
-          api.getProducts({ category: 'millets', limit: 6 }).then(r => r.data || []).catch(() => []),
-          api.getProducts({ category: 'lentils-beans', limit: 6 }).then(r => r.data || []).catch(() => []),
-          api.getFarmers({ limit: 4 }).then(r => r.data || r || []).catch(() => []),
           api.getBannerSettings().catch(() => ({})),
         ])
         if (cancelled) return
         setProducts(productsData)
         setBundles(Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || [])
-        setMilletProducts(milletData)
-        setGrainProducts(grainData)
-        setFarmers(Array.isArray(farmersData) ? farmersData : farmersData?.data || [])
+        setReels(HOME_ASSETS.reels)
         const bs = bannerSettings || {}
         const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
-          _id: k,
+          id: k,
           desktopImage: bs[k].image,
           tabletImage: bs[k].image,
           mobileImage: bs[k].image,
           image: bs[k].image,
-          title: bs[k].title || '',
-          subtitle: bs[k].subtitle || '',
-          buttonText: bs[k].buttonText || '',
+          heading: bs[k].title || '',
+          subtext: bs[k].subtitle || '',
+          ctaLabel: bs[k].buttonText || '',
+          ctaHref: '/products',
         }))
-        setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero)
-        setPromoBanner(bs.promotional?.image || null)
+        setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero.map(s => ({
+          id: s.title, ...s,
+          heading: s.title, subtext: s.subtitle, ctaLabel: s.buttonText, ctaHref: '/products',
+        })))
       } catch (err) { console.error(err) }
       finally { if (!cancelled) setLoading(false) }
     }
@@ -184,136 +149,52 @@ export default function Home() {
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Hero banner */}
-      <HeroBanner banner={banners[0] || HOME_ASSETS.hero[0]} />
+      <KenBurnsHero slides={banners} />
 
-      {/* 2. Advertisement banner — cinematic strip */}
-      <section className="py-4 sm:py-5 lg:py-6 bg-white">
+      {/* 2. Super Saver Combos */}
+      <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <Link to="/products" className="group relative block rounded-xl overflow-hidden aspect-[4/1] sm:aspect-[6/1] lg:aspect-[10/1]">
-            <picture>
-              <source srcSet={cld(promoBanner || HOME_ASSETS.adBanner.desktopImage, 'f_auto,q_auto,w_1200')} media="(min-width: 768px)" />
-              <img src={cld(promoBanner || HOME_ASSETS.adBanner.mobileImage, 'f_auto,q_auto,w_600')} alt={HOME_ASSETS.adBanner.alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" />
-            </picture>
-          </Link>
-        </div>
-      </section>
-
-      {/* 3. Tall lifestyle product carousel */}
-      <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
-        <div className="section-container">
-          {/* Filter tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {CAROUSEL_TABS.map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-full text-caption font-semibold transition-all tracking-wide ${
-                  activeTab === tab ? 'bg-green-600 text-white shadow-sm' : 'bg-white text-ink/60 hover:text-green-600 border border-border'
-                }`}>
-                {tab === 'All Products' ? 'All Products' : tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Carousel with arrows */}
-          <div className="relative">
-            <button onClick={() => scrollCarousel(-1)} className="absolute -left-3 top-1/2 -translate-y-1/2 z-20 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Previous">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <button onClick={() => scrollCarousel(1)} className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Next">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            </button>
-            <div ref={carouselRef} className="flex gap-3.5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-              {loading ? (
-                Array.from({ length: 8 }).map((_, i) => <div key={i} className="lifestyle-card bg-white/80 animate-pulse rounded-xl" />)
-              ) : (() => {
-                let filtered = products
-                if (activeTab === 'Shop By Category') {
-                  const cat = categories.find(c => c._id === activeCategory) || {}
-                  const slug = cat.slug || cat.name?.toLowerCase()
-                  if (slug) filtered = products.filter(p => getCategoryName(p).toLowerCase() === slug)
-                } else if (activeTab === 'Super Saver Combos') {
-                  return bundles.length > 0 ? (
-                    <div className="flex gap-3.5 overflow-x-auto hide-scrollbar">
-                      {bundles.slice(0, 8).map(b => <BundleCard key={b._id || b.id} bundle={b} compact />)}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No combos yet</div>
-                  )
-                } else if (activeTab === 'Shop By Goal') {
-                  filtered = products
-                }
-                return filtered.length > 0 ? (
-                  filtered.map((product, i) => (
-                    <LifestyleCard key={product.id || product._id} product={product} priority={i < 4}
-                      headline={i % 3 === 0 ? 'Support your vitality with nature\'s purity' : undefined} />
-                  ))
-                ) : (
-                  <div className="flex items-center justify-center w-full py-20 text-body-sm text-muted">No products found</div>
-                )
-              })()}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Groceries — auto-scrolling carousel */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
-        <div className="section-container">
-          <div className="text-center mb-6">
-            <h2 className="font-heading text-h2 font-bold text-ink">Groceries</h2>
-            <p className="text-body-sm text-muted mt-0.5">Everyday essentials</p>
-            <Link to="/products" className="inline-block mt-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
+          <div className="text-center mb-8">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
+            <h2 className="mt-1 text-h2 font-bold">Super Saver Combos</h2>
+            <p className="text-body-sm text-muted mt-1 max-w-md mx-auto">Curated bundles with the best savings</p>
           </div>
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {Array.from({ length: 10 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-72 animate-pulse" />)}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-56 animate-pulse" />)}
             </div>
-          ) : products.length > 0 ? (
-            (() => {
-              const groceries = getSectionProducts(products, settings, 'groceries')
-              return groceries.length > 0 ? (
-                <div className="relative">
-                  <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                  </button>
-                  <button onClick={() => { const el = document.getElementById('groceries-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                  </button>
-                  <div id="groceries-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-                    {groceries.map((product, i) => (
-                      <div key={product.id || product._id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[320px]"><ProductCard product={product} /></div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-                  <p className="text-body-sm text-muted">No products in this section yet.</p>
-                </div>
-              )
-            })()
+          ) : bundles.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {getSectionCombos(bundles, settings).slice(0, 8).map(bundle => (
+                  <BundleCard key={bundle._id || bundle.id} bundle={bundle} />
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
+                  View All Combos
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </Link>
+              </div>
+            </>
           ) : (
-            <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No products available yet.</p>
+            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
+              <p className="text-body-sm text-muted">No combos available yet.</p>
+              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* 5. 9:16 Vertical Videos — Reels */}
-      <section className="py-10 lg:py-14 bg-white overflow-hidden">
+      {/* 3. 9:16 Vertical Videos — Reels with tagged products */}
+      <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
             <h2 className="font-heading text-h2 font-bold text-ink">Stories from the Soil</h2>
             <p className="text-body-sm text-muted mt-0.5">Short videos from our tribal communities</p>
-            <a href={`https://www.youtube-nocookie.com/embed/${HOME_ASSETS.youtube.videoId}`} target="_blank" rel="noopener noreferrer"
-              className="inline-block mt-2 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">Watch All →</a>
           </div>
-          <div className="flex gap-3 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-            {(isDemoMode() ? demoStories.map(s => ({
-              poster: s.image,
-              alt: s.title,
-              src: null,
-              duration: s.duration
-            })) : HOME_ASSETS.reels).map((reel, i) => (
+          <div className="flex gap-4 overflow-x-auto hide-scrollbar carousel-snap pb-2">
+            {reelProducts.map((reel, i) => (
               <div key={i} className="flex-shrink-0 w-[200px] sm:w-[220px] lg:w-[240px]">
                 <div className="aspect-[9/16] rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
                   {reel.src ? (
@@ -338,85 +219,37 @@ export default function Home() {
                       </div>
                     </>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    {isDemoMode() && reel.duration && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                    {reel.duration && (
                       <span className="inline-block rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-micro font-medium text-white mb-1">{reel.duration}</span>
                     )}
                     <p className="text-caption font-medium text-white drop-shadow-sm line-clamp-1">{reel.alt}</p>
                   </div>
                 </div>
+                {reel.taggedProduct && (
+                  <Link to={`/products/${(reel.taggedProduct.name || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`}
+                    className="mt-2 block rounded-lg border border-border bg-white p-2.5 hover:shadow-sm transition">
+                    <div className="flex items-center gap-2">
+                      <img src={getImageUrl(reel.taggedProduct.image_url || reel.taggedProduct.images?.[0])} alt=""
+                        className="h-10 w-10 rounded-lg object-cover bg-[#F0E6D3]"
+                        onError={(e) => { e.target.src = generatePlaceholder('product', reel.taggedProduct.name) }} />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-product text-caption font-semibold text-ink line-clamp-1">{reel.taggedProduct.name}</p>
+                        <p className="font-product text-caption font-bold text-green-600">
+                          {formatPrice(reel.taggedProduct.base_price || reel.taggedProduct.price || 0)}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 6. Our Story video */}
-      <section className="py-10 lg:py-14 bg-off-white">
-        <div className="section-container">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Story</span>
-              <h2 className="mt-1 text-h2 font-bold">From the Forest to Your Home</h2>
-              <p className="mt-2 text-body-sm text-muted leading-relaxed">Watch how we work with tribal farmers to bring you the purest, most natural products.</p>
-              <Link to="/about" className="mt-4 inline-flex items-center gap-2 text-body-sm font-semibold text-green-600 hover:text-green-700 transition-colors">Learn More →</Link>
-            </div>
-            <div className="aspect-video rounded-xl overflow-hidden bg-green-50 relative group cursor-pointer">
-              {HOME_ASSETS.videoSection.src ? (
-                <video controls poster={HOME_ASSETS.videoSection.poster} className="h-full w-full object-cover object-center" preload="none">
-                  <source src={HOME_ASSETS.videoSection.src} type={HOME_ASSETS.videoSection.type} />
-                </video>
-              ) : (
-                <>
-                  <img src={HOME_ASSETS.videoSection.poster} alt={HOME_ASSETS.videoSection.alt} loading="lazy" className="h-full w-full object-cover object-center" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-green-600/90 flex items-center justify-center transition-transform group-hover:scale-110">
-                      <svg className="h-5 w-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                    </div>
-                  </div>
-                  <p className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-white/80 bg-black/40 px-3 py-1 rounded-full">Brand film coming soon</p>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Super Saver Combos */}
+      {/* 4. Best Sellers */}
       <section className="py-10 lg:py-14 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
-            <h2 className="mt-1 text-h2 font-bold">Super Saver Combos</h2>
-            <p className="text-body-sm text-muted mt-1 max-w-md mx-auto">Curated bundles with the best savings</p>
-          </div>
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-56 animate-pulse" />)}
-            </div>
-          ) : bundles.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {getSectionCombos(bundles, settings).slice(0, 4).map(bundle => (
-                <BundleCard key={bundle._id || bundle.id} bundle={bundle} compact />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No combos available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
-            </div>
-          )}
-          <div className="mt-8 text-center">
-            <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-none text-body-sm font-semibold hover:bg-green-700 transition-colors">
-              View All Combos
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. Best Sellers */}
-      <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
             <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Top Picks</span>
@@ -427,44 +260,29 @@ export default function Home() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {Array.from({ length: 6 }).map((_, i) => <div key={i} className="rounded-xl bg-white border border-border h-64 animate-pulse" />)}
             </div>
-          ) : products.length > 0 ? (
-            (() => {
-              const bestSellers = getSectionProducts(products, settings, 'bestSellers')
-              return bestSellers.length > 0 ? (
-                <div className="relative">
-                  <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: -320, behavior: 'smooth' }) }} className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll left">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                  </button>
-                  <button onClick={() => { const el = document.getElementById('bestsellers-track'); if (el) el.scrollBy({ left: 320, behavior: 'smooth' }) }} className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md text-ink hover:text-green-600 transition border border-border" aria-label="Scroll right">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                  </button>
-                  <div id="bestsellers-track" className="flex gap-5 overflow-x-auto hide-scrollbar carousel-snap pb-2">
-                    {bestSellers.slice(0, 12).map((product) => (
-                      <div key={product.id || product._id} className="min-w-[220px] sm:min-w-[240px] lg:min-w-[260px]"><ProductCard product={product} /></div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-white rounded-xl border border-border">
-                  <p className="text-body-sm text-muted">No products in this section yet.</p>
-                </div>
-              )
-            })()
+          ) : bestSellers.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {bestSellers.slice(0, 8).map(product => (
+                  <ProductCard key={product.id || product._id} product={product} />
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <Link to="/products" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
+                  View All Products
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </Link>
+              </div>
+            </>
           ) : (
-            <div className="text-center py-12 bg-white rounded-xl border border-border">
+            <div className="text-center py-12 bg-off-white rounded-xl border border-border">
               <p className="text-body-sm text-muted">No products available yet.</p>
             </div>
           )}
-          <div className="mt-8 text-center">
-            <Link to="/products" className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
-              View All Products
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* 9. YouTube video */}
+      {/* 5. Full screen video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -472,7 +290,7 @@ export default function Home() {
             <h2 className="mt-1 text-h2 font-bold">From Farm to Table</h2>
             <p className="text-body-sm text-muted mt-0.5 max-w-md mx-auto">See how traditional farming nourishes communities.</p>
           </div>
-          <div className="aspect-video rounded-xl overflow-hidden bg-green-50 max-w-4xl mx-auto">
+          <div className="aspect-video rounded-xl overflow-hidden bg-green-50 max-w-5xl mx-auto shadow-lg">
             <div className="relative h-full w-full" style={{ padding: '56.25% 0 0 0' }}>
               <iframe src={`https://www.youtube-nocookie.com/embed/${HOME_ASSETS.youtube.videoId}?rel=0&showinfo=0`}
                 title="HaiFarmer — From Farm to Table"
@@ -485,169 +303,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. Millets */}
+      {/* 6. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
-            <Link to="/products?category=millets" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
-          </div>
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-[20px] bg-[#FAF3E8] h-[640px] animate-pulse" />)}
-            </div>
-          ) : milletProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {(getSectionProducts(products, settings, 'millets').length > 0 ? getSectionProducts(products, settings, 'millets') : milletProducts).slice(0, 8).map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No millet products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 12. Lentils & Beans */}
-      <section className="py-10 lg:py-14 bg-off-white">
-        <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
-            <Link to="/products?category=lentils-beans" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
-          </div>
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-[20px] bg-[#FAF3E8] h-[640px] animate-pulse" />)}
-            </div>
-          ) : grainProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {(getSectionProducts(products, settings, 'lentilsBeans').length > 0 ? getSectionProducts(products, settings, 'lentilsBeans') : grainProducts).slice(0, 8).map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 bg-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No grain products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 13. Honey */}
-      <section className="py-10 lg:py-14 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Nature's Sweetness</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Honey</h2>
-            <Link to="/products?category=honey" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
-          </div>
-          {(() => {
-            const sectionProducts = getSectionProducts(products, settings, 'honey')
-            const honeyProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => getCategoryName(p).toLowerCase() === 'honey' || (p.category_name || '').toLowerCase() === 'honey')
-            return honeyProducts.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                {honeyProducts.slice(0, 4).map(product => (
-                  <ProductCard key={product.id || product._id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-                <p className="text-body-sm text-muted">No honey products yet.</p>
-                <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-              </div>
-            )
-          })()}
-        </div>
-      </section>
-
-      {/* 14. Spices */}
-      <section className="py-10 lg:py-14 bg-off-white">
-        <div className="section-container">
-          <div className="text-center mb-6">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
-            <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
-            <Link to="/products?category=spices" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700 transition-colors">View All →</Link>
-          </div>
-          {(() => {
-            const sectionProducts = getSectionProducts(products, settings, 'spices')
-            const spiceProducts = sectionProducts.length > 0 ? sectionProducts : products.filter(p => getCategoryName(p).toLowerCase() === 'spices' || (p.category_name || '').toLowerCase() === 'spices')
-            return spiceProducts.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                {spiceProducts.slice(0, 4).map(product => (
-                  <ProductCard key={product.id || product._id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-                <p className="text-body-sm text-muted">No spice products yet.</p>
-                <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-              </div>
-            )
-          })()}
-        </div>
-      </section>
-
-      {/* 15. About Farmers */}
-      <section className="py-10 lg:py-14 bg-white">
-        <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Heroes</span>
-            <h2 className="mt-1 text-h2 font-bold">Meet Our Tribal Farmers</h2>
-          </div>
-          {farmers.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {farmers.slice(0, 4).map(farmer => (
-                <Link key={farmer._id || farmer.id} to={`/farmers/${farmer.qrCode || farmer.code || farmer._id}`}
-                  className="group flex flex-col rounded-xl border border-border bg-off-white overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-                  <div className="aspect-[1/1] overflow-hidden bg-green-100 flex-shrink-0">
-                    {farmer.image_url ? (
-                      <img src={getImageUrl(farmer.image_url)} alt={farmer.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        onError={(e) => { if (!e.currentTarget.dataset.fallback) { e.currentTarget.dataset.fallback = 'true'; e.currentTarget.src = generatePlaceholder('farmer-card') } }} />
-                    ) : (
-                  <div className="aspect-[1/1] overflow-hidden bg-green-100 flex-shrink-0">
-                    <img src={generatePlaceholder('farmer-card')} alt={farmer.name} className="h-full w-full object-cover" />
-                  </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col flex-1 p-3 mt-auto">
-                    <h3 className="font-heading text-body-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
-                    {farmer.village && <p className="text-caption text-muted mt-0.5">{farmer.village}{farmer.district ? `, ${farmer.district}` : ''}</p>}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {demoFarmers.slice(0, 4).map((farmer, i) => (
-                <Link key={i} to="/farmers"
-                  className="group flex flex-col rounded-xl border border-border bg-off-white overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-                  <img src={farmer.image || generatePlaceholder('farmer-card')} alt={farmer.name} className="h-48 w-full object-cover flex-shrink-0" />
-                  <div className="flex flex-col flex-1 p-3 mt-auto">
-                    <h3 className="font-heading text-body-sm font-bold text-ink group-hover:text-green-600 transition-colors">{farmer.name}</h3>
-                    <p className="text-caption text-muted mt-0.5">{farmer.village || farmer.location}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-          <div className="mt-8 text-center">
-            <Link to="/farmers"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-7 py-2.5 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">
-              Meet All Our Farmers
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 16. Shop by Category */}
-      <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
             <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Shop by</span>
@@ -723,14 +380,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 17. Values strip */}
-      <section className="py-5 bg-off-white border-t border-border">
+      {/* 7. Testimonials */}
+      <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            {VALUES.map(v => (
-              <div key={v.label} className="flex items-center gap-1.5 text-body-sm text-muted">
-                <span className="text-body-sm">{v.icon}</span>
-                <span className="text-caption font-medium">{v.label}</span>
+          <div className="text-center mb-8">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Community</span>
+            <h2 className="mt-1 text-h2 font-bold">What Our Customers Say</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} className="rounded-xl border border-border bg-white p-5 flex flex-col">
+                <div className="flex gap-1 mb-3">
+                  {Array.from({ length: 5 }, (_, j) => (
+                    <svg key={j} className={`h-4 w-4 ${j < t.rating ? 'text-amber-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-body-sm text-muted leading-relaxed flex-1">"{t.text}"</p>
+                <div className="mt-4 pt-3 border-t border-border">
+                  <p className="font-product text-caption font-bold text-ink">{t.name}</p>
+                  <p className="text-caption text-muted">{t.location}</p>
+                </div>
               </div>
             ))}
           </div>

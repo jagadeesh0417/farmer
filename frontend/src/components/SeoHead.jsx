@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function SeoHead({ title, description, keywords, ogImage, canonical, schema }) {
+export default function SeoHead({ title, description, keywords, ogImage, canonical, schema, noindex }) {
   useEffect(() => {
     const prevTitle = document.title
     document.title = title ? `${title} | HAiFarmer` : 'HAiFarmer - Fresh Natural Products from Local Farmers'
@@ -33,6 +33,10 @@ export default function SeoHead({ title, description, keywords, ogImage, canonic
     setMeta('twitter:title', title || 'HAiFarmer', true)
     setMeta('twitter:description', description || 'Fresh, natural products directly from farmers.', true)
     setMeta('twitter:image', ogImage || 'https://haifarmer.com/og-image.jpg', true)
+
+    if (noindex) {
+      setMeta('robots', 'noindex, nofollow')
+    }
 
     if (canonical) {
       const selector = 'link[rel="canonical"]'

@@ -8,11 +8,30 @@ const router = express.Router()
 
 router.get('/', async (req, res) => {
   try {
-    const { combo } = req.query
+    const { combo, search, sort, page, limit } = req.query
     const query = { isActive: true }
     if (combo === 'true') query.isCombo = true
-    const bundles = await Bundle.find(query).populate('items.product', 'name images slug basePrice').sort({ createdAt: -1 })
-    res.json(bundles)
+    if (search) query.name = { $regex: search, $options: 'i' }
+
+    let sortOption = { createdAt: -1 }
+    if (sort === 'price') sortOption = { price: 1 }
+    else if (sort === 'price_desc') sortOption = { price: -1 }
+    else if (sort === 'name') sortOption = { name: 1 }
+
+    const pageNum = parseInt(page) || 1
+    const limitNum = parseInt(limit) || 50
+    const total = await Bundle.countDocuments(query)
+    const bundles = await Bundle.find(query)
+      .populate('items.product', 'name images slug basePrice')
+      .sort(sortOption)
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
+
+    if (page || limit) {
+      res.json({ data: bundles, total, page: pageNum, pages: Math.ceil(total / limitNum) })
+    } else {
+      res.json(bundles)
+    }
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

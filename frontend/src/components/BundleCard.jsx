@@ -4,7 +4,6 @@ import { useCart } from '../contexts/CartContext'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { generatePlaceholder } from '../lib/placeholders'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
-import { toast } from 'react-toastify'
 
 function calculateBundlePrice(bundle) {
   const items = bundle?.items || bundle?.bundle_items || []
@@ -16,15 +15,14 @@ function calculateBundlePrice(bundle) {
   return Number(bundle?.price || bundle?.bundle_price || 0)
 }
 
-export default function BundleCard({ bundle, compact }) {
-  const { addToCart, removeFromCart, cartItems, updateQuantity, bundleSelections, setBundleSelection } = useCart()
+export default function BundleCard({ bundle }) {
+  const { addToCart, removeFromCart, cartItems, updateQuantity } = useCart()
   const { settings } = useSiteSettings()
-  const [showFullDesc, setShowFullDesc] = useState(false)
 
   const id = bundle._id || bundle.id
   const name = bundle.name || bundle.bundle_name
   const image = bundle.image || bundle.bundle_image_url || bundle.image_url
-  const description = bundle.description || bundle.bundle_description || 'Complete combo offer'
+  const description = bundle.description || bundle.bundle_description || ''
   const discountPct = Math.round(bundle.discountPercent || bundle.bundle_discount_percent || 0)
   const items = bundle?.items || bundle?.bundle_items || []
   const slug = bundle.slug || id
@@ -37,145 +35,86 @@ export default function BundleCard({ bundle, compact }) {
 
   const originalTotal = items.reduce((sum, item) => sum + (item.price || item.variant?.price || 0) * item.quantity, 0) || 0
   const bundlePrice = calculateBundlePrice(bundle)
+  const savings = discountPct > 0 && originalTotal > 0 ? Math.round(originalTotal - bundlePrice) : 0
   const cartItem = cartItems?.find(item => item.bundle_id === id || item.bundle?._id === id)
   const isInCart = Boolean(cartItem)
-  const quantity = cartItem?.quantity || bundleSelections?.[id]?.quantity || 1
-  const productCount = items.length
-  const savings = discountPct > 0 && originalTotal > 0 ? Math.round(originalTotal - bundlePrice) : 0
+  const cartQuantity = cartItem?.quantity || 1
   const bundleFallback = generatePlaceholder('bundle', name)
 
   const handleQuantityChange = async (newQty) => {
-    if (newQty < 1) return
-    if (cartItem) await updateQuantity(cartItem.id, newQty)
-    else toast.info('Add to cart first')
+    if (cartItem) {
+      if (newQty < 1) await removeFromCart(cartItem.id)
+      else await updateQuantity(cartItem.id, newQty)
+    }
   }
 
-  if (compact) {
-    return (
-      <div className="w-full rounded-xl border border-border bg-white overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 group">
-        <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-t-xl bg-white">
-          <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
-            className="aspect-[1/1] w-full object-cover object-center transition duration-500"
-            loading="lazy"
-            onError={(e) => { e.target.src = bundleFallback }} />
-          {discountPct > 0 && (
-            <span className="absolute top-3 left-3 rounded-full bg-sale px-2.5 py-0.5 text-micro font-semibold uppercase text-white shadow-sm">
-              Save {discountPct}%
-            </span>
-          )}
-          {productCount > 0 && (
-            <span className="absolute top-3 right-3 rounded-full bg-ink/80 px-2.5 py-0.5 text-micro font-semibold text-white shadow-sm">
-              {productCount} Items
-            </span>
-          )}
-        </Link>
-        <div className="p-3">
-          <Link to={`/combos/${slug}`} className="hover:text-green-600 transition-colors">
-            <h3 className="text-body-sm font-semibold text-ink line-clamp-1">{name}</h3>
-          </Link>
-          <p className="mt-0.5 text-caption text-muted line-clamp-2">{displayDesc}</p>
-          <div className="mt-2 space-y-0.5">
-            {originalTotal > bundlePrice && (
-              <span className="block text-caption text-muted-light line-through">{formatPrice(originalTotal)}</span>
-            )}
-            <div className="flex items-center gap-1.5">
-              <span className="text-body font-bold text-ink">{formatPrice(bundlePrice)}</span>
-              {savings > 0 && (
-                <span className="text-micro font-semibold text-sale">Save {formatPrice(savings)}</span>
-              )}
-            </div>
-          </div>
-          <div className="mt-2 flex gap-1.5">
-            <button onClick={async () => {
-                if (isInCart) await removeFromCart(cartItem.id)
-                else await addToCart({ bundle_id: id, quantity, bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
-              }}
-              className={`flex-1 rounded-lg py-1.5 text-caption font-semibold uppercase transition-all ${isInCart ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-green-600 text-white hover:bg-green-700'}`}>
-              {isInCart ? 'Remove' : 'Add to Cart'}
-            </button>
-            <Link to={`/combos/${slug}`} className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-muted hover:text-green-600 hover:border-green-300 transition-all">
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
+  const handleAddToCart = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (isInCart) {
+      await removeFromCart(cartItem.id)
+    } else {
+      await addToCart({ bundle_id: id, quantity: 1, bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
+    }
   }
 
   return (
-    <div className="w-full rounded-xl border border-border bg-white overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-2">
-            <span className="rounded-full bg-green-50 px-3 py-1 text-caption font-semibold uppercase text-green-600">Best Value</span>
-            <span className="text-nav text-muted">{productCount} Products</span>
-          </div>
-          <Link to={`/combos/${slug}`} className="relative block overflow-hidden rounded-xl bg-white">
-            <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
-              className="aspect-[1/1] w-full object-cover object-center transition duration-500"
-              onError={(e) => { e.target.src = bundleFallback }} />
-            {productCount > 0 && (
-              <span className="absolute top-3 left-3 rounded-full bg-ink/80 px-2.5 py-0.5 text-micro font-semibold text-white shadow-sm">{productCount} Products</span>
-            )}
-          </Link>
+    <div className="group flex h-full w-full flex-col">
+      <Link to={`/combos/${slug}`} className="relative block w-full">
+        {discountPct > 0 && (
+          <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
+            {discountPct}% OFF
+          </span>
+        )}
+        {items.length > 0 && (
+          <span className="absolute right-2 top-2 z-10 rounded-full bg-[#1a1a1a]/80 px-2.5 py-1 text-micro font-semibold text-white shadow-sm">
+            {items.length} Items
+          </span>
+        )}
+
+        <div className="relative w-full overflow-hidden rounded-xl bg-[#F0E6D3]">
+          <img src={getImageUrl(image, settings?.placeholder_image)} alt={name}
+            className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            onError={(e) => { e.target.src = bundleFallback }} />
         </div>
+      </Link>
 
-        <div className="flex flex-col gap-4">
-          <div>
-            <Link to={`/combos/${slug}`} className="hover:text-green-600 transition-colors">
-              <h2 className="font-heading text-h4 font-bold text-ink">{name}</h2>
-            </Link>
-            <div className="mt-2 text-body-sm text-muted">
-              <div className="relative">
-                <p className={showFullDesc ? '' : 'line-clamp-2'}>{displayDesc}</p>
-                {!showFullDesc && displayDesc.length > 50 && (
-                  <button onClick={(e) => { e.preventDefault(); setShowFullDesc(true) }} className="inline-block font-semibold text-green-600 hover:text-green-700">...</button>
-                )}
-                {showFullDesc && <button onClick={(e) => { e.preventDefault(); setShowFullDesc(false) }} className="text-caption text-green-600 hover:underline font-semibold block mt-1">Show less</button>}
-              </div>
-              {contains && (
-                <div className="mt-2 text-caption font-medium text-muted bg-green-50 p-3 rounded-lg border border-border">
-                  <span className="font-semibold text-ink">Contains: </span>{contains}
-                </div>
-              )}
+      <div className="mt-3 flex flex-1 flex-col px-0">
+        <Link to={`/combos/${slug}`}>
+          <h3 className="line-clamp-2 text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black">
+            {name}
+          </h3>
+        </Link>
+
+        <div className="mt-2 flex items-baseline justify-center gap-2">
+          <span className="font-product text-body font-bold text-black">{formatPrice(bundlePrice)}</span>
+          {originalTotal > bundlePrice && (
+            <span className="font-product text-caption font-medium text-gray-400 line-through">{formatPrice(originalTotal)}</span>
+          )}
+        </div>
+        {savings > 0 && (
+          <p className="mt-0.5 text-center font-product text-micro font-semibold text-[#F5A623]">Save {formatPrice(savings)}</p>
+        )}
+
+        <div className="mt-auto pt-3">
+          {isInCart ? (
+            <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white">
+              <button type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
+                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product"
+                disabled={cartQuantity <= 1}>−</button>
+              <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
+              <button type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
+                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product">+</button>
             </div>
-          </div>
-
-          <div className="flex flex-nowrap gap-2 overflow-x-auto">
-            <span className="rounded-full bg-green-50 px-2.5 py-1 text-caption font-medium text-muted whitespace-nowrap">100% Natural</span>
-            <span className="rounded-full bg-green-50 px-2.5 py-1 text-caption font-medium text-muted whitespace-nowrap">Chemical Free</span>
-            <span className="rounded-full bg-green-50 px-2.5 py-1 text-caption font-medium text-muted whitespace-nowrap">Direct from Farmers</span>
-          </div>
-
-          <div className="space-y-3 border-t border-border pt-4 mt-auto">
-            <div className="space-y-1">
-              {originalTotal > bundlePrice && <span className="block text-body text-muted-light line-through">{formatPrice(originalTotal)}</span>}
-              <div className="flex items-center gap-2 flex-nowrap">
-                <span className="font-heading text-price-lg font-bold text-ink">{formatPrice(bundlePrice)}</span>
-                <span className="text-caption text-muted">+ shipping</span>
-              </div>
-              {savings > 0 && <p className="text-body-sm font-medium text-sale">Save {formatPrice(savings)} ({discountPct}%)</p>}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center rounded-lg border border-border bg-white">
-                <button type="button" onClick={() => handleQuantityChange(quantity - 1)} className="px-3 py-2 text-muted hover:bg-green-50 disabled:opacity-50 text-body-sm" disabled={quantity <= 1}>−</button>
-                <span className="min-w-[2rem] text-center text-body-sm font-semibold text-ink">{quantity}</span>
-                <button type="button" onClick={() => handleQuantityChange(quantity + 1)} className="px-3 py-2 text-muted hover:bg-green-50 text-body-sm">+</button>
-              </div>
-              <button onClick={async () => {
-                  if (isInCart) await removeFromCart(cartItem.id)
-                else await addToCart({ bundle_id: id, quantity, bundle: { _id: id, name, price: bundlePrice, bundle_price: bundlePrice, discountPercent: discountPct, image, items, ...bundle } })
-                }}
-                className={`flex-1 rounded-lg py-2.5 text-body-sm font-semibold uppercase transition-all ${isInCart ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-green-600 text-white hover:bg-green-700'}`}>
-                {isInCart ? 'Remove' : 'Add to cart'}
-              </button>
-            </div>
-
-            <Link to={`/combos/${slug}`} className="block text-center text-body-sm font-medium text-green-600 hover:text-green-700 transition-colors">
-              View all {productCount} products →
-            </Link>
-          </div>
+          ) : (
+            <button onClick={handleAddToCart}
+              className="h-10 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98]">
+              Add to Cart
+            </button>
+          )}
         </div>
       </div>
     </div>

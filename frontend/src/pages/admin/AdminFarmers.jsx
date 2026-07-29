@@ -19,8 +19,8 @@ export default function AdminFarmers() {
   const qrFileRef = useRef(null)
   const [form, setForm] = useState({
     name: '', phone: '', village: '', district: '', state: '',
-    products: '', quantity: '', availability: '', pickupDetails: '',
-    images: [], cloudinaryPublicIds: [], bio: '', status: 'pending',
+      products: '', certifications: '', quantity: '', availability: '', pickupDetails: '',
+      images: [], cloudinaryPublicIds: [], bio: '', status: 'pending',
   })
   const fileRef = useRef(null)
 
@@ -51,7 +51,7 @@ export default function AdminFarmers() {
 
   const resetForm = () => {
     setEditing(null)
-    setForm({ name: '', phone: '', village: '', district: '', state: '', products: '', quantity: '', availability: '', pickupDetails: '', images: [], cloudinaryPublicIds: [], bio: '', status: 'pending' })
+    setForm({ name: '', phone: '', village: '', district: '', state: '', products: '', certifications: '', quantity: '', availability: '', pickupDetails: '', images: [], cloudinaryPublicIds: [], bio: '', status: 'pending' })
   }
 
   const handleEdit = (f) => {
@@ -59,6 +59,7 @@ export default function AdminFarmers() {
     setForm({
       name: f.name, phone: f.phone, village: f.village || '', district: f.district || '', state: f.state || '',
       products: Array.isArray(f.products) ? f.products.join(', ') : f.products || '',
+      certifications: Array.isArray(f.certifications) ? f.certifications.join(', ') : f.certifications || '',
       quantity: f.quantity || '', availability: f.availability || '', pickupDetails: f.pickupDetails || '',
       images: f.images || [], cloudinaryPublicIds: f.cloudinaryPublicIds || [], bio: f.bio || '', status: f.status || 'pending',
     })
@@ -69,14 +70,14 @@ export default function AdminFarmers() {
     if (submitting) return
     if (!form.name.trim() || !form.phone.trim()) return toast.error('Name and phone are required')
     if (isDemoMode()) {
-      const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean) }
+      const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean), certifications: form.certifications.split(',').map(s => s.trim()).filter(Boolean) }
       if (editing && editing !== 'new') { updateItem('farmers', editing, payload); toast.success('Farmer updated') }
       else { addItem('farmers', payload); toast.success('Farmer created') }
       resetForm(); load(); return
     }
     setSubmitting(true)
     try {
-      const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean) }
+      const payload = { ...form, products: form.products.split(',').map(s => s.trim()).filter(Boolean), certifications: form.certifications.split(',').map(s => s.trim()).filter(Boolean) }
       if (editing && editing !== 'new') { await api.updateFarmer(editing, payload); toast.success('Farmer updated') }
       else { await api.createFarmer(payload); toast.success('Farmer created') }
       resetForm(); load()
@@ -196,6 +197,7 @@ export default function AdminFarmers() {
             <input value={form.district} onChange={e => setForm(prev => ({ ...prev, district: e.target.value }))} placeholder="District" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
             <input value={form.state} onChange={e => setForm(prev => ({ ...prev, state: e.target.value }))} placeholder="State" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
             <input value={form.products} onChange={e => setForm(prev => ({ ...prev, products: e.target.value }))} placeholder="Products (comma separated)" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
+            <input value={form.certifications} onChange={e => setForm(prev => ({ ...prev, certifications: e.target.value }))} placeholder="Certifications (comma separated, e.g. Organic, Non-GMO)" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
             <input value={form.quantity} onChange={e => setForm(prev => ({ ...prev, quantity: e.target.value }))} placeholder="Quantity" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
             <input value={form.availability} onChange={e => setForm(prev => ({ ...prev, availability: e.target.value }))} placeholder="Availability" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-brand-500" />
             <div className="sm:col-span-2">

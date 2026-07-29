@@ -137,6 +137,15 @@ export const api = {
   getFarmerQR: (id) => request(`/farmers/${id}/qr`),
   regenerateFarmerQR: (id) => request(`/farmers/${id}/qr/regenerate`, { method: 'POST' }),
   toggleFarmerQR: (id) => request(`/farmers/${id}/qr/toggle`, { method: 'PATCH' }),
+  getFarmerBySlug: (slug) => request(`/farmers/slug/${slug}`),
+
+  // QR Codes
+  getQRCodes: () => request('/qrcodes'),
+  createQRCode: (data) => request('/qrcodes', { method: 'POST', body: JSON.stringify(data) }),
+  updateQRCode: (id, data) => request(`/qrcodes/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteQRCode: (id) => request(`/qrcodes/${id}`, { method: 'DELETE' }),
+  lookupQRCode: (code) => request(`/qrcodes/${code}/lookup`),
+  scanQRCode: (code) => request(`/qrcodes/${code}/scan`, { method: 'POST' }),
 
   // Bundles
   getBundles: (params = {}) => request(`/bundles?${new URLSearchParams(params)}`),
