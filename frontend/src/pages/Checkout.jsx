@@ -52,7 +52,7 @@ export default function Checkout() {
 
   useEffect(() => { saveCachedAddress(address) }, [address])
 
-  const addressComplete = address.name?.trim() && address.mobile?.trim() && address.house?.trim() && address.city?.trim() && address.pincode?.trim()
+  const addressComplete = address.name?.trim() && address.mobile?.trim() && address.house?.trim() && address.area?.trim() && address.city?.trim() && address.state?.trim() && address.pincode?.trim() && address.country?.trim()
 
   const paymentMethod = settings?.paymentMethod || (settings?.razorpayEnabled !== false ? 'both' : 'whatsapp')
   const showRazorpay = paymentMethod === 'both' || paymentMethod === 'razorpay'
@@ -339,7 +339,7 @@ export default function Checkout() {
                       className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                   </div>
                   <div>
-                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Area / Locality</label>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Area / Locality *</label>
                     <input value={address.area} onChange={e => setAddress(a => ({ ...a, area: e.target.value }))} placeholder="Area or locality"
                       className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                   </div>
@@ -354,7 +354,7 @@ export default function Checkout() {
                       className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                   </div>
                   <div>
-                    <label className="block text-caption font-semibold text-green-800/60 mb-1">State</label>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">State *</label>
                     <input value={address.state} onChange={e => setAddress(a => ({ ...a, state: e.target.value }))} placeholder="State"
                       className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                   </div>
@@ -364,7 +364,7 @@ export default function Checkout() {
                       className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                   </div>
                   <div>
-                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Country</label>
+                    <label className="block text-caption font-semibold text-green-800/60 mb-1">Country *</label>
                     <input value={address.country} onChange={e => setAddress(a => ({ ...a, country: e.target.value }))} placeholder="India"
                       className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-body-sm text-ink placeholder:text-green-800/30 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20" />
                   </div>
