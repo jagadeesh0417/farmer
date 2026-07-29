@@ -279,6 +279,42 @@ export const demoStories = [
     duration: '2:58',
     alt: 'The journey of organic food from tribal forests to consumers',
   },
+  {
+    poster: IMG + '/story-1.svg',
+    title: 'Handpicking Organic Spices',
+    duration: '3:45',
+    alt: 'Farmers harvesting turmeric and chili in organic farms',
+  },
+  {
+    poster: IMG + '/story-2.svg',
+    title: 'Natural Sweeteners from the Wild',
+    duration: '2:50',
+    alt: 'Collection of wild honey and jaggery from forest regions',
+  },
+  {
+    poster: IMG + '/story-3.svg',
+    title: 'Lentils & Beans Cultivation',
+    duration: '3:30',
+    alt: 'Traditional farming of protein-rich lentils and beans',
+  },
+  {
+    poster: IMG + '/story-4.svg',
+    title: 'Cold-Pressed Oils Processing',
+    duration: '4:15',
+    alt: 'Traditional cold-pressed oil extraction from native seeds',
+  },
+  {
+    poster: IMG + '/story-1.svg',
+    title: 'Tribe\'s Traditional Grains',
+    duration: '3:20',
+    alt: 'Ancient grain varieties cultivated by tribal communities',
+  },
+  {
+    poster: IMG + '/story-2.svg',
+    title: 'Soul of Sustainable Farming',
+    duration: '5:00',
+    alt: 'Documenting the daily life and sustainable practices of farmers',
+  },
 ]
 
 export function demoCategoriesBySlug(slug) {

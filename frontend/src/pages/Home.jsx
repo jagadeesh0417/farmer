@@ -13,7 +13,7 @@ import { cld } from '../lib/cloudinary'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
-import { demoProducts, demoCombos, demoCategories, demoProductsByCategory } from '../lib/demoData'
+import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
@@ -92,7 +92,7 @@ export default function Home() {
         const savedBundles = getItems('bundles')
         setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
         setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
-        setReels([])
+        setReels(demoStories.map(s => ({ poster: s.poster, alt: s.alt || s.title, src: null, duration: s.duration })))
         setLoading(false)
         return
       }
