@@ -50,10 +50,9 @@ export default function BundleCard({ bundle }) {
 
   return (
     <div className="group flex flex-col rounded-xl border border-border bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden
-      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] max-sm:h-[340px] max-sm:min-h-[340px] max-sm:max-h-[340px]
-      sm:h-full sm:w-full">
-      {/* Image */}
-      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0 max-sm:h-[170px] sm:aspect-square sm:w-full">
+      max-sm:w-[170px] max-sm:min-w-[170px] max-sm:max-w-[170px] sm:w-full sm:h-full">
+      {/* Fixed image container */}
+      <Link to={`/combos/${slug}`} className="relative block w-full flex-shrink-0 overflow-hidden bg-[#F0E6D3] max-sm:h-[170px] sm:h-[220px]">
         {discountPct > 0 && (
           <span className="absolute left-2 top-2 z-10 rounded-full bg-[#F5A623] px-2.5 py-1 text-micro font-bold text-[#1a1a1a] font-product shadow-sm">
             {discountPct}% OFF
@@ -64,52 +63,51 @@ export default function BundleCard({ bundle }) {
             {items.length} Items
           </span>
         )}
-        <div className="relative w-full h-full overflow-hidden rounded-t-xl bg-[#F0E6D3]">
-          <img src={getImageUrl(image)} alt={name}
-            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            onError={(e) => { e.target.src = bundleFallback }} />
-        </div>
+        <img src={getImageUrl(image)} alt={name}
+          className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => { e.target.src = bundleFallback }} />
       </Link>
 
-      {/* Content area */}
-      <div className="flex flex-1 flex-col overflow-hidden max-sm:px-2 max-sm:pb-2 sm:px-2.5 sm:pb-2.5 sm:pt-2">
-        {/* Title */}
-        <Link to={`/combos/${slug}`} className="flex-shrink-0 max-sm:h-[32px] sm:h-8 flex items-center justify-center overflow-hidden">
-          <h3 className="truncate text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black
-            max-sm:text-[12px]">
+      {/* Content — fixed sections with equal gaps */}
+      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2.5 max-sm:px-2 max-sm:pb-2 max-sm:pt-2">
+        {/* Title — 2 lines fixed height */}
+        <Link to={`/combos/${slug}`} className="flex-shrink-0 flex items-start justify-center overflow-hidden max-sm:h-[44px] sm:h-[48px]">
+          <h3 className="text-center font-product text-body-sm font-extrabold tracking-tighter leading-tight text-black max-sm:text-[12px] max-sm:leading-[14px] line-clamp-2">
             {name}
           </h3>
         </Link>
 
-        {/* Price */}
-        <div className="flex-shrink-0 flex items-center justify-center gap-1
-          max-sm:h-[36px] sm:min-h-[1.5rem] sm:mt-1">
+        {/* Price — fixed height */}
+        <div className="flex-shrink-0 flex items-center justify-center gap-1 max-sm:h-[32px] sm:h-[32px]">
           <span className="font-product text-body font-bold text-black max-sm:text-[13px]">{formatPrice(bundlePrice)}</span>
           {originalTotal > bundlePrice && (
             <span className="font-product text-caption font-medium text-gray-400 line-through max-sm:text-[11px]">{formatPrice(originalTotal)}</span>
           )}
         </div>
         {savings > 0 && (
-          <p className="flex-shrink-0 text-center font-product text-micro font-semibold text-[#F5A623] max-sm:text-[10px] max-sm:leading-[12px]">Save {formatPrice(savings)}</p>
+          <p className="flex-shrink-0 text-center font-product text-micro font-semibold text-[#F5A623] max-sm:text-[10px] -mt-1 sm:-mt-1">Save {formatPrice(savings)}</p>
         )}
 
-        {/* Button */}
-        <div className="max-sm:mt-2 sm:mt-auto flex-shrink-0">
+        {/* Variant placeholder to keep consistent spacing */}
+        <div className="flex-shrink-0 max-sm:h-[40px] sm:h-[44px]" />
+
+        {/* Button — always at bottom */}
+        <div className="mt-auto flex-shrink-0 max-sm:pt-1 sm:pt-1.5">
           {isInCart ? (
-            <div className="flex h-9 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px]">
+            <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px] sm:h-[44px]">
               <button type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product max-sm:w-8"
+                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product max-sm:w-9 sm:w-11"
                 disabled={cartQuantity <= 1}>−</button>
               <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
               <button type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-full w-9 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-8">+</button>
+                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11">+</button>
             </div>
           ) : (
             <button onClick={handleAddToCart}
-              className="h-9 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px]">
+              className="h-10 w-full rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition hover:bg-[#0B8A34] active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px]">
               Add to Cart
             </button>
           )}
