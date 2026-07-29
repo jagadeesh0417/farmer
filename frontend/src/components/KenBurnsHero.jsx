@@ -25,7 +25,6 @@ function getImg(url, transform) {
 function SlideImage({ slide, active, index, priority }) {
   const desktop = slide.desktopImage || slide.image
   const mobile = slide.mobileImage || slide.tabletImage || desktop
-  const directionClass = index % 2 === 0 ? 'animate-kenburns-in' : 'animate-kenburns-out'
 
   return (
     <picture>
@@ -35,7 +34,7 @@ function SlideImage({ slide, active, index, priority }) {
         loading={priority ? 'eager' : active ? 'eager' : 'lazy'}
         fetchPriority={priority || active ? 'high' : undefined}
         decoding={active ? 'sync' : 'async'}
-        className={`absolute inset-0 h-full w-full object-cover object-center will-change-transform ${active ? directionClass : ''}`}
+        className="absolute inset-0 h-full w-full object-cover object-center"
       />
     </picture>
   )
@@ -137,20 +136,6 @@ export default function KenBurnsHero({ slides = defaultSlides }) {
     <>
       <Carousel slides={slides} />
       <style>{`
-        @keyframes kenburns-in {
-          from { transform: scale(1); }
-          to { transform: scale(1.12); }
-        }
-        @keyframes kenburns-out {
-          from { transform: scale(1.12); }
-          to { transform: scale(1); }
-        }
-        .animate-kenburns-in {
-          animation: kenburns-in 7s ease-in-out forwards;
-        }
-        .animate-kenburns-out {
-          animation: kenburns-out 7s ease-in-out forwards;
-        }
         .banner-content-active {
           animation: bannerContentIn 0.8s ease 0.3s both;
         }
@@ -159,32 +144,11 @@ export default function KenBurnsHero({ slides = defaultSlides }) {
           to { opacity: 1; transform: translateY(0); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .animate-kenburns-in,
-          .animate-kenburns-out {
-            animation: none !important;
-            transform: none !important;
-          }
           .banner-content-active {
             animation: none !important;
             opacity: 1 !important;
             transform: none !important;
           }
-        }
-        @media (max-width: 640px) {
-          .animate-kenburns-in {
-            animation: kenburns-in-mobile 7s ease-in-out forwards;
-          }
-          .animate-kenburns-out {
-            animation: kenburns-out-mobile 7s ease-in-out forwards;
-          }
-        }
-        @keyframes kenburns-in-mobile {
-          from { transform: scale(1); }
-          to { transform: scale(1.08); }
-        }
-        @keyframes kenburns-out-mobile {
-          from { transform: scale(1.08); }
-          to { transform: scale(1); }
         }
         @media (max-width: 767px) {
           section.ken-hero {
@@ -200,9 +164,6 @@ export default function KenBurnsHero({ slides = defaultSlides }) {
         @keyframes hero-shimmer {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
-        }
-        section.ken-hero img {
-          animation-fill-mode: forwards;
         }
       `}</style>
     </>
