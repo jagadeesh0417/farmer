@@ -31,7 +31,7 @@ export default function Footer() {
                 </div>
               )}
             </Link>
-            <p className="text-body-sm text-white/50 leading-relaxed">Pure forest-grown produce, directly from tribal farmers to your home. Chemical-free, no middlemen, just nature's best.</p>
+            <p className="text-body-sm text-white/50 leading-relaxed">{settings?.footer?.aboutText || settings?.tagline || 'Pure forest-grown produce, directly from tribal farmers to your home.'}</p>
           </div>
 
           {/* Shop */}

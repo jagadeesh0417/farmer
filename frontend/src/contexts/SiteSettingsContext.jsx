@@ -10,6 +10,7 @@ const defaultSettings = {
   email: '',
   address: '',
   headerText1: 'Free delivery over ₹1499',
+  announcementEnabled: true,
   logo: '',
   favicon: '',
   deliveryCharge: 0,
@@ -19,6 +20,7 @@ const defaultSettings = {
   paymentMethod: 'both',
   placeholder_image: '',
   footer: {
+    aboutText: 'Pure forest-grown produce, directly from tribal farmers to your home.',
     socialLinks: {
       facebook: '',
       instagram: '',

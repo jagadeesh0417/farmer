@@ -4,14 +4,6 @@ import { useCart } from '../contexts/CartContext'
 import { fetchSiteSettings } from '../contexts/SiteSettingsContext'
 import { CartIcon, MenuIcon, CloseIcon } from './Icons'
 
-const ANNOUNCEMENTS = [
-  'Free Delivery across all India',
-  'COD available',
-  'Get 15% off on All Orders! Use Code HAI15',
-  'Get 15% off + Mystery Gift on Orders above ₹999',
-  'Monsoon Sale is Live — FLAT 25% OFF on select items',
-]
-
 export default function Header() {
   const { cartItems } = useCart()
   const navigate = useNavigate()
@@ -19,6 +11,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [settings, setSettings] = useState(null)
 
   const totalItems = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
@@ -33,6 +26,7 @@ export default function Header() {
     (async () => {
       try {
         const s = await fetchSiteSettings()
+        setSettings(s)
         setLogo(s?.logo || s?.logo_url || '')
       } catch {}
     })()
@@ -43,13 +37,15 @@ export default function Header() {
   return (
     <>
       {/* Announcement bar */}
-      <div className="announcement-bar bg-green-600 text-white text-nav font-medium tracking-[0.06em] overflow-hidden h-9 flex items-center">
-        <div className="announcement-marquee">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="mx-12 inline-block whitespace-nowrap">{ANNOUNCEMENTS[i % ANNOUNCEMENTS.length]}</span>
-          ))}
+      {settings?.announcementEnabled !== false && settings?.headerText1 && (
+        <div className="announcement-bar bg-green-600 text-white text-nav font-medium tracking-[0.06em] overflow-hidden h-9 flex items-center">
+          <div className="announcement-marquee">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <span key={i} className="mx-12 inline-block whitespace-nowrap">{settings.headerText1}</span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Header */}
       <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${scrolled ? 'shadow-sm' : ''}`}>

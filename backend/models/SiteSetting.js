@@ -36,6 +36,7 @@ const siteSettingSchema = new mongoose.Schema({
   headerText1: { type: String, default: 'Free delivery over ₹1499' },
   headerText2: String,
   headerText3: String,
+  announcementEnabled: { type: Boolean, default: true },
 
   // SEO
   seo: {

@@ -67,7 +67,18 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-slate-50">
       <aside className="fixed left-0 top-0 z-50 h-full w-56 bg-slate-900 text-white shadow-xl md:block hidden overflow-y-auto">
         <div className="p-4 border-b border-slate-700">
-          <h1 className="text-lg font-bold tracking-wide">HAiFarmer Admin</h1>
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 flex-shrink-0">
+              <svg viewBox="0 0 32 32" fill="none" className="h-5 w-5 text-white">
+                <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
+                <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
+              </svg>
+            </div>
+            <div>
+              <span className="text-sm font-bold tracking-wide block leading-tight">HAiFarmer</span>
+              <span className="text-[10px] text-slate-400 block leading-tight">Admin Panel</span>
+            </div>
+          </div>
         </div>
         <nav className="p-2 space-y-1">
           {navItems.map(item => (

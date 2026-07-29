@@ -196,8 +196,13 @@ export default function AdminSettings() {
               <Input label="Address" value={getNestedValue(settings, 'address')} onChange={e => handleChange('address', e.target.value)} />
               <Input label="Google Maps URL" value={getNestedValue(settings, 'googleMapsUrl')} onChange={e => handleChange('googleMapsUrl', e.target.value)} />
               <Input label="Business Hours" value={getNestedValue(settings, 'businessHours')} onChange={e => handleChange('businessHours', e.target.value)} />
-              <Input label="Header Text 1" value={getNestedValue(settings, 'headerText1')} onChange={e => handleChange('headerText1', e.target.value)} />
-              <Input label="Header Text 2" value={getNestedValue(settings, 'headerText2')} onChange={e => handleChange('headerText2', e.target.value)} />
+              <Input label="Announcement Bar Text" value={getNestedValue(settings, 'headerText1')} onChange={e => handleChange('headerText1', e.target.value)} />
+              <Input label="Announcement Bar 2" value={getNestedValue(settings, 'headerText2')} onChange={e => handleChange('headerText2', e.target.value)} />
+              <div className="flex items-center gap-3">
+                <input type="checkbox" checked={getNestedValue(settings, 'announcementEnabled') !== false} onChange={e => handleChange('announcementEnabled', e.target.checked)}
+                  className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                <label className="text-sm text-slate-700">Announcement Bar Enabled</label>
+              </div>
               <Input label="GST" value={getNestedValue(settings, 'gst')} onChange={e => handleChange('gst', e.target.value)} />
               <Input label="Tax (%)" type="number" value={getNestedValue(settings, 'tax')} onChange={e => handleChange('tax', e.target.value)} />
             </div>

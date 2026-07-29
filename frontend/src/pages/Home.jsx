@@ -608,17 +608,19 @@ export default function Home() {
                       <span className="mt-3 inline-flex items-center gap-1 text-caption font-semibold text-white group-hover:underline">Shop {cat.name} →</span>
                     </div>
                   </Link>
-                  <div className="lg:col-span-2">
+                  <div className="lg:col-span-2 min-w-0">
                     {isLoading ? (
-                      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="rounded-[20px] bg-[#FAF3E8] h-[640px] animate-pulse" />)}
-                      </div>
+                      <HorizontalScroll>
+                        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[200px] w-[200px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+                      </HorizontalScroll>
                     ) : catProducts && catProducts.length > 0 ? (
-                      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                      <HorizontalScroll>
                         {catProducts.slice(0, 8).map(product => (
-                          <ProductCard key={product.id || product._id} product={product} />
+                          <div key={product.id || product._id} className="min-w-[200px] sm:min-w-[220px] lg:min-w-[240px] w-[200px] sm:w-[220px] lg:w-[240px] shrink-0">
+                            <ProductCard product={product} />
+                          </div>
                         ))}
-                      </div>
+                      </HorizontalScroll>
                     ) : (
                       <div className="flex items-center justify-center h-full min-h-[180px] bg-white rounded-xl border border-border">
                         <p className="text-body-sm text-muted">No products in this category yet.</p>
