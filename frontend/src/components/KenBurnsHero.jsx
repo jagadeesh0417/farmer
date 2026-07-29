@@ -49,8 +49,7 @@ function SlideImage({ slide, active, index, priority }) {
         fetchPriority={priority || active ? 'high' : undefined}
         decoding={active ? 'sync' : 'async'}
         className="absolute inset-0 h-full w-full object-cover object-center"
-        style={!priority && active ? { contentVisibility: 'auto' } : undefined}
-      />
+        key={desktop + mobile} />
     </picture>
   )
 }
@@ -91,12 +90,15 @@ function OverlayContent({ slide, active }) {
 function SingleSlide({ slide }) {
   const desktop = slide.desktopImage || slide.image
   const mobile = slide.mobileImage || slide.tabletImage || desktop
-  const src = desktop || mobile
   return (
     <section className="ken-hero relative w-full overflow-hidden bg-green-800 rounded-2xl" role="banner" aria-label={slide.heading || 'Banner'}>
-      {src && (
-        <img src={getImg(src, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
-          className="block w-full h-auto invisible" loading="eager" />
+      {desktop && (
+        <img src={getImg(desktop, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
+          className="hidden md:block w-full h-auto invisible" loading="eager" />
+      )}
+      {mobile && (
+        <img src={getImg(mobile, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
+          className="block md:hidden w-full h-auto invisible" loading="eager" />
       )}
       <div className="absolute inset-0">
         <SlideImage slide={slide} active index={0} priority />
@@ -127,15 +129,18 @@ function Carousel({ slides }) {
   const activeSlide = slides[active]
   const desktop = activeSlide?.desktopImage || activeSlide?.image
   const mobile = activeSlide?.mobileImage || activeSlide?.tabletImage || desktop
-  const spacerSrc = desktop || mobile
 
   return (
     <section className="ken-hero relative w-full overflow-hidden bg-green-800 rounded-2xl select-none"
       role="region" aria-label="Promotional banner carousel" aria-roledescription="carousel">
-      {/* Spacer image — sets container height to match active slide's natural aspect ratio */}
-      {spacerSrc && (
-        <img src={getImg(spacerSrc, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
-          className="block w-full h-auto invisible" loading="eager" />
+      {/* Spacer images — sets container height to match active slide's natural aspect ratio per viewport */}
+      {desktop && (
+        <img src={getImg(desktop, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
+          className="hidden md:block w-full h-auto invisible" loading="eager" />
+      )}
+      {mobile && (
+        <img src={getImg(mobile, 'f_auto,q_10,w_50,c_limit')} alt="" aria-hidden="true"
+          className="block md:hidden w-full h-auto invisible" loading="eager" />
       )}
 
       {/* Slide stack for crossfade */}
