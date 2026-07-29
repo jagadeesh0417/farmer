@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { cld } from '../lib/cloudinary'
 
@@ -76,7 +76,7 @@ function OverlayContent({ slide, active }) {
 
 function SingleSlide({ slide }) {
   return (
-    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px]" role="banner" aria-label={slide.heading || 'Banner'}>
+    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px] rounded-2xl" role="banner" aria-label={slide.heading || 'Banner'}>
       <SlideImage slide={slide} active index={0} priority />
       <GradientOverlay align={slide.align} />
       <OverlayContent slide={slide} active />
@@ -86,40 +86,23 @@ function SingleSlide({ slide }) {
 
 function Carousel({ slides }) {
   const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
   const [animTick, setAnimTick] = useState(0)
-  const touchStartX = useRef(0)
 
   const goNext = useCallback(() => {
     setActive(prev => (prev + 1) % slides.length)
   }, [slides.length])
 
-  const goPrev = useCallback(() => {
-    setActive(prev => (prev - 1 + slides.length) % slides.length)
-  }, [slides.length])
-
   useEffect(() => {
-    if (slides.length <= 1 || paused) return
     const timer = setInterval(goNext, AUTOPLAY_DELAY)
     return () => clearInterval(timer)
-  }, [slides.length, paused, goNext])
+  }, [goNext])
 
   useEffect(() => {
     setAnimTick(t => t + 1)
   }, [active])
 
-  const handleTouchStart = (e) => { touchStartX.current = e.changedTouches[0].screenX }
-  const handleTouchEnd = (e) => {
-    const diff = touchStartX.current - e.changedTouches[0].screenX
-    if (Math.abs(diff) > 50) { if (diff > 0) goNext(); else goPrev() }
-  }
-
   return (
-    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px] select-none"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+    <section className="ken-hero relative w-full overflow-hidden bg-green-800 h-[400px] sm:h-[500px] lg:h-[560px] rounded-2xl select-none"
       role="region" aria-label="Promotional banner carousel" aria-roledescription="carousel">
       {slides.map((slide, i) => (
         <div key={slide.id}
@@ -135,25 +118,12 @@ function Carousel({ slides }) {
       ))}
 
       {slides.length > 1 && (
-        <>
-          <button onClick={goPrev}
-            className="absolute left-3 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/90 p-2.5 text-ink shadow-md backdrop-blur-sm transition hover:bg-white hover:text-green-600 sm:flex"
-            aria-label="Previous slide">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <button onClick={goNext}
-            className="absolute right-3 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/90 p-2.5 text-ink shadow-md backdrop-blur-sm transition hover:bg-white hover:text-green-600 sm:flex"
-            aria-label="Next slide">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-          </button>
-          <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-            {slides.map((_, i) => (
-              <button key={i} onClick={() => { setActive(i); setPaused(true); setTimeout(() => setPaused(false), AUTOPLAY_DELAY) }}
-                className={`h-2.5 rounded-full transition-all ${i === active ? 'w-7 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/75'}`}
-                aria-label={`Go to slide ${i + 1}`} />
-            ))}
-          </div>
-        </>
+        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+          {slides.map((_, i) => (
+            <span key={i}
+              className={`h-2 rounded-full transition-all ${i === active ? 'w-6 bg-white' : 'w-2 bg-white/40'}`} />
+          ))}
+        </div>
       )}
     </section>
   )
