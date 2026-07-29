@@ -306,7 +306,7 @@ export default function AdminBundles() {
                 <button onClick={() => handleDelete(b._id)} className="text-xs font-semibold text-red-600">Del</button>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     </div>
