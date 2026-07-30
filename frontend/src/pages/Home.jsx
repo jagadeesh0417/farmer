@@ -20,7 +20,6 @@ import PremiumHero from '../components/PremiumHero'
 import WhyChooseUs from '../components/WhyChooseUs'
 import FarmStory from '../components/FarmStory'
 import FarmTimeline from '../components/FarmTimeline'
-import NewsletterSection from '../components/NewsletterSection'
 
 function getSuperSaverCombos(bundles) {
   return bundles.filter(b => (b.comboType === 'super_saver' || b.isSuperSaver) && b.showOnHome !== false)
@@ -548,9 +547,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* 15. Newsletter */}
-      <NewsletterSection />
 
       {/* Floating cart */}
       <button type="button" onClick={() => navigate('/checkout')}
