@@ -238,12 +238,9 @@ export default function Home() {
       {/* 3. Super Savers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Super Savers</h2>
-            </div>
-            <Link to="/combos?tab=super-savers" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Super Savers</h2>
           </div>
           {loading ? (
             <HorizontalScroll>
