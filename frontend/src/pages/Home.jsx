@@ -17,6 +17,7 @@ import { getItems } from '../lib/demoStore'
 import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import WhyChooseUs from '../components/WhyChooseUs'
+import FarmTimeline from '../components/FarmTimeline'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
 function getSuperSaverCombos(bundles) {
@@ -538,6 +539,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 13. Our Process — Farm to Table */}
+      <FarmTimeline />
+
       {/* Trust badges */}
       <section className="py-8 lg:py-10 bg-off-white border-t border-border">
         <div className="section-container">
@@ -557,7 +561,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 13. Shop by Category */}
+      {/* 14. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -645,7 +649,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 14. Testimonials */}
+      {/* 15. Testimonials */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
