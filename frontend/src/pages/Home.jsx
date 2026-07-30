@@ -9,7 +9,7 @@ import { cld } from '../lib/cloudinary'
 import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
-import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
+import { demoProducts, demoCombos, demoStories, demoCategories } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
 import { HOME_ASSETS } from '../lib/homeAssets'
 import ProductCard from '../components/ProductCard'
@@ -19,6 +19,7 @@ import StoryViewer from '../components/StoryViewer'
 import PremiumHero from '../components/PremiumHero'
 import PromoBanner from '../components/PromoBanner'
 import WhyChooseUs from '../components/WhyChooseUs'
+import CategoryCard from '../components/CategoryCard'
 import FarmStory from '../components/FarmStory'
 import FarmTimeline from '../components/FarmTimeline'
 
@@ -48,16 +49,11 @@ const TESTIMONIALS = [
   { name: 'Arun Kumar', location: 'Chennai', text: 'Been a customer for over a year. The spice blends are aromatic and the dry fruits are premium quality. Highly recommend!', rating: 5 },
 ]
 
-const CATEGORY_CARDS = [
-  { name: 'Fruits & Vegetables', slug: 'fruits-vegetables', icon: '🥭', count: '50+', color: 'from-orange-500/80' },
-  { name: 'Groceries', slug: 'groceries', icon: '🛒', count: '100+', color: 'from-green-600/80' },
-  { name: 'Millets', slug: 'millets', icon: '🌾', count: '15+', color: 'from-amber-600/80' },
-  { name: 'Lentils & Beans', slug: 'lentils-beans', icon: '🫘', count: '20+', color: 'from-yellow-700/80' },
-  { name: 'Spices', slug: 'spices', icon: '🌶', count: '30+', color: 'from-red-600/80' },
-  { name: 'Oils', slug: 'oils', icon: '🫒', count: '10+', color: 'from-green-700/80' },
-  { name: 'Dry Fruits', slug: 'dry-fruits', icon: '🥜', count: '15+', color: 'from-amber-800/80' },
-  { name: 'Honey & Sweeteners', slug: 'sweeteners', icon: '🍯', count: '8+', color: 'from-yellow-500/80' },
-]
+function getProductCategoryName(product) {
+  const cat = product.category
+  if (typeof cat === 'object' && cat?.name) return cat.name
+  return product.category_name || product.category_tag || (typeof cat === 'string' ? cat : '')
+}
 
 export default function Home() {
   const { cartItems } = useCart()
@@ -67,6 +63,7 @@ export default function Home() {
   const [bundles, setBundles] = useState([])
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
+  const [categories, setCategories] = useState([])
   const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products' })
   const [shopCategoryBanner, setShopCategoryBanner] = useState({ desktopImage: null, mobileImage: null, buttonLink: '/products', enabled: true })
   const [viewerOpen, setViewerOpen] = useState(false)
@@ -95,6 +92,20 @@ export default function Home() {
     return cat.toLowerCase() === 'spices' && p.showOnHome !== false
   }), [products])
 
+  const categoriesWithProducts = useMemo(() => {
+    return categories
+      .map(cat => {
+        const catName = cat.name?.toLowerCase()
+        const catProducts = products.filter(p => {
+          const pCat = getProductCategoryName(p).toLowerCase()
+          return pCat === catName || pCat === cat.slug?.toLowerCase()
+        })
+        return { ...cat, products: catProducts.slice(0, 4) }
+      })
+      .filter(cat => cat.products.length > 0)
+      .sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
+  }, [categories, products])
+
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -103,19 +114,22 @@ export default function Home() {
         const savedBundles = getItems('bundles')
         setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
         setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
+        setCategories(demoCategories)
         setReels(demoStories.map(s => ({ poster: s.poster, alt: s.alt || s.title, src: null, duration: s.duration })))
         setLoading(false)
         return
       }
       try {
-        const [productsData, bundlesData, bannerSettings, storiesData] = await Promise.all([
+        const [productsData, bundlesData, bannerSettings, storiesData, categoriesData] = await Promise.all([
           api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
           api.getBundles({ combo: 'true' }).then(r => r?.data || r || []).catch(() => []),
           api.getBannerSettings().catch(() => ({})),
           api.getStories().catch(() => []),
+          api.getCategories().then(r => r.data || r || []).catch(() => []),
         ])
         if (cancelled) return
         setProducts(productsData)
+        setCategories(Array.isArray(categoriesData) ? categoriesData : [])
         setBundles(Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || [])
         setReels(Array.isArray(storiesData) ? storiesData.map(s => ({
           ...s, poster: s.thumbnail, alt: s.title, src: s.videoUrl, productId: s.productId, taggedProduct: s.productId,
@@ -243,7 +257,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Shop by Category — Image Cards */}
+      {/* 6. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -251,27 +265,23 @@ export default function Home() {
             <h2 className="mt-1 font-heading text-h2 font-bold text-[#1B4332]">Category</h2>
             <p className="mt-1 text-body-sm text-[#5A7A60]">Explore our wide range of organic products</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {CATEGORY_CARDS.map((cat) => (
-              <Link key={cat.slug} to={`/products?category=${cat.slug}`}
-                className="group relative rounded-2xl overflow-hidden aspect-[4/3] bg-[#F4F9EF] border border-[#D7E8C8] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(46,125,50,0.15)]">
-                {/* Placeholder gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} to-[#1B4332]/90 opacity-60 group-hover:opacity-70 transition-opacity duration-300`} />
-                {/* Icon */}
-                <div className="absolute top-3 left-3 text-2xl sm:text-3xl">{cat.icon}</div>
-                {/* Overlay content */}
-                <div className="absolute inset-0 flex flex-col justify-end p-3 sm:p-4">
-                  <h3 className="font-heading text-body sm:text-h4 font-bold text-white drop-shadow-lg">{cat.name}</h3>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-micro font-semibold text-white/80">{cat.count} products</span>
-                    <span className="text-micro font-bold text-white bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-0.5 transition-all group-hover:bg-white/30">
-                      Shop →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl aspect-[4/3] bg-[#F4F9EF] border border-[#D7E8C8] animate-pulse" />
+              ))}
+            </div>
+          ) : categoriesWithProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {categoriesWithProducts.map(cat => (
+                <CategoryCard key={cat._id || cat.slug} category={cat} products={cat.products} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 bg-[#FAFDF8] rounded-xl border border-[#D7E8C8]">
+              <p className="text-body-sm text-[#5A7A60]">No categories available yet.</p>
+            </div>
+          )}
         </div>
       </section>
 
