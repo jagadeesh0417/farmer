@@ -135,14 +135,14 @@ const STEPS = [
 ]
 
 const DECORATIVES = [
-  { type: 'leaf', className: 'top-[6%] left-[4%] w-6 h-6', delay: 0 },
-  { type: 'leaf', className: 'top-[18%] right-[6%] w-5 h-5', delay: 1.2 },
-  { type: 'circle', className: 'top-[35%] left-[8%] w-3 h-3', delay: 0.5 },
-  { type: 'leaf', className: 'top-[50%] right-[4%] w-7 h-7', delay: 2.8 },
-  { type: 'circle', className: 'top-[65%] left-[5%] w-4 h-4', delay: 1.8 },
-  { type: 'leaf', className: 'top-[80%] right-[8%] w-5 h-5', delay: 3.5 },
-  { type: 'circle', className: 'top-[92%] left-[10%] w-3 h-3', delay: 0.9 },
-  { type: 'leaf', className: 'top-[40%] left-[92%] w-4 h-4', delay: 2.2 },
+  { type: 'leaf', className: 'top-[6%] left-[4%] w-2 h-2', delay: 0 },
+  { type: 'leaf', className: 'top-[18%] right-[6%] w-2 h-2', delay: 1.2 },
+  { type: 'circle', className: 'top-[35%] left-[8%] w-1.5 h-1.5', delay: 0.5 },
+  { type: 'leaf', className: 'top-[50%] right-[4%] w-2 h-2', delay: 2.8 },
+  { type: 'circle', className: 'top-[65%] left-[5%] w-1.5 h-1.5', delay: 1.8 },
+  { type: 'leaf', className: 'top-[80%] right-[8%] w-2 h-2', delay: 3.5 },
+  { type: 'circle', className: 'top-[92%] left-[10%] w-1.5 h-1.5', delay: 0.9 },
+  { type: 'leaf', className: 'top-[40%] left-[92%] w-2 h-2', delay: 2.2 },
 ]
 
 function DecorativeLeaf({ className, delay }) {
@@ -262,7 +262,7 @@ export default function FarmTimeline() {
 
   return (
     <section ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] to-[#F7F9F4] py-12 lg:py-16">
+      className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] to-[#F7F9F4] py-6 lg:py-8">
 
       {/* Decorative floating elements */}
       {DECORATIVES.map((d, i) =>
@@ -282,14 +282,14 @@ export default function FarmTimeline() {
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div ref={headerRef}
-           className={`text-center mb-8 lg:mb-10 transition-all duration-1000 ease-out ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <span className="inline-block text-[10px] font-semibold tracking-[0.2em] uppercase text-[#2E7D32] bg-[#E8F5E9] px-3 py-1 rounded-full mb-2">
+           className={`text-center mb-4 lg:mb-5 transition-all duration-1000 ease-out ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <span className="inline-block text-[9px] font-semibold tracking-[0.2em] uppercase text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full mb-1">
             Our Process
           </span>
-          <h2 className="font-heading text-[clamp(1.4rem,3vw,2.4rem)] font-bold text-[#1B1B1B] leading-[1.1] tracking-tight">
+          <h2 className="font-heading text-[clamp(1.1rem,2.5vw,1.8rem)] font-bold text-[#1B1B1B] leading-[1.1] tracking-tight">
             From Farm to Table
           </h2>
-          <p className="max-w-2xl mx-auto mt-2 text-[13px] sm:text-sm text-[#666666] leading-relaxed">
+          <p className="max-w-2xl mx-auto mt-1 text-[11px] sm:text-xs text-[#666666] leading-relaxed">
             Every step is carefully managed to bring you the freshest organic products with uncompromising quality.
           </p>
         </div>
@@ -304,10 +304,10 @@ export default function FarmTimeline() {
               {STEPS.slice(0, -1).map((_, i) => (
                 <g key={i}>
                   <path ref={el => pathRefs.current[i * 2] = el}
-                    stroke="#D7E8C8" strokeWidth="1.5" strokeDasharray="4 6" fill="none"
-                    strokeLinecap="round" opacity="0.6" />
+                    stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 5" fill="none"
+                    strokeLinecap="round" opacity="0.5" />
                   <path ref={el => pathRefs.current[i * 2 + 1] = el}
-                    stroke="#4CAF50" strokeWidth="1.5" strokeDasharray="4 6" fill="none"
+                    stroke="#4CAF50" strokeWidth="1" strokeDasharray="3 5" fill="none"
                     strokeLinecap="round"
                     style={{
                       strokeDashoffset: 2000 * (1 - scrollProgress),
@@ -319,7 +319,7 @@ export default function FarmTimeline() {
               {STEPS.map((_, i) => (
                   <circle key={`dot-${i}`}
                     ref={el => dotRefs.current[i] = el}
-                    r="3" fill="#2E7D32" stroke="white" strokeWidth="1.5"
+                    r="2" fill="#2E7D32" stroke="white" strokeWidth="1"
                   className="transition-opacity duration-500"
                   style={{ opacity: visibleCards[i] ? 1 : 0 }} />
               ))}
@@ -327,7 +327,7 @@ export default function FarmTimeline() {
           )}
 
           {/* Cards grid */}
-          <div className="relative z-10 grid lg:grid-cols-2 gap-x-8 gap-y-8 lg:gap-x-12 lg:gap-y-12">
+          <div className="relative z-10 grid lg:grid-cols-2 gap-x-4 gap-y-4 lg:gap-x-6 lg:gap-y-6">
             {STEPS.map((step, i) => {
               const isLeft = i % 2 === 0
               return (
@@ -337,38 +337,38 @@ export default function FarmTimeline() {
                   className={`transition-all duration-800 ease-out
                     ${isLeft ? 'lg:col-start-1' : 'lg:col-start-2'}
                     ${visibleCards[i] ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.95]'}`}
-                  style={{ transitionDelay: `${i * 80}ms` }}>
+                  style={{ transitionDelay: `${i * 50}ms` }}>
                   <div
-                    className="group relative rounded-[16px] bg-white/85 backdrop-blur-md p-4 sm:p-5 lg:p-5
-                      shadow-[0_4px_16px_rgba(0,0,0,0.05)] border border-[#D7E8C8]/70
+                    className="group relative rounded-[12px] bg-white/85 backdrop-blur-md p-3 sm:p-3 lg:p-4
+                      shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#D7E8C8]/70
                       transition-all duration-400
-                      hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(46,125,50,0.1)]
+                      hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(46,125,50,0.08)]
                       hover:border-[#2E7D32]/40">
                     {/* Illustration */}
-                    <div className="relative mb-3">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto lg:mx-0">
+                    <div className="relative mb-2">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto lg:mx-0">
                         {step.icon}
                       </div>
                       <div className="absolute inset-0 rounded-full bg-[#2E7D32]/0 transition-all duration-500 group-hover:bg-[#2E7D32]/5 group-hover:scale-110"
-                        style={{ filter: 'blur(8px)' }} />
+                        style={{ filter: 'blur(4px)' }} />
                     </div>
 
                     {/* Step number */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[11px] font-bold text-[#2E7D32] tracking-[0.08em] bg-[#E8F5E9] px-2 py-0.5 rounded-md">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-[9px] font-bold text-[#2E7D32] tracking-[0.08em] bg-[#E8F5E9] px-1.5 py-0.5 rounded-md">
                         {step.label}
                       </span>
                       <div className="h-px flex-1 bg-gradient-to-r from-[#D7E8C8] to-transparent" />
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-heading text-base sm:text-lg font-bold text-[#1B1B1B] leading-tight mb-1
+                    <h3 className="font-heading text-sm sm:text-base font-bold text-[#1B1B1B] leading-tight mb-0.5
                       transition-colors duration-300 group-hover:text-[#2E7D32]">
                       {step.title}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-[12px] sm:text-[13px] text-[#666666] leading-relaxed">
+                    <p className="text-[11px] sm:text-xs text-[#666666] leading-relaxed">
                       {step.desc}
                     </p>
                   </div>
@@ -381,7 +381,7 @@ export default function FarmTimeline() {
 
       {/* Bottom wave divider */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
-        <svg viewBox="0 0 1200 48" preserveAspectRatio="none" className="relative block w-full h-[16px] sm:h-[24px]">
+        <svg viewBox="0 0 1200 48" preserveAspectRatio="none" className="relative block w-full h-[8px] sm:h-[12px]">
           <path d="M0 24C200 48 400 0 600 24S1000 48 1200 24V48H0V24Z" fill="white" />
         </svg>
       </div>
