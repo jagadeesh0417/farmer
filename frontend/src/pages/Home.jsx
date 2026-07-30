@@ -16,6 +16,7 @@ import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
 import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import { CartIcon } from '../components/Icons'
+import WhyChooseUs from '../components/WhyChooseUs'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
 function getSuperSaverCombos(bundles) {
@@ -235,7 +236,10 @@ export default function Home() {
         `}</style>
       </section>
 
-      {/* 3. Super Savers */}
+      {/* 3. Why Choose Us */}
+      <WhyChooseUs />
+
+      {/* 4. Super Savers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -269,7 +273,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. 9:16 Vertical Videos — Reels with tagged products */}
+      {/* 5. 9:16 Vertical Videos — Reels with tagged products */}
       <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -314,7 +318,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Best Sellers */}
+      {/* 6. Best Sellers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -347,7 +351,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Groceries — horizontal scroll */}
+      {/* 7. Groceries — horizontal scroll */}
       <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -376,7 +380,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Combos */}
+      {/* 8. Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -410,7 +414,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Full screen video */}
+      {/* 9. Full screen video */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -431,7 +435,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. Traditional Grains — Millets */}
+      {/* 10. Traditional Grains — Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -465,7 +469,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. Protein Rich — Lentils & Beans */}
+      {/* 11. Protein Rich — Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -499,7 +503,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. Aromatic & Wild — Spices */}
+      {/* 12. Aromatic & Wild — Spices */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -553,7 +557,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 12. Shop by Category */}
+      {/* 13. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -641,7 +645,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 13. Testimonials */}
+      {/* 14. Testimonials */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-8">
