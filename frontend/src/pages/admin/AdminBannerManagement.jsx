@@ -93,9 +93,6 @@ export default function AdminBannerManagement() {
       const b = banners[key] || {}
       const payload = {
         sectionName: BANNER_SECTIONS.find(s => s.key === key)?.sectionName || key,
-        title: b.title || '',
-        subtitle: b.subtitle || '',
-        buttonText: b.buttonText || '',
         desktopImage: b.desktopImage || '',
         desktopPublicId: b.desktopPublicId || '',
         mobileImage: b.mobileImage || '',
@@ -137,12 +134,6 @@ export default function AdminBannerManagement() {
                         className="rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
                       Enabled
                     </label>
-                  </div>
-
-                  <div className="grid sm:grid-cols-3 gap-3 mb-4">
-                    <input value={b.title || ''} onChange={e => handleChange(s.key, 'title', e.target.value)} placeholder="Headline (e.g. Fresh From Our Farms)" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                    <input value={b.subtitle || ''} onChange={e => handleChange(s.key, 'subtitle', e.target.value)} placeholder="Subtitle (e.g. To Your Home)" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
-                    <input value={b.buttonText || ''} onChange={e => handleChange(s.key, 'buttonText', e.target.value)} placeholder="CTA text (e.g. Shop Now)" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-6">
