@@ -67,8 +67,15 @@ export default function PremiumHero({ banners = [] }) {
 
   return (
     <section ref={sectionRef}
-      className="relative w-full overflow-hidden bg-[#1B4332] min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center"
+      className="relative w-full overflow-hidden bg-[#1B4332] min-h-[400px]"
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      {/* Sizing image — invisible, sets container height from current slide's aspect ratio */}
+      {slides.map((slide, i) => (
+        <img key={i} src={slide.desktopImage || 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,w_1920/haifarmer/hero-farm-bg'} alt=""
+          className={`w-full h-auto ${i === current ? 'block' : 'hidden'}`}
+          style={{ visibility: 'hidden' }} />
+      ))}
+
       {/* Background images with crossfade */}
       <div className="absolute inset-0">
         {slides.map((slide, i) => (
