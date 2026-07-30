@@ -145,7 +145,7 @@ export default function Home() {
       <SeoHead title="HaiFarmer" description="Wild-harvested and natural products sourced directly from tribal communities. Pure. Honest. Sustainable." />
 
       {/* 1. Premium Hero */}
-      <PremiumHero />
+      <PremiumHero banners={banners} />
 
       {/* 2. Promotional Banner */}
       <PromoBanner banner={promoBanner} />

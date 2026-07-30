@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 
-const FARM_BG = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,w_1920/haifarmer/hero-farm-bg'
+const DEFAULT_FARM_BG = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,w_1920/haifarmer/hero-farm-bg'
 
 function Leaf({ className, delay }) {
   return (
@@ -15,8 +15,13 @@ function Leaf({ className, delay }) {
   )
 }
 
-export default function PremiumHero() {
+export default function PremiumHero({ banners = [] }) {
   const [scrollY, setScrollY] = useState(0)
+  const [current, setCurrent] = useState(0)
+  const slides = banners.length > 0 ? banners : [{ desktopImage: DEFAULT_FARM_BG }]
+
+  const next = useCallback(() => setCurrent(p => (p + 1) % slides.length), [slides.length])
+  const prev = useCallback(() => setCurrent(p => (p - 1 + slides.length) % slides.length), [slides.length])
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -24,14 +29,25 @@ export default function PremiumHero() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (slides.length <= 1) return
+    const timer = setInterval(next, 5000)
+    return () => clearInterval(timer)
+  }, [next, slides.length])
+
   return (
     <section className="relative w-full overflow-hidden bg-[#1B4332] min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center">
-      {/* Background image with parallax */}
+      {/* Background images with crossfade */}
       <div className="absolute inset-0">
-        <img src={FARM_BG} alt=""
-          className="w-full h-full object-cover object-center"
-          style={{ transform: `translateY(${scrollY * 0.15}px)` }}
-          loading="eager" />
+        {slides.map((slide, i) => (
+          <img key={i} src={slide.desktopImage || DEFAULT_FARM_BG} alt=""
+            className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
+            style={{
+              opacity: i === current ? 1 : 0,
+              transform: `translateY(${scrollY * 0.15}px)`,
+            }}
+            loading={i === 0 ? 'eager' : 'lazy'} />
+        ))}
       </div>
 
       {/* Dark green gradient overlay */}
@@ -98,6 +114,34 @@ export default function PremiumHero() {
           </div>
         </div>
       </div>
+
+      {/* Navigation arrows */}
+      {slides.length > 1 && (
+        <>
+          <button onClick={prev} aria-label="Previous slide"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:bg-white/20 hover:-translate-y-1/2 active:scale-95">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button onClick={next} aria-label="Next slide"
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:bg-white/20 hover:-translate-y-1/2 active:scale-95">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Slide indicators */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          {slides.map((_, i) => (
+            <button key={i} onClick={() => setCurrent(i)} aria-label={`Go to slide ${i + 1}`}
+              className={`rounded-full transition-all duration-300 ${i === current ? 'w-7 h-2.5 bg-white' : 'w-2.5 h-2.5 bg-white/40 hover:bg-white/60'}`} />
+          ))}
+        </div>
+      )}
 
       <style>{`
         @keyframes float {
