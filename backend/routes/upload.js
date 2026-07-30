@@ -4,13 +4,14 @@ import { uploadToCloudinary, deleteFromCloudinary, getPublicIdFromUrl } from '..
 import multer from 'multer'
 
 const router = express.Router()
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } })
 
 router.post('/', protect, adminOnly, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
     const folder = req.body.folder || 'haifarmer'
-    const result = await uploadToCloudinary(req.file.buffer, folder)
+    const isVideo = req.file.mimetype.startsWith('video/')
+    const result = await uploadToCloudinary(req.file.buffer, folder, isVideo ? 'video' : 'auto')
     res.json({ url: result.secure_url, publicId: result.public_id })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -20,7 +21,7 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
 router.post('/multiple', protect, adminOnly, upload.array('images', 10), async (req, res) => {
   try {
     const folder = req.body.folder || 'haifarmer'
-    const results = await Promise.all(req.files.map(file => uploadToCloudinary(file.buffer, folder)))
+    const results = await Promise.all(req.files.map(file => uploadToCloudinary(file.buffer, folder, file.mimetype.startsWith('video/') ? 'video' : 'auto')))
     res.json(results.map(r => ({ url: r.secure_url, publicId: r.public_id })))
   } catch (err) {
     res.status(500).json({ error: err.message })

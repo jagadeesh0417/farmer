@@ -1,72 +1,207 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 const STEPS = [
   {
     label: '01',
-    title: 'Seeds',
-    desc: 'Heirloom, non-GMO seeds selected by tribal farmers',
-    icon: <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7"><path d="M16 4C10 4 6 10 6 16c0 4 2 8 6 10l-2 4h12l-2-4c4-2 6-6 6-10 0-6-4-12-10-12z" fill="white"/><path d="M16 8c-3 0-5 3-5 6 0 2 1 4 3 5l-1 2h6l-1-2c2-1 3-3 3-5 0-3-2-6-5-6z" fill="#1B5E20" opacity="0.3"/></svg>,
+    title: 'Seed Selection',
+    desc: 'We carefully select premium-quality seeds from trusted farms.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <ellipse cx="50" cy="72" rx="22" ry="8" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="1.5"/>
+        <path d="M50 64 C44 50 42 44 48 34" stroke="#2E7D32" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M48 34 C44 28 44 24 50 20 C56 24 56 28 52 34" stroke="#2E7D32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M48 34 C42 30 38 26 40 20" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M52 34 C58 30 62 26 60 20" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="40" cy="18" r="2" fill="#2E7D32" opacity="0.3"/>
+        <circle cx="60" cy="18" r="2" fill="#2E7D32" opacity="0.3"/>
+        <circle cx="30" cy="38" r="1.5" fill="#2E7D32" opacity="0.2"/>
+        <circle cx="70" cy="38" r="1.5" fill="#2E7D32" opacity="0.2"/>
+      </svg>
+    ),
   },
   {
     label: '02',
     title: 'Organic Farming',
-    desc: 'Grown naturally with compost, no chemicals',
-    icon: <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7"><rect x="4" y="12" width="24" height="16" rx="2" stroke="white" strokeWidth="1.8"/><path d="M16 6v6M12 8l4-4 4 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M10 18h12M10 22h8" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+    desc: 'Grown naturally with traditional methods, free from chemicals.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <path d="M50 18 C34 18 24 32 24 44 C24 52 28 58 32 62 L28 70 L44 70 L42 62 C46 64 54 64 58 62 L56 70 L72 70 L68 62 C72 58 76 52 76 44 C76 32 66 18 50 18Z" stroke="#2E7D32" strokeWidth="2" fill="#E8F5E9" fillOpacity="0.4"/>
+        <path d="M50 32 L50 52" stroke="#2E7D32" strokeWidth="1.8" strokeLinecap="round"/>
+        <path d="M40 42 L50 32 L60 42" stroke="#2E7D32" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M42 58 L50 52 L58 58" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="36" cy="26" r="2.5" fill="#4CAF50" opacity="0.4"/>
+        <circle cx="64" cy="26" r="2.5" fill="#4CAF50" opacity="0.4"/>
+        <circle cx="30" cy="48" r="2" fill="#2E7D32" opacity="0.2"/>
+        <circle cx="70" cy="48" r="2" fill="#2E7D32" opacity="0.2"/>
+      </svg>
+    ),
   },
   {
     label: '03',
-    title: 'Harvesting',
-    desc: 'Hand-picked at peak ripeness by expert farmers',
-    icon: <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7"><path d="M16 4C12 4 8 8 8 14c0 4 2 7 4 9l-1 3h10l-1-3c2-2 4-5 4-9 0-6-4-10-8-10z" stroke="white" strokeWidth="1.8" strokeLinejoin="round"/><path d="M14 14l2 2 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    title: 'Natural Irrigation',
+    desc: 'Pure water sourced from natural springs and rainwater harvesting.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <path d="M50 18 C38 30 26 40 26 52 C26 64 36 74 50 74 C64 74 74 64 74 52 C74 40 62 30 50 18Z" stroke="#2E7D32" strokeWidth="2" fill="#E3F2FD" fillOpacity="0.25"/>
+        <path d="M50 30 L50 60" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round" opacity="0.4"/>
+        <path d="M38 42 L50 30 L62 42" stroke="#4CAF50" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M32 60 C38 66 62 66 68 60" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3"/>
+        <circle cx="42" cy="40" r="3" fill="#4CAF50" opacity="0.35"/>
+        <circle cx="58" cy="40" r="3" fill="#4CAF50" opacity="0.35"/>
+        <circle cx="50" cy="68" r="2.5" fill="#2E7D32" opacity="0.25"/>
+      </svg>
+    ),
   },
   {
     label: '04',
-    title: 'Lab Testing',
-    desc: 'Tested for purity, nutrition & safety compliance',
-    icon: <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7"><path d="M12 4v8l-4 6v2h16v-2l-4-6V4" stroke="white" strokeWidth="1.8" strokeLinejoin="round"/><path d="M10 4h12" stroke="white" strokeWidth="1.8" strokeLinecap="round"/><circle cx="16" cy="14" r="2" fill="white"/><path d="M14 20l2-4 2 4" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    title: 'Harvesting',
+    desc: 'Hand-picked at peak ripeness by our expert farming community.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <path d="M44 20 C38 28 34 38 34 44 C34 48 36 52 40 54 L38 60 L50 60 L48 54 C52 52 54 48 54 44 C54 38 50 28 44 20Z" stroke="#2E7D32" strokeWidth="2" fill="#E8F5E9" fillOpacity="0.4"/>
+        <path d="M56 20 C50 28 46 38 46 44 C46 48 48 52 52 54 L50 60 L62 60 L60 54 C64 52 66 48 66 44 C66 38 62 28 56 20Z" stroke="#2E7D32" strokeWidth="2" fill="#E8F5E9" fillOpacity="0.4"/>
+        <path d="M44 44 C42 46 42 50 44 52" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M56 44 C58 46 58 50 56 52" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="38" y1="64" x2="62" y2="64" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="36" y1="68" x2="64" y2="68" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="40" y1="72" x2="60" y2="72" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="34" cy="36" r="2" fill="#4CAF50" opacity="0.3"/>
+        <circle cx="66" cy="36" r="2" fill="#4CAF50" opacity="0.3"/>
+      </svg>
+    ),
   },
   {
     label: '05',
-    title: 'Eco Packaging',
-    desc: 'Packed in sustainable, biodegradable materials',
-    icon: <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7"><rect x="6" y="8" width="20" height="18" rx="2" stroke="white" strokeWidth="1.8"/><path d="M6 14h20" stroke="white" strokeWidth="1.8"/><path d="M16 14v8" stroke="white" strokeWidth="1.5"/><path d="M12 6l4-2 4 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    title: 'Quality Inspection',
+    desc: 'Rigorously tested for purity, nutrition, and safety compliance.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <circle cx="40" cy="44" r="18" stroke="#2E7D32" strokeWidth="2"/>
+        <line x1="52" y1="56" x2="66" y2="70" stroke="#2E7D32" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M34 44 C36 38 42 34 48 36" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M38 50 C40 54 46 56 50 52" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="62" cy="66" r="2" fill="#2E7D32" opacity="0.4"/>
+        <circle cx="66" cy="62" r="2" fill="#2E7D32" opacity="0.4"/>
+        <circle cx="34" cy="46" r="1.5" fill="#2E7D32" opacity="0.2"/>
+        <circle cx="46" cy="38" r="1.5" fill="#2E7D32" opacity="0.2"/>
+      </svg>
+    ),
   },
   {
     label: '06',
-    title: 'Delivered Fresh',
-    desc: 'Straight from farm to your doorstep',
-    icon: <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7"><rect x="4" y="16" width="24" height="10" rx="2" stroke="white" strokeWidth="1.8"/><path d="M10 16v-4a6 6 0 0112 0v4" stroke="white" strokeWidth="1.8" strokeLinecap="round"/><circle cx="10" cy="24" r="2" fill="white"/><circle cx="22" cy="24" r="2" fill="white"/></svg>,
+    title: 'Hygienic Packaging',
+    desc: 'Packed in sustainable, biodegradable materials for freshness.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <rect x="30" y="36" width="40" height="38" rx="3" stroke="#2E7D32" strokeWidth="2" fill="#E8F5E9" fillOpacity="0.3"/>
+        <line x1="30" y1="46" x2="70" y2="46" stroke="#2E7D32" strokeWidth="1.5"/>
+        <path d="M42 28 L50 22 L58 28" stroke="#2E7D32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <line x1="50" y1="22" x2="50" y2="36" stroke="#2E7D32" strokeWidth="1.5"/>
+        <path d="M40 56 L48 64 L60 52" stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M36 62 C36 58 38 56 42 56" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="34" cy="34" r="2" fill="#2E7D32" opacity="0.25"/>
+        <circle cx="66" cy="34" r="2" fill="#2E7D32" opacity="0.25"/>
+      </svg>
+    ),
+  },
+  {
+    label: '07',
+    title: 'Fresh Delivery',
+    desc: 'Straight from our farms to your doorstep with utmost care.',
+    icon: (
+      <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+        <circle cx="50" cy="50" r="46" stroke="#D7E8C8" strokeWidth="1" strokeDasharray="3 4" opacity="0.5"/>
+        <rect x="18" y="54" width="46" height="22" rx="3" stroke="#2E7D32" strokeWidth="2" fill="#E8F5E9" fillOpacity="0.3"/>
+        <path d="M64 54 L82 54 L82 72 L64 72 L64 54Z" stroke="#2E7D32" strokeWidth="2" fill="#E8F5E9" fillOpacity="0.3"/>
+        <line x1="64" y1="60" x2="76" y2="60" stroke="#2E7D32" strokeWidth="1.5"/>
+        <line x1="64" y1="66" x2="76" y2="66" stroke="#2E7D32" strokeWidth="1.5"/>
+        <circle cx="28" cy="76" r="5" stroke="#2E7D32" strokeWidth="2"/>
+        <circle cx="28" cy="76" r="2" fill="#2E7D32"/>
+        <circle cx="60" cy="76" r="5" stroke="#2E7D32" strokeWidth="2"/>
+        <circle cx="60" cy="76" r="2" fill="#2E7D32"/>
+        <circle cx="36" cy="48" r="4" fill="#4CAF50" opacity="0.4"/>
+        <circle cx="52" cy="44" r="3" fill="#4CAF50" opacity="0.3"/>
+        <circle cx="44" cy="52" r="2.5" fill="#4CAF50" opacity="0.35"/>
+        <path d="M36 48 C38 52 42 54 44 52" stroke="#2E7D32" strokeWidth="1" strokeLinecap="round"/>
+      </svg>
+    ),
   },
 ]
 
-function LeafParticle({ className, delay }) {
+const DECORATIVES = [
+  { type: 'leaf', className: 'top-[6%] left-[4%] w-6 h-6', delay: 0 },
+  { type: 'leaf', className: 'top-[18%] right-[6%] w-5 h-5', delay: 1.2 },
+  { type: 'circle', className: 'top-[35%] left-[8%] w-3 h-3', delay: 0.5 },
+  { type: 'leaf', className: 'top-[50%] right-[4%] w-7 h-7', delay: 2.8 },
+  { type: 'circle', className: 'top-[65%] left-[5%] w-4 h-4', delay: 1.8 },
+  { type: 'leaf', className: 'top-[80%] right-[8%] w-5 h-5', delay: 3.5 },
+  { type: 'circle', className: 'top-[92%] left-[10%] w-3 h-3', delay: 0.9 },
+  { type: 'leaf', className: 'top-[40%] left-[92%] w-4 h-4', delay: 2.2 },
+]
+
+function DecorativeLeaf({ className, delay }) {
   return (
-    <div className={`absolute text-green-700/8 pointer-events-none ${className}`}
-      style={{ animation: `leafFloat ${10 + Math.random() * 8}s ease-in-out ${delay}s infinite` }}>
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20c4 0 6-2 9-7-1 3-1 6-1 6l2 1c.5-2 1-5 3-8 1-2-1-4-4-4z" />
+    <div className={`absolute pointer-events-none text-[#2E7D32]/10 ${className}`}
+      style={{ animation: `leafFloat ${12 + Math.random() * 6}s ease-in-out ${delay}s infinite` }}>
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20c4 0 6-2 9-7-1 3-1 6-1 6l2 1c.5-2 1-5 3-8 1-2-1-4-4-4z"/>
       </svg>
     </div>
   )
 }
 
+function DecorativeCircle({ className, delay }) {
+  return (
+    <div className={`absolute pointer-events-none rounded-full bg-[#4CAF50]/10 ${className}`}
+      style={{ animation: `circlePulse ${8 + Math.random() * 4}s ease-in-out ${delay}s infinite` }} />
+  )
+}
+
 export default function FarmTimeline() {
-  const [visible, setVisible] = useState({})
-  const sectionRef = useRef(null)
-  const cardRefs = useRef([])
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [visibleCards, setVisibleCards] = useState({})
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [isDesktop, setIsDesktop] = useState(false)
+  const [headerVisible, setHeaderVisible] = useState(false)
+  const sectionRef = useRef(null)
+  const headerRef = useRef(null)
+  const cardRefs = useRef([])
+  const connectorSvgRef = useRef(null)
+  const pathRefs = useRef([])
+  const dotRefs = useRef([])
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const idx = Number(entry.target.dataset.index)
-          setVisible(prev => ({ ...prev, [idx]: true }))
-        }
-      })
-    }, { threshold: 0.2 })
+    const check = () => setIsDesktop(window.innerWidth >= 1024)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setHeaderVisible(true) },
+      { threshold: 0.25 }
+    )
+    if (headerRef.current) observer.observe(headerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setVisibleCards(prev => ({ ...prev, [entry.target.dataset.index]: true }))
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
+    )
     cardRefs.current.forEach(ref => { if (ref) observer.observe(ref) })
     return () => observer.disconnect()
   }, [])
@@ -76,179 +211,198 @@ export default function FarmTimeline() {
       if (!sectionRef.current) return
       const rect = sectionRef.current.getBoundingClientRect()
       const total = rect.height + rect.top - window.innerHeight
-      const progress = Math.max(0, Math.min(1, -rect.top / total))
-      setScrollProgress(progress)
+      setScrollProgress(Math.max(0, Math.min(1, -rect.top / total)))
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleMouseMove = (e) => {
-    if (!sectionRef.current) return
-    const rect = sectionRef.current.getBoundingClientRect()
-    setMousePos({ x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height })
-  }
+  const updateConnectors = useCallback(() => {
+    const svg = connectorSvgRef.current
+    if (!svg || !isDesktop) return
+    const svgRect = svg.getBoundingClientRect()
+
+    for (let i = 0; i < STEPS.length - 1; i++) {
+      const card1 = cardRefs.current[i]
+      const card2 = cardRefs.current[i + 1]
+      const bgPath = pathRefs.current[i * 2]
+      const fgPath = pathRefs.current[i * 2 + 1]
+      if (!card1 || !card2 || !bgPath || !fgPath) continue
+
+      const r1 = card1.getBoundingClientRect()
+      const r2 = card2.getBoundingClientRect()
+
+      const x1 = r1.left + r1.width / 2 - svgRect.left
+      const y1 = r1.bottom - svgRect.top
+      const x2 = r2.left + r2.width / 2 - svgRect.left
+      const y2 = r2.top - svgRect.top
+
+      const dy = Math.abs(y2 - y1) * 0.45
+      const d = `M ${x1} ${y1} C ${x1} ${y1 + dy}, ${x2} ${y2 - dy}, ${x2} ${y2}`
+
+      bgPath.setAttribute('d', d)
+      fgPath.setAttribute('d', d)
+    }
+
+    for (let i = 0; i < STEPS.length; i++) {
+      const dot = dotRefs.current[i]
+      const card = cardRefs.current[i]
+      if (!dot || !card) continue
+      const rect = card.getBoundingClientRect()
+      dot.setAttribute('cx', rect.left + rect.width / 2 - svgRect.left)
+      dot.setAttribute('cy', rect.bottom - svgRect.top)
+    }
+  }, [isDesktop])
+
+  useEffect(() => {
+    updateConnectors()
+    window.addEventListener('resize', updateConnectors)
+    return () => window.removeEventListener('resize', updateConnectors)
+  }, [updateConnectors])
 
   return (
-    <section ref={sectionRef} onMouseMove={handleMouseMove}
-      className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] to-[#F0F7EE] py-16 lg:py-24">
+    <section ref={sectionRef}
+      className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] to-[#F7F9F4] py-24 lg:py-32">
 
-      {/* Floating leaf particles */}
-      <LeafParticle className="top-[8%] left-[5%]" delay={0} />
-      <LeafParticle className="top-[20%] right-[8%]" delay={1.5} />
-      <LeafParticle className="top-[45%] left-[3%]" delay={3} />
-      <LeafParticle className="top-[60%] right-[5%]" delay={0.8} />
-      <LeafParticle className="top-[80%] left-[8%]" delay={2.5} />
-      <LeafParticle className="top-[35%] right-[12%]" delay={4} />
+      {/* Decorative floating elements */}
+      {DECORATIVES.map((d, i) =>
+        d.type === 'leaf'
+          ? <DecorativeLeaf key={i} className={d.className} delay={d.delay} />
+          : <DecorativeCircle key={i} className={d.className} delay={d.delay} />
+      )}
 
-      <div className="section-container relative z-10">
+      {/* Subtle background leaf pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%232E7D32' fill-opacity='0.15'%3E%3Cpath d='M30 8L26 18h8z'/%3E%3Cpath d='M30 38L26 48h8z'/%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px',
+        }}
+      />
+
+      <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12 lg:mb-16">
-          <div className="inline-flex items-center gap-3 mb-3">
-            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-[#2E7D32]"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20c4 0 6-2 9-7-1 3-1 6-1 6l2 1c.5-2 1-5 3-8 1-2-1-4-4-4z" fill="currentColor"/></svg>
-            <span className="text-micro font-semibold tracking-[0.15em] uppercase text-[#2E7D32]">Our Process</span>
-            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-[#2E7D32] scale-x-[-1]"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20c4 0 6-2 9-7-1 3-1 6-1 6l2 1c.5-2 1-5 3-8 1-2-1-4-4-4z" fill="currentColor"/></svg>
-          </div>
-          <h2 className="font-heading text-[clamp(2rem,4vw,3.5rem)] font-bold text-[#1B5E20] leading-[1.15]">
+        <div ref={headerRef}
+          className={`text-center mb-16 lg:mb-20 transition-all duration-1000 ease-out ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <span className="inline-block text-[11px] font-semibold tracking-[0.2em] uppercase text-[#2E7D32] bg-[#E8F5E9] px-4 py-1.5 rounded-full mb-4">
+            Our Process
+          </span>
+          <h2 className="font-heading text-[clamp(2rem,4.5vw,3.8rem)] font-bold text-[#1B1B1B] leading-[1.1] tracking-tight">
             From Farm to Table
           </h2>
-          <p className="text-body-sm text-[#5A7A60] mt-2 max-w-lg mx-auto">
-            Every step is carefully managed to bring you the freshest organic products.
+          <p className="max-w-2xl mx-auto mt-3 text-[15px] sm:text-base text-[#666666] leading-relaxed">
+            Every step is carefully managed to bring you the freshest organic products with uncompromising quality.
           </p>
         </div>
 
-        {/* Timeline */}
-        <div className="relative max-w-5xl mx-auto">
-          {/* Curved SVG connecting line (desktop) */}
-          <svg className="hidden lg:block absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none"
-            viewBox="0 0 900 600" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#66BB6A" />
-                <stop offset="100%" stopColor="#1B5E20" />
-              </linearGradient>
-            </defs>
-            <path d="M450 0 C350 50, 550 100, 450 150 C350 200, 550 250, 450 300 C350 350, 550 400, 450 450 C350 500, 550 550, 450 600"
-              stroke="#D7E8C8" strokeWidth="3" fill="none" />
-            <path d="M450 0 C350 50, 550 100, 450 150 C350 200, 550 250, 450 300 C350 350, 550 400, 450 450 C350 500, 550 550, 450 600"
-              stroke="url(#lineGrad)" strokeWidth="3" fill="none"
-              strokeDasharray="1200" strokeDashoffset={1200 - scrollProgress * 1200}
-              style={{ transition: 'stroke-dashoffset 0.1s linear' }} />
-            <circle cx="450" cy={scrollProgress * 600} r="6" fill="#2E7D32" className="drop-shadow-lg"
-              style={{ transition: 'cy 0.15s linear' }} />
-          </svg>
+        {/* Timeline area */}
+        <div className="relative">
+          {/* Desktop curved connector SVG */}
+          {isDesktop && (
+            <svg ref={connectorSvgRef}
+              className="absolute inset-0 w-full h-full pointer-events-none z-0"
+              style={{ overflow: 'visible' }}>
+              {STEPS.slice(0, -1).map((_, i) => (
+                <g key={i}>
+                  <path ref={el => pathRefs.current[i * 2] = el}
+                    stroke="#D7E8C8" strokeWidth="2" strokeDasharray="5 7" fill="none"
+                    strokeLinecap="round" opacity="0.6" />
+                  <path ref={el => pathRefs.current[i * 2 + 1] = el}
+                    stroke="#4CAF50" strokeWidth="2" strokeDasharray="5 7" fill="none"
+                    strokeLinecap="round"
+                    style={{
+                      strokeDashoffset: 2000 * (1 - scrollProgress),
+                      strokeDasharray: 2000,
+                      transition: 'stroke-dashoffset 0.1s linear',
+                    }} />
+                </g>
+              ))}
+              {STEPS.map((_, i) => (
+                <circle key={`dot-${i}`}
+                  ref={el => dotRefs.current[i] = el}
+                  r="5" fill="#2E7D32" stroke="white" strokeWidth="2"
+                  className="transition-opacity duration-500"
+                  style={{ opacity: visibleCards[i] ? 1 : 0 }} />
+              ))}
+            </svg>
+          )}
 
-          {/* Desktop: zig-zag layout */}
-          <div className="hidden lg:grid grid-cols-2 gap-x-16 gap-y-10 relative">
+          {/* Cards grid */}
+          <div className="relative z-10 grid lg:grid-cols-2 gap-x-12 gap-y-14 lg:gap-x-20 lg:gap-y-24">
             {STEPS.map((step, i) => {
               const isLeft = i % 2 === 0
               return (
-                <div key={i} ref={el => cardRefs.current[i] = el} data-index={i}
-                  className={`relative transition-all duration-700 ease-out ${isLeft ? 'col-start-1' : 'col-start-2'} ${visible[i] ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.92]'}`}
-                  style={{ transitionDelay: `${i * 150}ms` }}>
+                <div key={i}
+                  ref={el => cardRefs.current[i] = el}
+                  data-index={i}
+                  className={`transition-all duration-800 ease-out
+                    ${isLeft ? 'lg:col-start-1' : 'lg:col-start-2'}
+                    ${visibleCards[i] ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.95]'}`}
+                  style={{ transitionDelay: `${i * 120}ms` }}>
                   <div
-                    className="group relative rounded-2xl bg-white/85 backdrop-blur-md p-6 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#D7E8C8]/60 transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(27,94,32,0.12)] hover:border-[#66BB6A]/40"
-                    style={{
-                      transform: `perspective(800px) rotateX(${(mousePos.y - 0.5) * 2}deg) rotateY(${(0.5 - mousePos.x) * (isLeft ? 2 : -2)}deg)`,
-                      transition: 'transform 0.2s ease-out, box-shadow 0.3s, border-color 0.3s',
-                    }}>
-                    {/* Step number badge */}
-                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-[#2E7D32] text-white text-[11px] font-bold flex items-center justify-center shadow-md z-10">
-                      {step.label}
-                    </div>
-
-                    <div className="flex items-start gap-4">
-                      {/* Icon container */}
-                      <div className="shrink-0 w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                    className="group relative rounded-[20px] bg-white/85 backdrop-blur-md p-6 sm:p-7 lg:p-8
+                      shadow-[0_8px_32px_rgba(0,0,0,0.06)] border border-[#D7E8C8]/70
+                      transition-all duration-400
+                      hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(46,125,50,0.12)]
+                      hover:border-[#2E7D32]/40">
+                    {/* Illustration */}
+                    <div className="relative mb-5">
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto lg:mx-0">
                         {step.icon}
                       </div>
-
-                      <div className="min-w-0 flex-1 pt-1">
-                        <h3 className="font-heading text-h4 font-bold text-[#1B5E20]">{step.title}</h3>
-                        <p className="text-body-sm text-[#5A7A60] mt-1 leading-relaxed">{step.desc}</p>
-                      </div>
+                      <div className="absolute inset-0 rounded-full bg-[#2E7D32]/0 transition-all duration-500 group-hover:bg-[#2E7D32]/5 group-hover:scale-110"
+                        style={{ filter: 'blur(12px)' }} />
                     </div>
+
+                    {/* Step number */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-[13px] font-bold text-[#2E7D32] tracking-[0.08em] bg-[#E8F5E9] px-3 py-1 rounded-md">
+                        {step.label}
+                      </span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[#D7E8C8] to-transparent" />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#1B1B1B] leading-tight mb-2
+                      transition-colors duration-300 group-hover:text-[#2E7D32]">
+                      {step.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-[14px] sm:text-[15px] text-[#666666] leading-relaxed">
+                      {step.desc}
+                    </p>
                   </div>
                 </div>
               )
             })}
           </div>
-
-          {/* Tablet: 3-col grid */}
-          <div className="hidden sm:grid lg:hidden grid-cols-3 gap-5">
-            {STEPS.map((step, i) => (
-              <div key={i} ref={el => cardRefs.current[i] = el} data-index={i}
-                className={`transition-all duration-700 ease-out ${visible[i] ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.92]'}`}
-                style={{ transitionDelay: `${i * 150}ms` }}>
-                <div className="group rounded-2xl bg-white/85 backdrop-blur-md p-5 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#D7E8C8]/60 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(27,94,32,0.12)] hover:border-[#66BB6A]/40">
-                  <div className="relative inline-block mb-3">
-                    <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                      {step.icon}
-                    </div>
-                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#2E7D32] text-white text-[10px] font-bold flex items-center justify-center shadow-md">
-                      {step.label}
-                    </div>
-                  </div>
-                  <h3 className="font-heading text-body font-bold text-[#1B5E20]">{step.title}</h3>
-                  <p className="text-caption text-[#5A7A60] mt-1 leading-relaxed">{step.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile: vertical alternating */}
-          <div className="sm:hidden relative">
-            {/* Vertical line */}
-            <div className="absolute left-[23px] top-2 bottom-2 w-[2px] bg-[#D7E8C8]" />
-            <div className="absolute left-[23px] top-2 w-[2px] bg-gradient-to-b from-[#66BB6A] to-[#1B5E20] rounded-full"
-              style={{ height: `${scrollProgress * 100}%`, transition: 'height 0.1s linear' }} />
-
-            <div className="space-y-8">
-              {STEPS.map((step, i) => {
-                const isLeft = i % 2 === 0
-                return (
-                  <div key={i} ref={el => cardRefs.current[i] = el} data-index={i}
-                    className={`flex items-start gap-4 transition-all duration-700 ease-out ${visible[i] ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
-                    style={{ transitionDelay: `${i * 150}ms` }}>
-                    {/* Icon + step number */}
-                    <div className="relative shrink-0 z-10">
-                      <div className="w-[46px] h-[46px] rounded-xl bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center shadow-lg">
-                        <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 text-white">
-                          {step.icon.props.children}
-                        </svg>
-                      </div>
-                      <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#2E7D32] text-white text-[8px] font-bold flex items-center justify-center shadow-md">
-                        {step.label}
-                      </div>
-                    </div>
-                    {/* Card */}
-                    <div className="flex-1 rounded-2xl bg-white/85 backdrop-blur-md p-4 shadow-[0_10px_30px_rgba(0,0,0,0.06)] border border-[#D7E8C8]/60 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(27,94,32,0.1)]">
-                      <h3 className="font-heading text-caption font-bold text-[#1B5E20]">{step.title}</h3>
-                      <p className="text-micro text-[#5A7A60] mt-0.5 leading-relaxed">{step.desc}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Wave divider */}
+      {/* Bottom wave divider */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
-        <svg viewBox="0 0 1200 60" preserveAspectRatio="none" className="relative block w-full h-[40px] sm:h-[60px]">
-          <path d="M0 30C200 60 400 0 600 30S1000 60 1200 30V60H0V30Z" fill="white" />
+        <svg viewBox="0 0 1200 48" preserveAspectRatio="none" className="relative block w-full h-[32px] sm:h-[48px]">
+          <path d="M0 24C200 48 400 0 600 24S1000 48 1200 24V48H0V24Z" fill="white" />
         </svg>
       </div>
 
       <style>{`
         @keyframes leafFloat {
-          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
-          25% { transform: translateY(-15px) rotate(8deg); opacity: 0.7; }
-          75% { transform: translateY(8px) rotate(-5deg); opacity: 0.5; }
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+          25% { transform: translateY(-12px) rotate(6deg); opacity: 0.6; }
+          75% { transform: translateY(6px) rotate(-4deg); opacity: 0.4; }
         }
+        @keyframes circlePulse {
+          0%, 100% { transform: scale(1); opacity: 0.2; }
+          50% { transform: scale(1.5); opacity: 0.5; }
+        }
+        .duration-400 { transition-duration: 400ms; }
+        .duration-800 { transition-duration: 800ms; }
         @media (prefers-reduced-motion: reduce) {
-          .group, [class*="transition"] { transition: none !important; animation: none !important; }
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
     </section>

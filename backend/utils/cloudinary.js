@@ -1,10 +1,10 @@
 import cloudinary from '../config/cloudinary.js'
 import { Readable } from 'stream'
 
-export async function uploadToCloudinary(buffer, folder = 'haifarmer') {
+export async function uploadToCloudinary(buffer, folder = 'haifarmer', resourceType = 'auto') {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'auto' },
+      { folder, resource_type: resourceType },
       (error, result) => {
         if (error) reject(error)
         else resolve(result)
