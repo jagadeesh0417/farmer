@@ -17,6 +17,7 @@ import BundleCard from '../components/BundleCard'
 import HorizontalScroll from '../components/HorizontalScroll'
 import StoryViewer from '../components/StoryViewer'
 import PremiumHero from '../components/PremiumHero'
+import PromoBanner from '../components/PromoBanner'
 import WhyChooseUs from '../components/WhyChooseUs'
 import FarmStory from '../components/FarmStory'
 import FarmTimeline from '../components/FarmTimeline'
@@ -146,10 +147,13 @@ export default function Home() {
       {/* 1. Premium Hero */}
       <PremiumHero />
 
-      {/* 2. Why Choose Us */}
+      {/* 2. Promotional Banner */}
+      <PromoBanner banner={promoBanner} />
+
+      {/* 3. Why Choose Us */}
       <WhyChooseUs />
 
-      {/* 3. Super Savers */}
+      {/* 4. Super Savers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -189,7 +193,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Stories From The Soil */}
+      {/* 5. Stories From The Soil */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8] overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -239,7 +243,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Shop by Category — Image Cards */}
+      {/* 6. Shop by Category — Image Cards */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-8">
@@ -271,7 +275,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Our Best Sellers */}
+      {/* 7. Our Best Sellers */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8]">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -299,10 +303,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Farm Story */}
+      {/* 8. Farm Story */}
       <FarmStory />
 
-      {/* 8. Groceries */}
+      {/* 9. Groceries */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8] overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -331,7 +335,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. Healthy Combos */}
+      {/* 10. Healthy Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -371,10 +375,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. From Farm to Table — Timeline */}
+      {/* 11. From Farm to Table — Timeline */}
       <FarmTimeline />
 
-      {/* 11. Traditional Grains — Millets */}
+      {/* 12. Traditional Grains — Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -417,7 +421,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 12. Protein Rich — Lentils & Beans */}
+      {/* 13. Protein Rich — Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8]">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -460,7 +464,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 13. Aromatic & Wild — Spices */}
+      {/* 14. Aromatic & Wild — Spices */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -503,7 +507,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 14. What Our Customers Say */}
+      {/* 15. What Our Customers Say */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8]">
         <div className="section-container">
           <div className="text-center mb-6">
