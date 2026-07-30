@@ -238,12 +238,10 @@ export default function Home() {
       {/* 3. Super Savers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Super Savers</h2>
-            </div>
-            <Link to="/combos?tab=super-savers" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Best Value</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Super Savers</h2>
+            <Link to="/combos?tab=super-savers" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700">View All →</Link>
           </div>
           {loading ? (
             <HorizontalScroll>
@@ -319,12 +317,10 @@ export default function Home() {
       {/* 5. Best Sellers */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Top Picks</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Our Best Sellers</h2>
-            </div>
-            <Link to="/products" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Top Picks</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Our Best Sellers</h2>
+            <Link to="/products" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700">View All →</Link>
           </div>
           {loading ? (
             <HorizontalScroll>
@@ -383,12 +379,10 @@ export default function Home() {
       {/* 7. Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Curated Bundles</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Combos</h2>
-            </div>
-            <Link to="/combos" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Curated Bundles</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Combos</h2>
+            <Link to="/combos" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700">View All →</Link>
           </div>
           {loading ? (
             <HorizontalScroll>
@@ -440,12 +434,10 @@ export default function Home() {
       {/* 9. Traditional Grains — Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
-            </div>
-            <Link to="/products?category=millets" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Traditional Grains</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Millets</h2>
+            <Link to="/products?category=millets" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700">View All →</Link>
           </div>
           {loading ? (
             <HorizontalScroll>
@@ -476,12 +468,10 @@ export default function Home() {
       {/* 10. Protein Rich — Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
-            </div>
-            <Link to="/products?category=lentils-beans" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Protein Rich</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Lentils & Beans</h2>
+            <Link to="/products?category=lentils-beans" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700">View All →</Link>
           </div>
           {loading ? (
             <HorizontalScroll>
@@ -512,12 +502,10 @@ export default function Home() {
       {/* 11. Aromatic & Wild — Spices */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
-              <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
-            </div>
-            <Link to="/products?category=spices" className="hidden sm:inline-flex text-caption font-semibold text-green-600 hover:text-green-700 shrink-0">View All →</Link>
+          <div className="text-center mb-6">
+            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Aromatic & Wild</span>
+            <h2 className="mt-0.5 text-h2 font-bold">Spices</h2>
+            <Link to="/products?category=spices" className="inline-block mt-1 text-caption font-semibold text-green-600 hover:text-green-700">View All →</Link>
           </div>
           {loading ? (
             <HorizontalScroll>
