@@ -1,13 +1,20 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
-const DEFAULT_FARM_BG = 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,w_1920/haifarmer/hero-farm-bg'
+const DEFAULT_SLIDES = [
+  { title: 'Fresh From Our Farms', subtitle: 'To Your Home', body: 'Chemical-free, naturally grown products sourced directly from tribal communities. Pure. Honest. Sustainable.', badge: '100% Organic & Natural', cta: 'Shop Now', ctaLink: '/products', cta2: 'Explore Categories', cta2Link: '/products?category=' },
+  { title: '100% Organic', subtitle: 'No Chemicals • Farm Fresh', body: 'Every product is lab-tested and certified organic. Direct from farm to table with complete transparency.', badge: 'Certified Organic', cta: 'Shop Organic', ctaLink: '/products', cta2: 'Learn More', cta2Link: '/about' },
+  { title: 'Healthy Millets', subtitle: 'For Everyday Nutrition', body: 'Gluten-free ancient grains packed with protein, fiber, and essential minerals. Perfect for a healthy lifestyle.', badge: 'Superfood', cta: 'Shop Millets', ctaLink: '/products?category=millets', cta2: 'View Recipes', cta2Link: '/recipes' },
+  { title: 'Premium Spices', subtitle: 'Straight From Farmers', body: 'Wild-harvested spices with intense flavor and aroma. Sourced directly from tribal farming communities.', badge: 'Wild Harvested', cta: 'Shop Spices', ctaLink: '/products?category=spices', cta2: 'Explore', cta2Link: '/products?category=spices' },
+  { title: 'Traditional Oils', subtitle: 'Cold Pressed & Pure', body: 'Wood-pressed oils made the traditional way. No chemicals, no refining — just pure natural goodness.', badge: 'Cold Pressed', cta: 'Shop Oils', ctaLink: '/products?category=oils', cta2: 'Learn More', cta2Link: '/products' },
+  { title: 'Festival Special', subtitle: 'Organic Combos & Gifts', body: 'Curated gift boxes and family combos at special prices. Celebrate with the goodness of nature.', badge: 'Limited Time', cta: 'View Combos', ctaLink: '/combos', cta2: 'Shop All', cta2Link: '/products' },
+]
 
 function Leaf({ className, delay }) {
   return (
     <div
       className={`absolute text-green-600/15 pointer-events-none animate-float ${className}`}
-      style={{ animationDelay: `${delay}s`, animationDuration: `${8 + Math.random() * 4}s` }}>
+      style={{ animationDelay: `${delay}s` }}>
       <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
         <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20c4 0 6-2 9-7-1 3-1 6-1 6l2 1c.5-2 1-5 3-8 1-2-1-4-4-4z" />
       </svg>
@@ -18,7 +25,20 @@ function Leaf({ className, delay }) {
 export default function PremiumHero({ banners = [] }) {
   const [scrollY, setScrollY] = useState(0)
   const [current, setCurrent] = useState(0)
-  const slides = banners.length > 0 ? banners : [{ desktopImage: DEFAULT_FARM_BG }]
+  const touchX = useRef(null)
+  const sectionRef = useRef(null)
+
+  const slides = banners.length > 0 ? banners.map(b => ({
+    ...b,
+    title: b.title || DEFAULT_SLIDES[0].title,
+    subtitle: b.subtitle || DEFAULT_SLIDES[0].subtitle,
+    body: b.body || b.subtitle || DEFAULT_SLIDES[0].body,
+    badge: b.badge || '100% Organic & Natural',
+    cta: b.cta || b.buttonText || 'Shop Now',
+    ctaLink: b.ctaLink || b.buttonLink || b.redirectLink || '/products',
+    cta2: b.cta2 || (b.buttonText2 || 'Learn More'),
+    cta2Link: b.cta2Link || b.buttonLink2 || '/products',
+  })) : DEFAULT_SLIDES
 
   const next = useCallback(() => setCurrent(p => (p + 1) % slides.length), [slides.length])
   const prev = useCallback(() => setCurrent(p => (p - 1 + slides.length) % slides.length), [slides.length])
@@ -31,16 +51,28 @@ export default function PremiumHero({ banners = [] }) {
 
   useEffect(() => {
     if (slides.length <= 1) return
-    const timer = setInterval(next, 5000)
+    const timer = setInterval(next, 5500)
     return () => clearInterval(timer)
   }, [next, slides.length])
 
+  const handleTouchStart = useCallback((e) => {
+    touchX.current = e.touches[0].clientX
+  }, [])
+
+  const handleTouchEnd = useCallback((e) => {
+    const diff = touchX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev()
+    touchX.current = null
+  }, [next, prev])
+
   return (
-    <section className="relative w-full overflow-hidden bg-[#1B4332] min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center">
+    <section ref={sectionRef}
+      className="relative w-full overflow-hidden bg-[#1B4332] min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center"
+      onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Background images with crossfade */}
       <div className="absolute inset-0">
         {slides.map((slide, i) => (
-          <img key={i} src={slide.desktopImage || DEFAULT_FARM_BG} alt=""
+          <img key={i} src={slide.desktopImage || 'https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,w_1920/haifarmer/hero-farm-bg'} alt=""
             className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
             style={{
               opacity: i === current ? 1 : 0,
@@ -62,58 +94,61 @@ export default function PremiumHero({ banners = [] }) {
       <Leaf className="bottom-[20%] right-[20%]" delay={2.5} />
       <Leaf className="top-[60%] left-[5%]" delay={4} />
 
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 py-16 sm:py-20 lg:py-28">
-        <div className="max-w-2xl">
-          {/* Organic badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 mb-5">
-            <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-pulse" />
-            <span className="text-micro font-semibold text-white/90 uppercase tracking-wider">100% Organic & Natural</span>
-          </div>
-
-          <h1 className="font-heading text-[clamp(2.2rem,6vw,4rem)] font-bold text-white leading-[1.1] tracking-tight">
-            Fresh From Our Farms<br />
-            <span className="text-[#4CAF50]">To Your Home</span>
-          </h1>
-
-          <p className="mt-4 sm:mt-5 text-body sm:text-body-lg text-white/80 max-w-lg leading-relaxed">
-            Chemical-free, naturally grown products sourced directly from tribal communities. Pure. Honest. Sustainable.
-          </p>
-
-          <div className="flex flex-wrap gap-3 sm:gap-4 mt-7 sm:mt-8">
-            <Link to="/products"
-              className="inline-flex items-center gap-2 rounded-full bg-[#2E7D32] px-7 sm:px-8 py-3 sm:py-3.5 text-body-sm font-bold text-white shadow-xl shadow-[#2E7D32]/30 transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 active:scale-[0.98]">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
-              </svg>
-              Shop Now
-            </Link>
-            <Link to="/products?category="
-              className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 px-7 sm:px-8 py-3 sm:py-3.5 text-body-sm font-bold text-white transition-all hover:bg-white/20 hover:-translate-y-0.5 active:scale-[0.98]">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-              Explore Categories
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div className="flex flex-wrap gap-6 sm:gap-10 mt-10 sm:mt-12">
-            <div>
-              <p className="font-heading text-h2 font-bold text-white">10K+</p>
-              <p className="text-caption text-white/60">Happy Customers</p>
+      {/* Slides content */}
+      {slides.map((slide, i) => (
+        <div key={i}
+          className="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 py-16 sm:py-20 lg:py-28 transition-opacity duration-500 absolute inset-0 flex items-center"
+          style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? 'auto' : 'none' }}>
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 mb-5">
+              <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-pulse" />
+              <span className="text-micro font-semibold text-white/90 uppercase tracking-wider">{slide.badge}</span>
             </div>
-            <div>
-              <p className="font-heading text-h2 font-bold text-white">500+</p>
-              <p className="text-caption text-white/60">Organic Products</p>
+
+            <h1 className="font-heading text-[clamp(2rem,5.5vw,3.8rem)] font-bold text-white leading-[1.1] tracking-tight">
+              {slide.title}<br />
+              <span className="text-[#4CAF50]">{slide.subtitle}</span>
+            </h1>
+
+            <p className="mt-4 sm:mt-5 text-body sm:text-body-lg text-white/80 max-w-lg leading-relaxed">
+              {slide.body}
+            </p>
+
+            <div className="flex flex-wrap gap-3 sm:gap-4 mt-7 sm:mt-8">
+              <Link to={slide.ctaLink}
+                className="inline-flex items-center gap-2 rounded-full bg-[#2E7D32] px-7 sm:px-8 py-3 sm:py-3.5 text-body-sm font-bold text-white shadow-xl shadow-[#2E7D32]/30 transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 active:scale-[0.98]">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+                {slide.cta}
+              </Link>
+              <Link to={slide.cta2Link}
+                className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 px-7 sm:px-8 py-3 sm:py-3.5 text-body-sm font-bold text-white transition-all hover:bg-white/20 hover:-translate-y-0.5 active:scale-[0.98]">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                {slide.cta2}
+              </Link>
             </div>
-            <div>
-              <p className="font-heading text-h2 font-bold text-white">50+</p>
-              <p className="text-caption text-white/60">Tribal Communities</p>
+
+            {/* Stats */}
+            <div className="flex flex-wrap gap-6 sm:gap-10 mt-10 sm:mt-12">
+              <div>
+                <p className="font-heading text-h2 font-bold text-white">10K+</p>
+                <p className="text-caption text-white/60">Happy Customers</p>
+              </div>
+              <div>
+                <p className="font-heading text-h2 font-bold text-white">500+</p>
+                <p className="text-caption text-white/60">Organic Products</p>
+              </div>
+              <div>
+                <p className="font-heading text-h2 font-bold text-white">50+</p>
+                <p className="text-caption text-white/60">Tribal Communities</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ))}
 
       {/* Navigation arrows */}
       {slides.length > 1 && (

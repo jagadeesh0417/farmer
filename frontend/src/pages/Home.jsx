@@ -17,7 +17,8 @@ import BundleCard from '../components/BundleCard'
 import HorizontalScroll from '../components/HorizontalScroll'
 import StoryViewer from '../components/StoryViewer'
 import PremiumHero from '../components/PremiumHero'
-import PromoBanner from '../components/PromoBanner'
+import PromoBannerSection from '../components/PromoBannerSection'
+import MidPageBanner from '../components/MidPageBanner'
 import WhyChooseUs from '../components/WhyChooseUs'
 import CategoryCard from '../components/CategoryCard'
 import FarmStory from '../components/FarmStory'
@@ -137,7 +138,8 @@ export default function Home() {
         const bs = bannerSettings || {}
         const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
           id: k, desktopImage: bs[k].desktopImage || bs[k].image, mobileImage: bs[k].mobileImage || bs[k].image,
-          image: bs[k].image, ctaHref: bs[k].buttonLink || '/products',
+          image: bs[k].image, title: bs[k].title || '', subtitle: bs[k].subtitle || '',
+          buttonText: bs[k].buttonText || '', buttonLink: bs[k].buttonLink || '/products',
         }))
         setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero.map(s => ({
           id: s.title, desktopImage: s.desktopImage || s.image, mobileImage: s.mobileImage || s.tabletImage || s.image,
@@ -161,8 +163,8 @@ export default function Home() {
       {/* 1. Premium Hero */}
       <PremiumHero banners={banners} />
 
-      {/* 2. Promotional Banner */}
-      <PromoBanner banner={promoBanner} />
+      {/* 2. Promotional Offers */}
+      <PromoBannerSection />
 
       {/* 3. Why Choose Us */}
       <WhyChooseUs />
@@ -313,10 +315,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Farm Story */}
+      {/* 8. Mid-page Promotional Banners */}
+      <MidPageBanner />
+
+      {/* 9. Farm Story */}
       <FarmStory />
 
-      {/* 9. Groceries */}
+      {/* 10. Groceries */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8] overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -345,7 +350,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. Healthy Combos */}
+      {/* 11. Healthy Combos */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -385,10 +390,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. From Farm to Table — Timeline */}
+      {/* 12. From Farm to Table — Timeline */}
       <FarmTimeline />
 
-      {/* 12. Traditional Grains — Millets */}
+      {/* 13. Traditional Grains — Millets */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -431,7 +436,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 13. Protein Rich — Lentils & Beans */}
+      {/* 14. Protein Rich — Lentils & Beans */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8]">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -474,7 +479,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 14. Aromatic & Wild — Spices */}
+      {/* 15. Aromatic & Wild — Spices */}
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -517,7 +522,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 15. What Our Customers Say */}
+      {/* 16. What Our Customers Say */}
       <section className="py-10 lg:py-14 bg-[#FAFDF8]">
         <div className="section-container">
           <div className="text-center mb-6">
