@@ -4,6 +4,7 @@ import { useCart } from '../../contexts/CartContext'
 import { formatPrice, getImageUrl } from '../../lib/utils'
 import { generatePlaceholder } from '../../lib/placeholders'
 import { flyToCart, triggerBadgePop } from '../../lib/cartAnimations'
+import { showCartToast } from '../CartToast'
 import ComboBadge from './ComboBadge'
 import ComboProductPreview from './ComboProductPreview'
 import ComboBenefits from './ComboBenefits'
@@ -23,6 +24,7 @@ function ComboCard({ bundle, priority }) {
   const { addToCart, removeFromCart, cartItems, updateQuantity, itemCount } = useCart()
   const [modalOpen, setModalOpen] = useState(false)
   const [adding, setAdding] = useState(false)
+  const [added, setAdded] = useState(false)
   const imgRef = useRef(null)
 
   const id = bundle._id || bundle.id
@@ -45,27 +47,38 @@ function ComboCard({ bundle, priority }) {
   const handleAddToCart = useCallback(async (e) => {
     e?.preventDefault()
     e?.stopPropagation()
-    if (adding) return
+    if (adding || added) return
     setAdding(true)
     try {
       if (isInCart) {
         await removeFromCart(cartItem.id)
-      } else {
-        await addToCart({
-          bundle_id: id,
-          quantity: 1,
-          bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle }
-        })
-        if (imgRef.current) flyToCart(imgRef.current, getImageUrl(image))
-        if (typeof itemCount === 'number') {
-          requestAnimationFrame(() => {
-            const badge = document.querySelector('.cart-badge')
-            if (badge) triggerBadgePop(badge)
-          })
-        }
+        setAdding(false)
+        return
       }
-    } catch { }
-    setTimeout(() => setAdding(false), 800)
+      await addToCart({
+        bundle_id: id,
+        quantity: 1,
+        bundle: { _id: id, name, price: bundlePrice, discountPercent: discountPct, image, items, ...bundle }
+      })
+      setAdded(true)
+      if (imgRef.current) flyToCart(imgRef.current, getImageUrl(image))
+      if (typeof itemCount === 'number') {
+        requestAnimationFrame(() => {
+          const badge = document.querySelector('.cart-badge')
+          if (badge) triggerBadgePop(badge)
+        })
+      }
+      showCartToast({
+        productName: name,
+        productImage: getImageUrl(image),
+        price: bundlePrice,
+        quantity: 1,
+        slug: slug,
+        isUpdate: false,
+      })
+    } catch { setAdding(false); return }
+    setAdding(false)
+    setTimeout(() => setAdded(false), 2000)
   }, [id, name, bundlePrice, discountPct, image, items, bundle, isInCart, cartItem, addToCart, removeFromCart, itemCount])
 
   const handleQuantityChange = useCallback(async (newQty) => {
@@ -153,16 +166,18 @@ function ComboCard({ bundle, priority }) {
                   aria-label="Increase quantity">+</button>
               </div>
             ) : (
-              <button onClick={handleAddToCart} disabled={adding}
-                className="w-full h-11 sm:h-12 rounded-full bg-[#2E7D32] text-body-sm font-bold text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2">
-                {adding ? (
+              <button onClick={handleAddToCart} disabled={adding || added}
+                className={`w-full h-11 sm:h-12 rounded-full font-bold text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-80 flex items-center justify-center gap-2 text-body-sm ${added ? 'bg-[#1B5E20]' : 'bg-[#2E7D32] hover:bg-[#1B5E20]'}`}>
+                {added ? (
+                  <><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> Added</>
+                ) : adding ? (
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" className="opacity-75" /></svg>
                 ) : (
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                   </svg>
                 )}
-                {adding ? 'Adding...' : 'Add Combo to Cart'}
+                {added ? 'Added' : adding ? 'Adding...' : 'Add Combo to Cart'}
               </button>
             )}
             <button onClick={handleViewDetails}
