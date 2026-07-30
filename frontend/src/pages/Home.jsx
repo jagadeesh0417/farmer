@@ -542,24 +542,7 @@ export default function Home() {
       {/* 13. Our Process — Farm to Table */}
       <FarmTimeline />
 
-      {/* Trust badges */}
-      <section className="py-8 lg:py-10 bg-off-white border-t border-border">
-        <div className="section-container">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-            {[
-              { icon: '🌿', label: '100% Organic' },
-              { icon: '🤲', label: 'Ethically Sourced' },
-              { icon: '🚜', label: 'Farm to Home' },
-              { icon: '🔬', label: 'Lab Tested' },
-            ].map(badge => (
-              <div key={badge.label} className="flex items-center gap-1.5 text-body-sm text-muted">
-                <span className="text-lg">{badge.icon}</span>
-                <span className="text-caption font-medium">{badge.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* 14. Shop by Category */}
       <section className="py-10 lg:py-14 bg-white">
