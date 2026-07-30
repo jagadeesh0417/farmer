@@ -86,29 +86,16 @@ export default function Combos() {
     <div className="bg-white min-h-screen">
       <SeoHead title={pageTitle} description={pageDesc} />
 
-      {/* Breadcrumb + Header */}
-      <div className="bg-white border-b border-border">
-        <div className="section-container py-4 lg:py-5 text-center">
-          <div className="flex items-center justify-center gap-2 text-body-sm text-muted">
-            <Link to="/" className="hover:text-green-600">Home</Link>
-            <span>/</span>
-            <span className="text-ink font-semibold">{pageTitle}</span>
-          </div>
-          <h1 className="font-heading text-h2 lg:text-h1 font-bold text-ink mt-2">{pageTitle}</h1>
-          <p className="text-body text-muted mt-1 max-w-xl mx-auto">{pageDesc}</p>
-
-          {/* Tab filters */}
-          <div className="flex items-center justify-center gap-2 mt-5">
-            <button onClick={() => setTab('all')}
-              className={`px-5 py-2 rounded-full text-caption font-semibold transition-all border ${
-                tab !== 'super-savers' ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
-              }`}>All Combos</button>
-            <button onClick={() => setTab('super-savers')}
-              className={`px-5 py-2 rounded-full text-caption font-semibold transition-all border ${
-                tab === 'super-savers' ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
-              }`}>Super Savers</button>
-          </div>
-        </div>
+      {/* Tab filters */}
+      <div className="flex items-center justify-center gap-2 py-6 border-b border-border">
+        <button onClick={() => setTab('all')}
+          className={`px-5 py-2 rounded-full text-caption font-semibold transition-all border ${
+            tab !== 'super-savers' ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
+          }`}>All Combos</button>
+        <button onClick={() => setTab('super-savers')}
+          className={`px-5 py-2 rounded-full text-caption font-semibold transition-all border ${
+            tab === 'super-savers' ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white text-muted border-border hover:border-green-300 hover:text-green-600'
+          }`}>Super Savers</button>
       </div>
 
       <div className="section-container py-8 lg:py-10">

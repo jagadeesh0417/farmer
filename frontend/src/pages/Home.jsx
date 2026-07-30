@@ -247,13 +247,13 @@ export default function Home() {
           </div>
           {loading ? (
             <HorizontalScroll>
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[280px] w-[280px] rounded-xl bg-white border border-border h-96 animate-pulse shrink-0" />)}
             </HorizontalScroll>
           ) : superSaverCombos.length > 0 ? (
             <>
               <HorizontalScroll>
                 {superSaverCombos.map(bundle => (
-                  <div key={bundle._id || bundle.id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={bundle._id || bundle.id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[340px] w-[280px] sm:w-[300px] lg:w-[340px] shrink-0">
                     <BundleCard bundle={bundle} />
                   </div>
                 ))}
@@ -392,13 +392,13 @@ export default function Home() {
           </div>
           {loading ? (
             <HorizontalScroll>
-              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[220px] w-[220px] rounded-xl bg-white border border-border h-72 animate-pulse shrink-0" />)}
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="min-w-[280px] w-[280px] rounded-xl bg-white border border-border h-96 animate-pulse shrink-0" />)}
             </HorizontalScroll>
           ) : normalCombos.length > 0 ? (
             <>
               <HorizontalScroll>
                 {normalCombos.map(bundle => (
-                  <div key={bundle._id || bundle.id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
+                  <div key={bundle._id || bundle.id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[340px] w-[280px] sm:w-[300px] lg:w-[340px] shrink-0">
                     <BundleCard bundle={bundle} />
                   </div>
                 ))}

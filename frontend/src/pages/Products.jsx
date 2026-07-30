@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
@@ -110,19 +110,7 @@ export default function Products() {
     <div className="bg-white min-h-screen">
       <SeoHead title={collectionTitle} description={collectionDesc} />
 
-      {/* Breadcrumb + Header */}
-      <div className="bg-white border-b border-border">
-        <div className="section-container py-4 lg:py-5 text-center">
-          <div className="flex items-center justify-center gap-2 text-body-sm text-muted">
-            <Link to="/" className="hover:text-green-600">Home</Link>
-            <span>/</span>
-            <Link to="/products" className="hover:text-green-600">All Products</Link>
-            {catSlug && <><span>/</span><span className="text-ink font-semibold">{catSlug}</span></>}
-          </div>
-          <h1 className="font-heading text-h2 lg:text-h1 font-bold text-ink mt-2 text-center">{collectionTitle}</h1>
-          <p className="text-body text-muted mt-1 max-w-xl mx-auto">{collectionDesc}</p>
-        </div>
-      </div>
+      {/* Removed breadcrumb + header per user request */}
 
       <div className="section-container py-8 lg:py-10">
         {/* Mobile category filter */}
