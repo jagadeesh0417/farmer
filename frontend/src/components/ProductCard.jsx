@@ -157,20 +157,28 @@ export default function ProductCard({ product, priority }) {
         {/* Button — always at bottom */}
         <div className="mt-auto flex-shrink-0 max-sm:pt-1 sm:pt-1.5">
           {isInCart ? (
-            <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px] sm:h-[44px]">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] disabled:opacity-40 font-product max-sm:w-9 sm:w-11"
-                disabled={cartQuantity <= 1}
-              >−</button>
-              <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11"
-              >+</button>
-            </div>
+            <>
+              <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px] sm:h-[44px]">
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
+                  className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11"
+                  aria-label="Decrease quantity"
+                >−</button>
+                <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
+                  className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11"
+                  aria-label="Increase quantity"
+                >+</button>
+              </div>
+              <Link to="/cart" onClick={(e) => e.stopPropagation()}
+                className="proceed-in mt-1.5 flex h-8 w-full items-center justify-center gap-1.5 rounded-full bg-[#0E9F3E]/10 font-product text-caption font-bold text-[#0E9F3E] transition-colors hover:bg-[#0E9F3E] hover:text-white max-sm:h-7">
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                Proceed to Cart
+              </Link>
+            </>
           ) : (
             <button
               onClick={handleAddToCart}

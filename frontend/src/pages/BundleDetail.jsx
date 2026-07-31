@@ -191,6 +191,12 @@ export default function BundleDetail() {
                 {isInCart ? `Remove from Cart (${inCartQty})` : 'Add to Cart'}
               </button>
             </div>
+            {isInCart && (
+              <Link to="/cart" className="proceed-in flex h-10 items-center justify-center gap-1.5 rounded-full bg-[#0E9F3E]/10 font-product text-caption font-bold text-[#0E9F3E] transition-colors hover:bg-[#0E9F3E] hover:text-white">
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                Proceed to Cart
+              </Link>
+            )}
           </div>
         </div>
 

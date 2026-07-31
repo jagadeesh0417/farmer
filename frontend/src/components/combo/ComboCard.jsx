@@ -142,16 +142,22 @@ function ComboCard({ bundle, priority }) {
           {/* Actions */}
           <div className="flex flex-col gap-2 mt-auto pt-1">
             {isInCart ? (
-              <div className="flex items-center justify-between rounded-full border-2 border-[#222] bg-white overflow-hidden h-11 sm:h-12">
-                <button onClick={() => handleQuantityChange(cartQuantity - 1)}
-                  className="flex h-full w-11 sm:w-12 items-center justify-center text-body font-bold text-[#1a1a1a] hover:bg-[#FAF3E8] transition-colors"
-                  disabled={cartQuantity <= 1}
-                  aria-label="Decrease quantity">−</button>
-                <span className="font-product text-body-sm font-semibold text-[#1a1a1a] min-w-[2rem] text-center">{cartQuantity}</span>
-                <button onClick={() => handleQuantityChange(cartQuantity + 1)}
-                  className="flex h-full w-11 sm:w-12 items-center justify-center text-body font-bold text-[#1a1a1a] hover:bg-[#FAF3E8] transition-colors"
-                  aria-label="Increase quantity">+</button>
-              </div>
+              <>
+                <div className="flex items-center justify-between rounded-full border-2 border-[#222] bg-white overflow-hidden h-11 sm:h-12">
+                  <button onClick={() => handleQuantityChange(cartQuantity - 1)}
+                    className="flex h-full w-11 sm:w-12 items-center justify-center text-body font-bold text-[#1a1a1a] hover:bg-[#FAF3E8] transition-colors"
+                    aria-label="Decrease quantity">−</button>
+                  <span className="font-product text-body-sm font-semibold text-[#1a1a1a] min-w-[2rem] text-center">{cartQuantity}</span>
+                  <button onClick={() => handleQuantityChange(cartQuantity + 1)}
+                    className="flex h-full w-11 sm:w-12 items-center justify-center text-body font-bold text-[#1a1a1a] hover:bg-[#FAF3E8] transition-colors"
+                    aria-label="Increase quantity">+</button>
+                </div>
+                <Link to="/cart"
+                  className="proceed-in flex h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#2E7D32]/10 font-product text-caption font-bold text-[#2E7D32] transition-colors hover:bg-[#2E7D32] hover:text-white">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  Proceed to Cart
+                </Link>
+              </>
             ) : (
               <button onClick={handleAddToCart} disabled={adding}
                 className="w-full h-11 sm:h-12 rounded-full bg-[#2E7D32] text-body-sm font-bold text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2">
