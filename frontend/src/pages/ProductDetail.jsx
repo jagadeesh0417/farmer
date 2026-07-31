@@ -124,11 +124,17 @@ export default function ProductDetail() {
   const variants = product.product_variants || product.variants || []
   const hasVariants = variants.length > 1
 
-  const cartItem = cartItems?.find(item => item.product_id === product.id && item.variant_id === selectedVariant?.id)
+  const pid = product.id || product._id
+  const cartItem = cartItems?.find(item => {
+    const itemPid = item.product_id ?? item.product?._id ?? item.product?.id ?? null
+    if (String(itemPid) !== String(pid)) return false
+    const itemVid = item.variant_id ?? item.variant?._id ?? null
+    return String(itemVid) === String(selectedVariant?._id || selectedVariant?.id)
+  })
   const inCartQty = cartItem?.quantity || 0
 
   const handleAddToCart = async () => {
-    await addToCart({ product_id: product.id, variant_id: selectedVariant?.id, quantity, product, variant: selectedVariant })
+    await addToCart({ product_id: pid, variant_id: selectedVariant?._id || selectedVariant?.id, quantity, product, variant: selectedVariant })
   }
 
   const getVariantSavings = (v) => {

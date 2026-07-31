@@ -29,8 +29,8 @@ function saveCartCache(items) {
 function mapCartItem(i) {
   return {
     id: i._id,
-    product_id: i.product?._id,
-    variant_id: i.variantId,
+    product_id: i.product?._id || i.productId || (typeof i.product === 'string' ? i.product : null),
+    variant_id: i.variantId || (typeof i.variant === 'object' ? i.variant?._id : null),
     bundle_id: i.bundleId,
     quantity: i.quantity,
     product: i.product,

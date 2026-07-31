@@ -30,7 +30,15 @@ export default function ProductCard({ product, priority }) {
   const savings = mrp - price
   const discountPercent = product.discount_percent || (mrp > price ? Math.round((savings / mrp) * 100) : 0)
 
-  const cartItem = cartItems?.find(item => item.product_id === pid && (item.variant_id || null) === (selectedVariantId || null))
+  const hasNoVariants = variants.length === 0
+  const cartItem = cartItems?.find(item => {
+    const itemPid = item.product_id ?? item.product?._id ?? item.product?.id ?? null
+    const matchesProduct = String(itemPid) === String(pid)
+    if (!matchesProduct) return false
+    if (hasNoVariants) return true
+    const itemVid = item.variant_id ?? item.variant?._id ?? null
+    return String(itemVid) === String(selectedVariantId)
+  })
   const quantity = cartItem?.quantity || 0
   const productImage = product.image_url || product.images?.[0]
   const fallbackSrc = generatePlaceholder('product', product.name)
@@ -72,7 +80,7 @@ export default function ProductCard({ product, priority }) {
     busyRef.current = true
     setPendingAdd(true)
     try {
-      await addToCart({ product_id: product.id, variant_id: selectedVariantId, quantity: 1, product, variant: selectedVariant })
+      await addToCart({ product_id: pid, variant_id: selectedVariantId, quantity: 1, product, variant: selectedVariant })
       if (imgRef.current) flyToCart(imgRef.current, productImage || imgProps.src)
       if (typeof itemCount === 'number') {
         requestAnimationFrame(() => {
