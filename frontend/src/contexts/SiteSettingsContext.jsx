@@ -19,6 +19,8 @@ const defaultSettings = {
   razorpayEnabled: true,
   razorpayKeyId: 'rzp_live_SeagFUXcQMCgdT',
   paymentMethod: 'both',
+  codEnabled: false,
+  deliveryEtaText: 'Estimated delivery in 2–4 business days',
   placeholder_image: '',
   footer: {
     aboutText: 'Pure forest-grown produce, directly from tribal farmers to your home.',

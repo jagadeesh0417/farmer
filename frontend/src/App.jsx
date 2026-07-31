@@ -10,6 +10,7 @@ import ScrollToTop from './components/ScrollToTop'
 import PageTracker from './components/PageTracker'
 import CartToastContainer from './components/CartToast'
 import CartDrawer from './components/CartDrawer'
+import StickyCartBar from './components/StickyCartBar'
 import AdminLayout from './components/admin/AdminLayout'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -93,6 +94,7 @@ function AppLayout() {
       <FloatingWhatsApp />
       <CartToastContainer />
       <CartDrawer />
+      <StickyCartBar />
     </div>
   )
 }

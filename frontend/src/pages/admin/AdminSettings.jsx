@@ -297,6 +297,8 @@ export default function AdminSettings() {
                   <option value="whatsapp">WhatsApp Only</option>
                 </select>
               </div>
+              <Input label="Cash on Delivery (COD)" type="checkbox" placeholder="Show Cash on Delivery at checkout" value={getNestedValue(settings, 'codEnabled')} onChange={e => handleChange('codEnabled', e.target.checked)} />
+              <div className="sm:col-span-2"><Input label="Delivery ETA Text (shown on order confirmation)" value={getNestedValue(settings, 'deliveryEtaText')} onChange={e => handleChange('deliveryEtaText', e.target.value)} /></div>
             </div>
           </div>
         )}

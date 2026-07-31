@@ -286,9 +286,20 @@ html, body {
   100% { transform: scale(2.2); opacity: 0; }
 }
 
+/* ---- Sticky cart bar ---- */
+@keyframes stickyBarIn { from { opacity: 0; transform: translateY(28px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes stickyBarOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(28px) scale(0.96); } }
+.sticky-bar-enter { animation: stickyBarIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.sticky-bar-exit { animation: stickyBarOut 0.28s ease-in both; }
+
+/* ---- Header mini cart dropdown ---- */
+@keyframes dropdownIn { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.header-dropdown { animation: dropdownIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 @media (prefers-reduced-motion: reduce) {
   .drawer-backdrop, .drawer-panel, .drawer-item,
-  .cart-badge-bounce, .stepper-enter, .qty-pop, .ripple-btn::after {
+  .cart-badge-bounce, .stepper-enter, .qty-pop, .ripple-btn::after,
+  .sticky-bar-enter, .sticky-bar-exit, .header-dropdown {
     animation: none;
   }
 }

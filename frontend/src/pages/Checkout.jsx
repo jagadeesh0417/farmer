@@ -25,10 +25,11 @@ function clearCachedAddress() {
 }
 
 const emptyAddress = {
-  name: '', mobile: '', email: '',
+  name: '', mobile: '', alternateMobile: '', email: '',
   house: '', street: '', area: '', landmark: '',
   district: '', city: '', state: '', pincode: '', country: 'India',
   deliveryInstructions: '',
+  setDefault: true,
   billingSame: true,
   billingHouse: '', billingStreet: '', billingCity: '', billingState: '', billingPincode: '',
 }
@@ -190,6 +191,7 @@ export default function Checkout() {
   const [couponCode, setCouponCode] = useState('')
   const [placing, setPlacing] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
+  const [lastOrder, setLastOrder] = useState(null)
 
   const [address, setAddress] = useState(() => ({
     ...emptyAddress,
@@ -222,6 +224,65 @@ export default function Checkout() {
   const paymentMethod = settings?.paymentMethod || (settings?.razorpayEnabled !== false ? 'both' : 'whatsapp')
   const showRazorpay = paymentMethod === 'both' || paymentMethod === 'razorpay'
   const showWhatsApp = paymentMethod === 'both' || paymentMethod === 'whatsapp'
+  const showCod = settings?.codEnabled === true
+
+  const downloadInvoice = () => {
+    const order = lastOrder || {}
+    const date = new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    const shipAddr = [address.house, address.street, address.area, address.landmark, address.city, address.state, address.pincode].filter(Boolean).join(', ')
+    const serverItems = Array.isArray(order.items) ? order.items : []
+    const invoiceItems = serverItems.length > 0
+      ? serverItems.map(i => ({ name: i.name || '', variant: i.variantName || '', qty: i.quantity || 1, price: i.price || 0 }))
+      : cartItems.map(i => ({ name: getItemName(i), variant: getItemVariantName(i), qty: i.quantity, price: getItemPrice(i) }))
+    const rows = invoiceItems.map(i => `
+      <tr>
+        <td style="padding:10px;border-bottom:1px solid #e5e7eb;">${i.name}${i.variant ? ` (${i.variant})` : ''}</td>
+        <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:center;">×${i.qty}</td>
+        <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatPrice(i.price)}</td>
+        <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatPrice(i.price * i.qty)}</td>
+      </tr>`).join('')
+    const invSubtotal = order.subtotal ?? subtotal
+    const invShipping = order.shippingCost ?? shipping
+    const invCouponDiscount = order.couponDiscount ?? couponDiscount
+    const invTax = order.tax ?? tax
+    const invTotal = order.total ?? grandTotal
+    const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Invoice ${order.orderNumber || ''}</title></head>
+<body style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:24px auto;color:#111;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #2E7D32;padding-bottom:16px;">
+    <div>
+      <h1 style="margin:0;font-size:22px;color:#2E7D32;">${settings?.storeName || 'HAiFarmer'}</h1>
+      <p style="margin:4px 0 0;color:#6b7280;font-size:13px;">${settings?.tagline || ''}</p>
+    </div>
+    <div style="text-align:right;font-size:13px;">
+      <strong>INVOICE</strong><br>Order: ${order.orderNumber || '-'}<br>Date: ${date}<br>Status: Confirmed
+    </div>
+  </div>
+  <div style="font-size:13px;color:#6b7280;padding:12px 0;border-bottom:1px solid #e5e7eb;">
+    <strong style="color:#111;">Deliver to:</strong><br>${address.name}<br>${address.mobile}${address.alternateMobile ? ` / ${address.alternateMobile}` : ''}<br>${shipAddr}<br>${address.country}
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:14px;">
+    <thead><tr style="background:#F4F9EF;color:#2E7D32;text-align:left;">
+      <th style="padding:10px;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Price</th><th style="padding:10px;text-align:right;">Total</th>
+    </tr></thead>
+    <tbody>${rows}
+      <tr><td colspan="3" style="padding:10px;text-align:right;color:#6b7280;">Subtotal</td><td style="padding:10px;text-align:right;">${formatPrice(invSubtotal)}</td></tr>
+      ${invCouponDiscount > 0 ? `<tr><td colspan="3" style="padding:10px;text-align:right;color:#6b7280;">Coupon (${appliedCoupon?.code || ''})</td><td style="padding:10px;text-align:right;color:#2E7D32;">-${formatPrice(invCouponDiscount)}</td></tr>` : ''}
+      <tr><td colspan="3" style="padding:10px;text-align:right;color:#6b7280;">Shipping</td><td style="padding:10px;text-align:right;">${invShipping === 0 ? 'FREE' : formatPrice(invShipping)}</td></tr>
+      ${invTax > 0 ? `<tr><td colspan="3" style="padding:10px;text-align:right;color:#6b7280;">Tax</td><td style="padding:10px;text-align:right;">${formatPrice(invTax)}</td></tr>` : ''}
+      <tr><td colspan="3" style="padding:10px;text-align:right;font-weight:bold;">TOTAL</td><td style="padding:10px;text-align:right;font-weight:bold;color:#2E7D32;">${formatPrice(invTotal)}</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:24px;font-size:12px;color:#9ca3af;text-align:center;">Thank you for supporting tribal farmers. ${settings?.phone ? `Questions? Call ${settings.phone}` : ''}</p>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `invoice-${order.orderNumber || 'hai-farmer'}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const { subtotal, shipping, tax, grandTotal } = useMemo(
     () => calculateCartTotals(cartItems, appliedCoupon, settings),
@@ -256,6 +317,7 @@ export default function Checkout() {
       `━━ 📋 Delivery Details ━━`,
       `👤 Name: ${address.name || 'Not provided'}`,
       `📱 Phone: ${address.mobile || 'Not provided'}`,
+      address.alternateMobile ? `📞 Alt Phone: ${address.alternateMobile}` : null,
       `📍 Address: ${shipAddr}`,
       `📮 PIN: ${address.pincode || 'Not provided'}`,
       address.deliveryInstructions ? `📝 Instructions: ${address.deliveryInstructions}` : null,
@@ -300,8 +362,13 @@ export default function Checkout() {
       if (method === 'whatsapp') {
         const message = buildWhatsAppMessage()
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank')
-        await createOrderInBackend('whatsapp', null)
+        const order = await createOrderInBackend('whatsapp', null)
+        setLastOrder(order)
         toast.success('Order placed! Check WhatsApp for confirmation.')
+      } else if (method === 'cod') {
+        const order = await createOrderInBackend('cod', null)
+        setLastOrder(order)
+        toast.success(`Order placed! Pay ${formatPrice(grandTotal)} on delivery.`)
       } else if (method === 'razorpay') {
         const options = {
           key: settings?.razorpayKeyId || 'rzp_live_SeagFUXcQMCgdT',
@@ -309,7 +376,8 @@ export default function Checkout() {
           name: settings?.storeName || 'HAiFarmer', description: 'Order Payment',
           handler: async (response) => {
             try {
-              await createOrderInBackend('razorpay', response.razorpay_payment_id)
+              const order = await createOrderInBackend('razorpay', response.razorpay_payment_id)
+              setLastOrder(order)
               toast.success('Payment successful! Order placed.')
               setOrderSuccess(true)
               clearCachedAddress()
@@ -355,19 +423,57 @@ export default function Checkout() {
 
   if (orderSuccess) {
     return (
-      <div className="min-h-screen bg-[#F8FAF5] flex items-center justify-center px-5">
-        <div className="max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[#E8F5E9] shadow-lg shadow-[#2E7D32]/10">
-            <svg className="h-12 w-12 text-[#2E7D32]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+      <div className="min-h-screen bg-[#F8FAF5] flex items-center justify-center px-5 py-12">
+        <div className="w-full max-w-md">
+          <div className="rounded-[28px] border border-[#E5EDD8] bg-white p-6 sm:p-8 text-center shadow-[0_20px_60px_rgba(46,125,50,0.12)] drawer-item">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#E8F5E9] shadow-lg shadow-[#2E7D32]/10">
+              <svg className="h-10 w-10 text-[#2E7D32]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="font-heading text-h1 font-bold text-[#1a1a1a] mb-1">Order Placed!</h1>
+            <p className="text-body-sm text-[#8B9E7A] mb-5">Thank you for your order{address.name ? `, ${address.name.split(' ')[0]}` : ''}. We'll confirm shortly.</p>
+
+            {lastOrder?.orderNumber && (
+              <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full bg-[#F4F9EF] border border-[#C8E0B0] px-4 py-2">
+                <span className="text-caption font-semibold text-[#8B9E7A]">Order ID</span>
+                <span className="font-mono text-body-sm font-bold text-[#1B5E20]">{lastOrder.orderNumber}</span>
+              </div>
+            )}
+
+            <div className="space-y-2.5 mb-6 rounded-2xl bg-[#F8FAF5] p-4 text-left text-body-sm">
+              <div className="flex items-center gap-2.5">
+                <svg className="h-4 w-4 shrink-0 text-[#2E7D32]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h4" />
+                </svg>
+                <span className="text-[#1a1a1a] font-medium">{settings?.deliveryEtaText || 'Estimated delivery in 2–4 business days'}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <svg className="h-4 w-4 shrink-0 text-[#2E7D32]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h2m4 0h2m-9 4V9a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H9a2 2 0 01-2-2zm11-6h2v5h-2" />
+                </svg>
+                <span className="text-[#1a1a1a] font-medium">{lastOrder?.items?.length ?? cartItems.length} item{(lastOrder?.items?.length ?? cartItems.length) !== 1 ? 's' : ''} · <span className="text-[#2E7D32]">{lastOrder?.total != null ? formatPrice(lastOrder.total) : formatPrice(grandTotal)}</span> · {lastOrder?.paymentMethod === 'cod' ? 'Cash on Delivery' : lastOrder?.paymentMethod === 'whatsapp' ? 'WhatsApp Order' : 'Paid Online'}</span>
+              </div>
+              {address.mobile && (
+                <p className="text-caption text-[#8B9E7A]">Delivery updates will be sent to <span className="font-semibold text-[#1a1a1a]">{address.mobile}</span></p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <button onClick={downloadInvoice}
+                className="w-full rounded-full border-2 border-[#D7E8C8] bg-white py-3.5 text-body-sm font-semibold text-[#2E7D32] transition-all hover:bg-[#F4F9EF] hover:border-[#4CAF50] flex items-center justify-center gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+                Download Invoice
+              </button>
+              <Link to="/"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#2E7D32] px-8 py-3.5 text-body-sm font-semibold text-white transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 shadow-lg shadow-[#2E7D32]/20">
+                Continue Shopping
+              </Link>
+            </div>
           </div>
-          <h1 className="font-heading text-h1 font-bold text-[#1a1a1a] mb-2">Order Placed!</h1>
-          <p className="text-[#8B9E7A] mb-8">Thank you for your order. We'll confirm shortly.</p>
-          <Link to="/"
-            className="inline-flex items-center gap-2 rounded-full bg-[#2E7D32] px-8 py-3.5 text-body-sm font-semibold text-white transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 shadow-lg shadow-[#2E7D32]/20">
-            Continue Shopping
-          </Link>
         </div>
       </div>
     )
@@ -477,6 +583,9 @@ export default function Checkout() {
                     onChange={v => setAddress(a => ({ ...a, mobile: v.replace(/[^0-9]/g, '').slice(0, 10) }))}
                     onBlur={() => setTouched(t => ({ ...t, mobile: true }))}
                     placeholder="9876543210" type="tel" />
+                  <AddressField label="Alternate Mobile (optional)" value={address.alternateMobile} error=""
+                    onChange={v => setAddress(a => ({ ...a, alternateMobile: v.replace(/[^0-9]/g, '').slice(0, 10) }))}
+                    placeholder="Optional" type="tel" />
                   <div className="sm:col-span-2">
                     <AddressField label="Email" value={address.email} error=""
                       onChange={v => setAddress(a => ({ ...a, email: v }))}
@@ -541,6 +650,15 @@ export default function Checkout() {
                     <textarea value={address.deliveryInstructions} onChange={e => setAddress(a => ({ ...a, deliveryInstructions: e.target.value }))} placeholder="Leave at door, call on arrival, etc." rows={2}
                       className="w-full rounded-xl border border-[#E5EDD8] bg-white px-4 py-2.5 text-body-sm text-[#1a1a1a] placeholder:text-[#B0B0B0] outline-none focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/10 transition-all" />
                   </div>
+                  <label className="sm:col-span-2 flex items-center gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox" checked={address.setDefault}
+                      onChange={e => setAddress(a => ({ ...a, setDefault: e.target.checked }))}
+                      className="h-4 w-4 rounded border-[#D7E8C8] accent-[#2E7D32]" />
+                    <span className="text-body-sm font-medium text-[#1a1a1a]">Save this address for next time</span>
+                    <svg className="h-4 w-4 text-[#2E7D32]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </label>
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -752,6 +870,24 @@ export default function Checkout() {
                       className="w-full rounded-full bg-[#1B5E20] py-3.5 text-body-sm font-semibold text-white shadow-lg shadow-[#1B5E20]/20 transition-all hover:bg-[#0D3B0F] hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0">
                       {placing ? 'Placing Order...' : 'Place Order via WhatsApp'}
                     </button>
+                  )}
+                  {showCod && (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <span className="flex-1 border-t border-[#E5EDD8]" />
+                        <span className="text-caption text-[#B0B0B0]">OR</span>
+                        <span className="flex-1 border-t border-[#E5EDD8]" />
+                      </div>
+                      <button onClick={() => handlePlaceOrder('cod')} disabled={placing}
+                        className="w-full rounded-full bg-[#F5A623] py-3.5 text-body-sm font-semibold text-white shadow-lg shadow-[#F5A623]/25 transition-all hover:bg-[#E08F00] hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <rect x="2" y="6" width="20" height="12" rx="2" />
+                          <circle cx="12" cy="12" r="2.5" />
+                          <path d="M6 12h.01M18 12h.01" strokeLinecap="round" />
+                        </svg>
+                        {placing ? 'Placing Order...' : `Cash on Delivery · Pay ${formatPrice(grandTotal)}`}
+                      </button>
+                    </>
                   )}
                 </div>
                 <p className="mt-3 text-center text-caption text-[#B0B0B0]">

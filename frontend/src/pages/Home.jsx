@@ -5,7 +5,6 @@ import BundleCard from '../components/BundleCard'
 import HorizontalScroll from '../components/HorizontalScroll'
 import KenBurnsHero from '../components/KenBurnsHero'
 import StoryViewer from '../components/StoryViewer'
-import { useCart } from '../contexts/CartContext'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
 import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
@@ -15,7 +14,6 @@ import { generatePlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
 import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
-import { CartIcon } from '../components/Icons'
 import WhyChooseUs from '../components/WhyChooseUs'
 import FarmTimeline from '../components/FarmTimeline'
 import { HOME_ASSETS } from '../lib/homeAssets'
@@ -34,7 +32,6 @@ const TESTIMONIALS = [
 ]
 
 export default function Home() {
-  const { cartItems, openCartDrawer } = useCart()
   const { settings, loading: settingsLoading } = useSiteSettings()
   const [homeSections, setHomeSections] = useState({})
   const [reels, setReels] = useState([])
@@ -48,7 +45,6 @@ export default function Home() {
   const [catLoading, setCatLoading] = useState({})
   const [activeCategory, setActiveCategory] = useState(null)
   const [loading, setLoading] = useState(true)
-  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
   const reelProducts = useMemo(() => {
     return reels.map(reel => ({
@@ -665,16 +661,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Floating cart */}
-      <button type="button" onClick={openCartDrawer}
-        className="fixed bottom-[76px] left-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-all hover:bg-green-700 hover:-translate-y-1 sm:bottom-8 sm:left-8 sm:h-14 sm:w-14"
-        aria-label="Shopping cart">
-        <CartIcon className="h-6 w-6" />
-        {cartCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-sale px-2 py-0.5 text-micro font-bold text-white shadow-sm cart-badge">{cartCount}</span>
-        )}
-      </button>
     </div>
   )
 }

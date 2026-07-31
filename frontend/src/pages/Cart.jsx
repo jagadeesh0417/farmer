@@ -244,7 +244,7 @@ export default function Cart() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8 sm:py-10 pb-28 sm:pb-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <div>
@@ -350,6 +350,21 @@ export default function Cart() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile sticky checkout bar */}
+      <div className="fixed inset-x-0 bottom-0 z-[45] flex items-center justify-between gap-3 border-t border-[#E5EDD8] bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-6px_20px_rgba(0,0,0,0.08)] backdrop-blur-xl md:hidden">
+        <div className="shrink-0">
+          <p className="text-micro font-semibold uppercase tracking-wide text-[#8B9E7A]">Total</p>
+          <p className="font-heading text-h3 font-bold leading-tight text-[#2E7D32]">{formatPrice(grandTotal)}</p>
+        </div>
+        <button onClick={() => navigate('/checkout')}
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#2E7D32] py-3.5 text-body-sm font-bold text-white shadow-lg shadow-[#2E7D32]/25 transition-all hover:bg-[#1B5E20] active:scale-[0.98]">
+          Proceed to Checkout
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6l6 6-6 6" />
+          </svg>
+        </button>
       </div>
 
       {/* Confirm remove dialog */}

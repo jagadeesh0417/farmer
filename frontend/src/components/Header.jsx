@@ -1,20 +1,39 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useCart } from '../contexts/CartContext'
 import { fetchSiteSettings } from '../contexts/SiteSettingsContext'
+import { formatPrice, getImageUrl } from '../lib/utils'
+import { getItemName, getItemImage, getItemPrice, getItemVariantName } from '../lib/pricingService'
 import { CartIcon, MenuIcon, CloseIcon } from './Icons'
 import Logo from './Logo'
 
 export default function Header() {
-  const { cartItems, itemCount, openCartDrawer } = useCart()
+  const { cartItems, itemCount, totals, openCartDrawer } = useCart()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [settings, setSettings] = useState(null)
   const [announceIdx, setAnnounceIdx] = useState(0)
+  const [cartHover, setCartHover] = useState(false)
+  const openTimer = useRef(null)
+  const closeTimer = useRef(null)
 
   const totalItems = itemCount ?? (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+
+  const showCartPanel = useCallback(() => {
+    clearTimeout(closeTimer.current)
+    clearTimeout(openTimer.current)
+    openTimer.current = setTimeout(() => setCartHover(true), 120)
+  }, [])
+
+  const hideCartPanel = useCallback(() => {
+    clearTimeout(openTimer.current)
+    clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setCartHover(false), 250)
+  }, [])
+
+  useEffect(() => () => { clearTimeout(openTimer.current); clearTimeout(closeTimer.current) }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -72,12 +91,70 @@ export default function Header() {
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-            <button onClick={openCartDrawer} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
-              <CartIcon className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span key={totalItems} className="cart-badge cart-badge-bounce absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm">{totalItems}</span>
-              )}
-            </button>
+            <div className="relative">
+              <button onClick={openCartDrawer} onMouseEnter={showCartPanel} onMouseLeave={hideCartPanel} aria-label="Cart"
+                className="relative flex items-center gap-1.5 rounded-full px-2 py-1.5 text-muted hover:text-green-600 transition-colors">
+                <span className="relative">
+                  <CartIcon className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span key={totalItems} className="cart-badge cart-badge-bounce absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm">{totalItems}</span>
+                  )}
+                </span>
+                {totalItems > 0 && (
+                  <span className="text-caption font-bold text-[#2E7D32]">{formatPrice(totals.subtotal)}</span>
+                )}
+              </button>
+
+            {/* Mini cart dropdown */}
+            {cartHover && (
+              <div onMouseEnter={showCartPanel} onMouseLeave={hideCartPanel}
+                className="header-dropdown absolute right-0 top-full z-50 mt-2 w-[340px] rounded-2xl border border-[#E5EDD8] bg-white p-4 shadow-[0_20px_50px_rgba(0,0,0,0.14)]">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-heading text-h4 font-bold text-[#1a1a1a]">Your Cart</p>
+                  <span className="rounded-full bg-[#F4F9EF] px-2.5 py-1 text-micro font-bold text-[#2E7D32]">{totalItems} item{totalItems !== 1 ? 's' : ''}</span>
+                </div>
+                {cartItems.length === 0 ? (
+                  <p className="py-6 text-center text-caption text-[#8B9E7A]">Your cart is empty</p>
+                ) : (
+                  <>
+                    <div className="space-y-3 max-h-64 overflow-y-auto mb-3">
+                      {cartItems.slice(0, 3).map(item => (
+                        <div key={item.id} className="flex items-center gap-3">
+                          <img src={getImageUrl(getItemImage(item), settings?.placeholder_image)} alt={getItemName(item)}
+                            className="h-11 w-11 rounded-lg object-cover shrink-0 border border-[#E5EDD8]" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-caption font-semibold text-[#1a1a1a] truncate">{getItemName(item)}</p>
+                            {getItemVariantName(item) && <p className="text-micro text-[#8B9E7A]">{getItemVariantName(item)}</p>}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-caption font-semibold text-[#1a1a1a]">{formatPrice(getItemPrice(item) * item.quantity)}</p>
+                            <p className="text-micro text-[#8B9E7A]">×{item.quantity}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {cartItems.length > 3 && (
+                        <p className="text-micro text-[#8B9E7A] text-center pt-1">+ {cartItems.length - 3} more item{cartItems.length - 3 !== 1 ? 's' : ''}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between border-t border-[#E5EDD8] pt-3 mb-3">
+                      <span className="text-caption text-[#8B9E7A]">Subtotal</span>
+                      <span className="font-heading text-h4 font-bold text-[#2E7D32]">{formatPrice(totals.subtotal)}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setCartHover(false); navigate('/cart') }}
+                        className="flex-1 rounded-full border-2 border-[#D7E8C8] py-2.5 text-caption font-bold text-[#2E7D32] hover:bg-[#F4F9EF] transition-all">
+                        View Cart
+                      </button>
+                      <button onClick={() => { setCartHover(false); navigate('/checkout') }}
+                        className="flex-1 rounded-full bg-[#2E7D32] py-2.5 text-caption font-bold text-white shadow-md shadow-[#2E7D32]/20 hover:bg-[#1B5E20] transition-all">
+                        Checkout
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            </div>
           </div>
 
           {/* Mobile: right icons */}

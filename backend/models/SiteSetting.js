@@ -31,6 +31,8 @@ const siteSettingSchema = new mongoose.Schema({
   paymentMethod: { type: String, enum: ['razorpay', 'whatsapp', 'both'], default: 'both' },
   razorpayKeyId: { type: String, default: 'rzp_live_SeagFUXcQMCgdT' },
   razorpayKeySecret: String,
+  codEnabled: { type: Boolean, default: false },
+  deliveryEtaText: { type: String, default: 'Estimated delivery in 2–4 business days' },
 
   // Header
   headerText1: { type: String, default: 'Free delivery over ₹1499' },
