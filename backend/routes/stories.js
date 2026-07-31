@@ -52,12 +52,16 @@ router.get('/all', protect, adminOnly, async (req, res) => {
 
 // Admin: signed upload params so the browser can upload video directly to Cloudinary.
 // The API secret never leaves the server; Cloudinary verifies the signature.
+// resource_type, file, api_key, cloud_name and signature itself are EXCLUDED
+// from the signature string by Cloudinary, so they must never be signed params.
 router.post('/signature', protect, adminOnly, storySignatureLimiter, (req, res) => {
   try {
     const timestamp = Math.round(Date.now() / 1000)
     const folder = 'stories'
-    const params = { timestamp, folder, resource_type: 'video' }
+    const params = { timestamp, folder }
+    const stringToSign = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join('&')
     const signature = cloudinary.utils.api_sign_request(params, process.env.CLOUDINARY_API_SECRET)
+    console.log(`[story-signature] timestamp=${timestamp} string_to_sign=${stringToSign} signature=${signature}`)
     res.json({
       signature,
       timestamp,
@@ -67,6 +71,7 @@ router.post('/signature', protect, adminOnly, storySignatureLimiter, (req, res) 
       apiKey: process.env.CLOUDINARY_API_KEY,
     })
   } catch (err) {
+    console.error('[story-signature] error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })

@@ -10,6 +10,16 @@ export function uploadVideoToCloudinary(file, { signature, onProgress, signal })
     form.append('resource_type', signature.resourceType || 'video')
 
     xhr.open('POST', `https://api.cloudinary.com/v1_1/${signature.cloudName}/${signature.resourceType || 'video'}/upload`)
+    console.info('[cloudinary-upload] payload', {
+      file: file.name,
+      sizeBytes: file.size,
+      cloudName: signature.cloudName,
+      folder: signature.folder,
+      resourceType: signature.resourceType || 'video',
+      timestamp: signature.timestamp,
+      apiKey: signature.apiKey,
+      signature: signature.signature,
+    })
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) onProgress?.(e.loaded, e.total)
     }
@@ -21,6 +31,7 @@ export function uploadVideoToCloudinary(file, { signature, onProgress, signal })
         let message = `Upload failed (${xhr.status})`
         try {
           const data = JSON.parse(xhr.responseText)
+          console.error('[cloudinary-upload] error response', data)
           if (data?.error?.message) message = data.error.message
         } catch { /* keep default */ }
         reject(new Error(message))
