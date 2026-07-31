@@ -1,19 +1,20 @@
+import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { COMPRESS_THRESHOLD } from './videoValidation'
 
-const CDN_BASE = 'https://cdn.jsdelivr.net/npm'
+// ffmpeg.wasm assets are served locally from /public/ffmpeg (same origin):
+//   ffmpeg-core.js / ffmpeg-core.wasm  - ESM core from @ffmpeg/core (single-thread,
+//     no SharedArrayBuffer, no COOP/COEP headers needed, Razorpay unaffected)
+//   worker.js / const.js / errors.js   - class worker from @ffmpeg/ffmpeg plus its
+//     relative imports, copied verbatim so the module worker resolves them locally
+// No CDN URLs anywhere - loading from a different origin is what broke worker
+// construction ("Failed to construct 'Worker'").
+const FFMPEG_BASE = '/ffmpeg'
 
 export function shouldCompressVideo(size) {
   return size > COMPRESS_THRESHOLD
 }
 
-// ffmpeg.wasm single-thread core loaded lazily from CDN — no SharedArrayBuffer,
-// so no COOP/COEP headers are needed and third-party scripts are unaffected.
 export async function compressVideo(file, onProgress) {
-  const [{ FFmpeg }, { toBlobURL }] = await Promise.all([
-    import(/* @vite-ignore */ `${CDN_BASE}/@ffmpeg/ffmpeg@0.12.15/+esm`),
-    import(/* @vite-ignore */ `${CDN_BASE}/@ffmpeg/util@0.12.1/+esm`),
-  ])
-
   const ffmpeg = new FFmpeg()
   let totalSeconds = 0
   ffmpeg.on('log', ({ message }) => {
@@ -28,8 +29,9 @@ export async function compressVideo(file, onProgress) {
   })
 
   await ffmpeg.load({
-    coreURL: await toBlobURL(`${CDN_BASE}/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${CDN_BASE}/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm`, 'application/wasm'),
+    coreURL: `${FFMPEG_BASE}/ffmpeg-core.js`,
+    wasmURL: `${FFMPEG_BASE}/ffmpeg-core.wasm`,
+    classWorkerURL: `${FFMPEG_BASE}/worker.js`,
   })
 
   const input = new Uint8Array(await file.arrayBuffer())
