@@ -76,7 +76,8 @@ export default function Home() {
         ])
         if (cancelled) return
         setHomeSections(homeData || {})
-        setReviews(Array.isArray(reviewsData) ? reviewsData : [])
+        const loadedReviews = Array.isArray(reviewsData) ? reviewsData.filter(r => r.status !== 'draft') : []
+        setReviews(loadedReviews.length > 0 ? loadedReviews : DEMO_REVIEWS.map((r, i) => ({ ...r, _id: `fallback-review-${i}` })))
         setReels(Array.isArray(storiesData) ? storiesData.map(s => ({
           ...s,
           poster: s.thumbnail,

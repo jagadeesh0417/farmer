@@ -5,10 +5,10 @@ import { cld } from '../lib/cloudinary'
 
 const SIZE_MAP = {
   header: {
-    img: 'h-9 sm:h-[42px] lg:h-12',
-    mark: 'h-8 w-8 lg:h-10 lg:w-10',
-    icon: 'h-5 w-5 lg:h-6 lg:w-6',
-    name: 'text-lg sm:text-xl lg:text-2xl',
+    img: 'h-[54px] sm:h-[63px] lg:h-[72px]',
+    mark: 'h-12 w-12 lg:h-[60px] lg:w-[60px]',
+    icon: 'h-[30px] w-[30px] lg:h-9 lg:w-9',
+    name: 'text-[27px] sm:text-[30px] lg:text-4xl',
   },
   footer: {
     img: 'h-14 sm:h-16 lg:h-20',
