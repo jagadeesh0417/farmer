@@ -11,9 +11,11 @@ function slugify(name) {
 }
 
 export default function ProductCard({ product, priority }) {
-  const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection, itemCount, openCartDrawer } = useCart()
-  const [added, setAdded] = useState(false)
+  const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection, itemCount } = useCart()
   const imgRef = useRef(null)
+  const busyRef = useRef(false)
+  const [pendingAdd, setPendingAdd] = useState(false)
+  const [pendingQty, setPendingQty] = useState(false)
 
   const variants = product.product_variants || product.variants || []
   const hasVariants = variants.length > 1
@@ -28,9 +30,8 @@ export default function ProductCard({ product, priority }) {
   const savings = mrp - price
   const discountPercent = product.discount_percent || (mrp > price ? Math.round((savings / mrp) * 100) : 0)
 
-  const cartItem = cartItems?.find(item => item.product_id === pid && item.variant_id === selectedVariantId)
-  const isInCart = Boolean(cartItem)
-  const cartQuantity = cartItem?.quantity || selection.quantity || 1
+  const cartItem = cartItems?.find(item => item.product_id === pid && (item.variant_id || null) === (selectedVariantId || null))
+  const quantity = cartItem?.quantity || 0
   const productImage = product.image_url || product.images?.[0]
   const fallbackSrc = generatePlaceholder('product', product.name)
   const imgProps = getImageProps(productImage, {
@@ -49,18 +50,27 @@ export default function ProductCard({ product, priority }) {
     setProductSelection(pid, { variantId })
   }
 
-  const handleQuantityChange = async (newQty) => {
-    if (cartItem) {
+  const changeQuantity = async (newQty) => {
+    if (busyRef.current || !cartItem) return
+    busyRef.current = true
+    setPendingQty(true)
+    try {
       if (newQty < 1) await removeFromCart(cartItem.id)
       else await updateQuantity(cartItem.id, newQty)
+    } catch {
+      /* state falls back to server/local storage */
+    } finally {
+      busyRef.current = false
+      setPendingQty(false)
     }
   }
 
   const handleAddToCart = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    if (added) return
-    setAdded(true)
+    if (busyRef.current || quantity > 0) return
+    busyRef.current = true
+    setPendingAdd(true)
     try {
       await addToCart({ product_id: product.id, variant_id: selectedVariantId, quantity: 1, product, variant: selectedVariant })
       if (imgRef.current) flyToCart(imgRef.current, productImage || imgProps.src)
@@ -76,13 +86,14 @@ export default function ProductCard({ product, priority }) {
         price: price,
         quantity: 1,
         slug: slugify(product.name),
-        isUpdate: Boolean(cartItem),
+        isUpdate: false,
       })
     } catch {
-      setAdded(false)
-      return
+      /* keep Add to Cart state */
+    } finally {
+      busyRef.current = false
+      setPendingAdd(false)
     }
-    setTimeout(() => setAdded(false), 1500)
   }
 
   const variantLabel = (v) => v.weight_label || v.weightLabel || v.name || v.unit || 'Default'
@@ -156,36 +167,48 @@ export default function ProductCard({ product, priority }) {
 
         {/* Button — always at bottom */}
         <div className="mt-auto flex-shrink-0 max-sm:pt-1 sm:pt-1.5">
-          {isInCart ? (
-            <div className="stepper-enter flex flex-col gap-1.5">
-              <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px] sm:h-[44px]">
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity - 1) }}
-                  className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11"
-                  aria-label="Decrease quantity"
-                >−</button>
-                <span key={cartQuantity} className="qty-pop font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
-                  className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11"
-                  aria-label="Increase quantity"
-                >+</button>
-              </div>
-              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openCartDrawer() }}
-                className="proceed-in flex h-8 w-full items-center justify-center gap-1.5 rounded-full bg-[#0E9F3E]/10 font-product text-caption font-bold text-[#0E9F3E] transition-colors hover:bg-[#0E9F3E] hover:text-white max-sm:h-7">
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                Proceed to Cart
-              </button>
-            </div>
-          ) : (
+          {quantity === 0 ? (
             <button
               onClick={handleAddToCart}
-              disabled={added}
-              className="ripple-btn h-10 w-full rounded-full font-product text-btn font-semibold text-white transition active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px] flex items-center justify-center gap-1.5"
-              style={{ background: added ? '#16a34a' : '#0E9F3E' }}
-            >{added ? <><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> Added</> : 'Add to Cart'}</button>
+              disabled={pendingAdd}
+              className="ripple-btn flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-[#0E9F3E] font-product text-btn font-semibold text-white transition active:scale-[0.98] disabled:opacity-80 max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px]"
+            >
+              {pendingAdd ? (
+                <>
+                  <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H19M9 20a1 1 0 11-2 0 1 1 0 012 0zm10 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                  </svg>
+                  Add to Cart
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="stepper-enter flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#0E9F3E] bg-white transition-all max-sm:h-[36px] sm:h-[44px]">
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); changeQuantity(quantity - 1) }}
+                disabled={pendingQty}
+                aria-label="Decrease quantity"
+                className="flex h-full w-10 shrink-0 items-center justify-center text-body font-bold text-[#0E9F3E] transition hover:bg-[#E8F5E9] active:scale-90 disabled:opacity-60 font-product max-sm:w-9 sm:w-11"
+              >−</button>
+              <span key={quantity} className="qty-pop min-w-[1.5rem] text-center font-product text-body-sm font-semibold text-[#1a1a1a]">
+                {pendingQty ? (
+                  <span className="mx-auto block h-4 w-4 animate-spin rounded-full border-2 border-[#D7E8C8] border-t-[#0E9F3E]" />
+                ) : quantity}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); changeQuantity(quantity + 1) }}
+                disabled={pendingQty}
+                aria-label="Increase quantity"
+                className="flex h-full w-10 shrink-0 items-center justify-center bg-[#0E9F3E] font-product text-body font-bold text-white transition hover:bg-[#0B8A34] active:scale-90 disabled:opacity-60 max-sm:w-9 sm:w-11"
+              >+</button>
+            </div>
           )}
         </div>
       </div>
