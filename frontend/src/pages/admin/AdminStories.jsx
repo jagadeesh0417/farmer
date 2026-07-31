@@ -2,8 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { api } from '../../lib/api'
 import { toast } from 'react-toastify'
 import { isDemoMode } from '../../lib/withDemoFallback'
+import useVideoUpload from '../../hooks/useVideoUpload'
+import { validateVideoFile, formatBytes, formatEta, formatDuration } from '../../lib/videoValidation'
 
-const emptyForm = { title: '', description: '', videoUrl: '', videoPublicId: '', thumbnail: '', thumbnailPublicId: '', productId: '', productName: '', isActive: true }
+const emptyForm = { title: '', description: '', videoUrl: '', videoPublicId: '', cloudinaryPublicId: '', thumbnail: '', thumbnailPublicId: '', productId: '', productName: '', duration: '', isActive: true }
+
+const DEMO_VIDEO = { secure_url: 'https://res.cloudinary.com/demo/video/upload/dog.mp4', public_id: 'demo/dog', duration: 30 }
 
 export default function AdminStories() {
   const [stories, setStories] = useState([])
@@ -11,12 +15,20 @@ export default function AdminStories() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const [form, setForm] = useState(emptyForm)
-  const videoRef = useRef(null)
   const [showProductDropdown, setShowProductDropdown] = useState(false)
   const [productSearch, setProductSearch] = useState('')
+  const [demoUploading, setDemoUploading] = useState(false)
+  const [demoProgress, setDemoProgress] = useState(0)
+  const videoRef = useRef(null)
+  const demoIntervalRef = useRef(null)
+  const videoUpload = useVideoUpload()
+
+  const demo = isDemoMode()
+  const uploadStatus = demo ? (demoUploading ? 'uploading' : 'idle') : videoUpload.status
+  const uploadProgress = demo ? demoProgress : videoUpload.progress
+  const uploadError = demo ? '' : videoUpload.error
+  const busy = uploadStatus === 'uploading' || uploadStatus === 'compressing'
 
   const load = async () => {
     setLoading(true)
@@ -34,24 +46,79 @@ export default function AdminStories() {
 
   const handleChange = (f, v) => setForm(p => ({ ...p, [f]: v }))
 
-  const handleVideoUpload = async (e) => {
-    const file = e.target.files[0]
+  const applyUploadResult = (result) => {
+    const publicId = result.public_id
+    const secureUrl = result.secure_url
+    const thumbnail = secureUrl
+      .replace('/video/upload/', '/video/upload/w_400,h_600/')
+      .replace(/\.(mp4|webm|mov)$/i, '.jpg')
+    handleChange('videoUrl', secureUrl)
+    handleChange('videoPublicId', publicId)
+    handleChange('cloudinaryPublicId', publicId)
+    handleChange('thumbnail', thumbnail)
+    handleChange('thumbnailPublicId', '')
+    handleChange('duration', formatDuration(result.duration))
+  }
+
+  const simulateDemoUpload = () => new Promise((resolve) => {
+    let p = 0
+    demoIntervalRef.current = setInterval(() => {
+      p += 10 + Math.random() * 18
+      if (p >= 100) {
+        clearInterval(demoIntervalRef.current)
+        setDemoProgress(100)
+        setTimeout(() => resolve(DEMO_VIDEO), 250)
+      } else setDemoProgress(Math.min(99, Math.round(p)))
+    }, 110)
+  })
+
+  const handleVideoFile = async (file) => {
     if (!file) return
-    if (!['video/mp4', 'video/quicktime', 'video/webm'].includes(file.type)) {
-      return toast.error('Only .mp4, .mov, .webm files allowed')
+    if (demo) {
+      const validation = validateVideoFile(file)
+      if (!validation.ok) return toast.error(validation.error)
+      setDemoUploading(true)
+      setDemoProgress(0)
+      try {
+        const result = await simulateDemoUpload()
+        applyUploadResult(result)
+        toast.success('Video uploaded (demo)')
+      } catch { toast.error('Demo upload failed') }
+      finally { setDemoUploading(false); setDemoProgress(0) }
+      return
     }
-    if (file.size > 100 * 1024 * 1024) return toast.error('Max file size is 100MB')
-    setUploading(true)
-    setUploadProgress(0)
-    try {
-      const result = await api.uploadImage(file, 'haifarmer/stories')
-      handleChange('videoUrl', result.url)
-      handleChange('videoPublicId', result.publicId)
-      handleChange('thumbnail', result.url.replace('/upload/', '/upload/w_400,h_600/'))
+    const result = await videoUpload.upload(file)
+    if (result) {
+      applyUploadResult(result)
       toast.success('Video uploaded')
-    } catch (err) { toast.error(err.message) }
-    finally { setUploading(false); setUploadProgress(0) }
+    } else if (videoUpload.error) {
+      toast.error(videoUpload.error)
+    }
+  }
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0]
     if (e.target) e.target.value = ''
+    handleVideoFile(file)
+  }
+
+  const handleCancel = () => {
+    if (demo) {
+      clearInterval(demoIntervalRef.current)
+      setDemoUploading(false)
+      setDemoProgress(0)
+      return
+    }
+    videoUpload.cancel()
+  }
+
+  const removeVideo = () => {
+    handleChange('videoUrl', '')
+    handleChange('videoPublicId', '')
+    handleChange('cloudinaryPublicId', '')
+    handleChange('thumbnail', '')
+    handleChange('thumbnailPublicId', '')
+    handleChange('duration', '')
   }
 
   const handleSave = async () => {
@@ -111,23 +178,48 @@ export default function AdminStories() {
               {showProductDropdown && <div className="fixed inset-0 z-10" onClick={() => setShowProductDropdown(false)} />}
             </div>
 
-            {/* Video upload */}
+            {/* Video upload — direct to Cloudinary, never through the server */}
             <div>
               <label className="text-xs font-semibold text-slate-600 mb-1 block">Video Upload * (.mp4, .mov, .webm — max 100MB)</label>
               {form.videoUrl ? (
                 <div className="space-y-2">
                   <video src={form.videoUrl} controls className="w-full rounded-lg max-h-40" />
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => videoRef.current?.click()} className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-400 transition">Replace Video</button>
-                    <button type="button" onClick={() => { handleChange('videoUrl', ''); handleChange('videoPublicId', '') }} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition">Remove</button>
+                    <button type="button" onClick={() => videoRef.current?.click()} disabled={busy} className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-400 transition disabled:opacity-50">Replace Video</button>
+                    <button type="button" onClick={removeVideo} disabled={busy} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition disabled:opacity-50">Remove</button>
+                  </div>
+                </div>
+              ) : uploadStatus === 'compressing' ? (
+                <div className="rounded-xl border-2 border-dashed border-brand-300 bg-brand-50/40 px-4 py-6 text-center">
+                  <p className="text-sm font-medium text-brand-700">Compressing large video… {uploadProgress}%</p>
+                  <p className="text-xs text-slate-500 mt-1">Reducing to 720p MP4 in your browser for faster upload & playback</p>
+                  <div className="h-2 rounded-full bg-slate-200 mt-3 overflow-hidden"><div className="h-full bg-brand-600 transition-all" style={{ width: `${uploadProgress}%` }} /></div>
+                  <button type="button" onClick={handleCancel} className="mt-3 text-xs font-semibold text-red-500 hover:text-red-600">Cancel</button>
+                </div>
+              ) : uploadStatus === 'uploading' ? (
+                <div className="rounded-xl border-2 border-dashed border-brand-300 bg-brand-50/40 px-4 py-6 text-center">
+                  <p className="text-sm font-medium text-brand-700">Uploading… {uploadProgress}%</p>
+                  <div className="h-2 rounded-full bg-slate-200 mt-3 overflow-hidden"><div className="h-full bg-brand-600 transition-all" style={{ width: `${uploadProgress}%` }} /></div>
+                  <p className="text-xs text-slate-500 mt-2">
+                    {videoUpload.speed ? `${formatBytes(videoUpload.speed)}/s` : 'Starting…'}
+                    {videoUpload.eta ? ` · ${formatEta(videoUpload.eta)} left` : ''}
+                  </p>
+                  <button type="button" onClick={handleCancel} className="mt-2 text-xs font-semibold text-red-500 hover:text-red-600">Cancel</button>
+                </div>
+              ) : uploadStatus === 'error' ? (
+                <div className="rounded-xl border-2 border-dashed border-red-300 bg-red-50/40 px-4 py-6 text-center">
+                  <p className="text-sm font-medium text-red-700">{uploadError}</p>
+                  <div className="mt-3 flex gap-2 justify-center">
+                    <button type="button" onClick={() => videoUpload.retry()} className="rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-700">Retry</button>
+                    <button type="button" onClick={() => videoRef.current?.click()} className="rounded-lg border border-slate-300 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-brand-400">Choose another file</button>
                   </div>
                 </div>
               ) : (
-                <button type="button" onClick={() => videoRef.current?.click()} disabled={uploading} className="w-full rounded-xl border-2 border-dashed border-slate-300 px-4 py-8 text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition text-center">
-                  {uploading ? `Uploading... ${uploadProgress}%` : 'Click to Upload Video'}
+                <button type="button" onClick={() => videoRef.current?.click()} className="w-full rounded-xl border-2 border-dashed border-slate-300 px-4 py-8 text-sm text-slate-500 hover:border-brand-400 hover:text-brand-600 transition text-center">
+                  Click to Upload Video
                 </button>
               )}
-              <input ref={videoRef} type="file" accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm" onChange={handleVideoUpload} hidden />
+              <input ref={videoRef} type="file" accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm" onChange={handleVideoChange} disabled={busy} hidden />
             </div>
 
             <div className="flex items-center gap-2">
@@ -136,7 +228,7 @@ export default function AdminStories() {
             </div>
 
             <div className="flex gap-2">
-              <button onClick={handleSave} disabled={saving || uploading} className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50">{saving ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
+              <button onClick={handleSave} disabled={saving || busy} className="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50">{saving ? 'Saving...' : editing ? 'Update' : 'Create'}</button>
               {editing && <button onClick={() => { setEditing(null); setForm(emptyForm) }} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>}
             </div>
           </div>

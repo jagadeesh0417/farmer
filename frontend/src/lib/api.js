@@ -185,6 +185,7 @@ export const api = {
   // Stories
   getStories: () => request('/stories'),
   getAllStories: () => request('/stories/all'),
+  getStoryUploadSignature: () => request('/stories/signature', { method: 'POST' }),
   createStory: (data) => request('/stories', { method: 'POST', body: JSON.stringify(data) }),
   updateStory: (id, data) => request(`/stories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteStory: (id) => request(`/stories/${id}`, { method: 'DELETE' }),

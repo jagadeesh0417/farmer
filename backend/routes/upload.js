@@ -9,9 +9,11 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100
 router.post('/', protect, adminOnly, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
+    if (req.file.mimetype.startsWith('video/')) {
+      return res.status(400).json({ error: 'Video uploads are not supported through this endpoint. Use the direct Cloudinary upload in Stories admin.' })
+    }
     const folder = req.body.folder || 'haifarmer'
-    const isVideo = req.file.mimetype.startsWith('video/')
-    const result = await uploadToCloudinary(req.file.buffer, folder, isVideo ? 'video' : 'auto')
+    const result = await uploadToCloudinary(req.file.buffer, folder, 'auto')
     res.json({ url: result.secure_url, publicId: result.public_id })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -20,8 +22,11 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
 
 router.post('/multiple', protect, adminOnly, upload.array('images', 10), async (req, res) => {
   try {
+    if (req.files.some(f => f.mimetype.startsWith('video/'))) {
+      return res.status(400).json({ error: 'Video uploads are not supported through this endpoint. Use the direct Cloudinary upload in Stories admin.' })
+    }
     const folder = req.body.folder || 'haifarmer'
-    const results = await Promise.all(req.files.map(file => uploadToCloudinary(file.buffer, folder, file.mimetype.startsWith('video/') ? 'video' : 'auto')))
+    const results = await Promise.all(req.files.map(file => uploadToCloudinary(file.buffer, folder, 'auto')))
     res.json(results.map(r => ({ url: r.secure_url, publicId: r.public_id })))
   } catch (err) {
     res.status(500).json({ error: err.message })
