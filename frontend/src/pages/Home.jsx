@@ -57,7 +57,9 @@ export default function Home() {
 
   const bestSellers = homeSections.bestSellers || []
   const groceries = homeSections.groceries || []
-  const superSaverCombos = homeSections.superSaverCombos || []
+  const superSaverCombos = homeSections.superSaverCombos?.length
+    ? homeSections.superSaverCombos
+    : demoCombos.map(c => ({ ...c, comboType: 'super_saver', showOnHome: true }))
   const normalCombos = homeSections.combos || []
   const milletProducts = homeSections.millets || []
   const lentilProducts = homeSections.lentilsBeans || []
