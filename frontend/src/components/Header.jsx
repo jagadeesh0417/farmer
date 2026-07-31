@@ -3,18 +3,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { useCart } from '../contexts/CartContext'
 import { fetchSiteSettings } from '../contexts/SiteSettingsContext'
 import { CartIcon, MenuIcon, CloseIcon } from './Icons'
+import Logo from './Logo'
 
 export default function Header() {
-  const { cartItems } = useCart()
+  const { cartItems, itemCount, openCartDrawer } = useCart()
   const navigate = useNavigate()
-  const [logo, setLogo] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [settings, setSettings] = useState(null)
   const [announceIdx, setAnnounceIdx] = useState(0)
 
-  const totalItems = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+  const totalItems = itemCount ?? (cartItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -28,7 +28,6 @@ export default function Header() {
       try {
         const s = await fetchSiteSettings()
         setSettings(s)
-        setLogo(s?.logo || s?.logo_url || '')
       } catch {}
     })()
   }, [])
@@ -58,21 +57,7 @@ export default function Header() {
       <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${scrolled ? 'shadow-sm' : ''}`}>
         <div className="section-container flex items-center justify-between py-1.5 lg:py-2.5">
           {/* Left: Logo + Brand */}
-          <Link to="/" className="flex items-center gap-2 shrink-0" onClick={closeAll}>
-            {logo ? (
-              <img src={logo} alt="HaiFarmer" loading="eager" className="h-[36px] lg:h-[40px] w-auto object-contain scale-[2] lg:scale-[2] origin-left mr-2 lg:mr-4" />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 lg:h-9 lg:w-9 items-center justify-center rounded-full bg-green-600">
-                    <svg viewBox="0 0 32 32" fill="none" className="h-5 w-5 lg:h-5 lg:w-5 text-white">
-                    <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
-                    <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
-                  </svg>
-                </div>
-                <span className="font-heading text-h4 font-bold text-green-600 tracking-tight">HaiFarmer</span>
-              </div>
-            )}
-          </Link>
+          <Logo onClick={closeAll} />
 
           {/* Center: desktop nav */}
           <nav className="hidden lg:flex items-center gap-0">
@@ -87,10 +72,10 @@ export default function Header() {
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-            <button onClick={() => navigate('/checkout')} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
+            <button onClick={openCartDrawer} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600 transition-colors">
               <CartIcon className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm cart-badge">{totalItems}</span>
+                <span key={totalItems} className="cart-badge cart-badge-bounce absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm">{totalItems}</span>
               )}
             </button>
           </div>
@@ -100,13 +85,13 @@ export default function Header() {
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center justify-center p-2 text-muted hover:text-green-600">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
-            <button onClick={() => navigate('/checkout')} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600">
+            <button onClick={openCartDrawer} aria-label="Cart" className="relative flex items-center justify-center p-2 text-muted hover:text-green-600">
               <CartIcon className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm cart-badge">{totalItems}</span>
+                <span key={totalItems} className="cart-badge cart-badge-bounce absolute -top-0.5 -right-0.5 flex items-center justify-center rounded-full bg-green-600 min-w-[18px] h-[18px] px-1 text-micro font-bold text-white shadow-sm">{totalItems}</span>
               )}
             </button>
-            <button type="button" className="flex items-center justify-center p-2 text-muted hover:text-green-600" onClick={() => setMenuOpen(!menuOpen)}>
+            <button type="button" className="flex items-center justify-center p-2 text-muted hover:text-green-600" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>
               {menuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
             </button>
           </div>
@@ -118,7 +103,7 @@ export default function Header() {
         <div className="fixed inset-0 z-50 bg-white flex flex-col">
           <div className="flex items-center border-b border-border px-5 py-4">
             <svg className="h-5 w-5 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" placeholder="Search products..." autoFocus className="flex-1 ml-3 text-lg text-ink placeholder:text-muted-light outline-none bg-transparent" />
+            <input type="text" placeholder="Search products..." autoFocus aria-label="Search products" className="flex-1 ml-3 text-lg text-ink placeholder:text-muted-light outline-none bg-transparent" />
             <button onClick={() => setSearchOpen(false)} className="text-sm font-medium text-muted hover:text-ink ml-4">Cancel</button>
           </div>
           <div className="flex-1 p-6 max-w-2xl mx-auto w-full">

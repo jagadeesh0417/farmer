@@ -254,9 +254,12 @@ export default function AdminSettings() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Logo</label>
-                {settings?.logo && <img src={settings.logo} alt="" className="h-16 mb-2 rounded-lg" />}
+                {settings?.logo && <img src={settings.logo} alt="Logo preview" className="h-16 w-auto object-contain mb-2 rounded-lg bg-slate-50 border border-slate-100 p-1" />}
                 <button type="button" onClick={() => logoRef.current?.click()} className="rounded-xl border-2 border-dashed border-slate-300 px-4 py-2 text-sm text-slate-500 hover:border-brand-400">Upload Logo</button>
                 <input ref={logoRef} type="file" accept="image/*" onChange={e => handleLogoUpload(e, 'logo')} hidden />
+                {settings?.logo && (
+                  <p className="text-[11px] text-slate-400 mt-1.5">Tip: use a transparent PNG/SVG at least 400px wide for sharp retina rendering.</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Favicon</label>

@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../contexts/SiteSettingsContext'
+import Logo from './Logo'
 
 export default function Footer() {
   const { settings } = useSiteSettings()
   const year = new Date().getFullYear()
   const storeName = settings?.storeName || settings?.store_name || 'HaiFarmer'
-  const logo = settings?.logo || settings?.logo_url || ''
   const phone = '9848579053'
   const email = settings?.email || settings?.contact_email || ''
 
@@ -16,21 +16,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8">
           {/* Brand column */}
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              {logo ? (
-                <img src={logo} alt={storeName} className="h-28 w-auto" />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500">
-                    <svg viewBox="0 0 32 32" fill="none" className="h-6 w-6 text-white">
-                      <path d="M16 4C12 4 8 8 8 14c0 8 8 14 8 14s8-6 8-14c0-6-4-10-8-10z" fill="currentColor" opacity="0.9"/>
-                      <path d="M16 8c-2 0-4 3-4 6 0 4 4 8 4 8s4-4 4-8c0-3-2-6-4-6z" fill="currentColor" opacity="0.6"/>
-                    </svg>
-                  </div>
-                  <span className="font-heading text-h4 font-bold text-white">{storeName}</span>
-                </div>
-              )}
-            </Link>
+            <Logo size="footer" textClass="text-white" className="mb-4" />
             <p className="text-body-sm text-white/50 leading-relaxed">{settings?.footer?.aboutText || settings?.tagline || 'Pure forest-grown produce, directly from tribal farmers to your home.'}</p>
           </div>
 

@@ -9,6 +9,7 @@ import FloatingWhatsApp from './components/FloatingWhatsApp'
 import ScrollToTop from './components/ScrollToTop'
 import PageTracker from './components/PageTracker'
 import CartToastContainer from './components/CartToast'
+import CartDrawer from './components/CartDrawer'
 import AdminLayout from './components/admin/AdminLayout'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -39,8 +40,22 @@ const AdminBannerManagement = lazy(() => import('./pages/admin/AdminBannerManage
 const QRRedirect = lazy(() => import('./pages/QRRedirect'))
 const AdminQRCode = lazy(() => import('./pages/admin/AdminQRCode'))
 const AdminStories = lazy(() => import('./pages/admin/AdminStories'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
-function LoadingFallback() { return <div className="min-h-[40vh]" /> }
+function LoadingFallback() {
+  return (
+    <div className="min-h-[40vh] flex items-start justify-center px-4 py-16">
+      <div className="w-full max-w-4xl space-y-6">
+        <div className="h-8 w-56 rounded-lg bg-border/60 animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="rounded-2xl bg-border/50 animate-pulse aspect-[3/4]" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function AppLayout() {
   return (
@@ -69,7 +84,7 @@ function AppLayout() {
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/signup" element={<Navigate to="/" replace />} />
             <Route path="/forgot-password" element={<Navigate to="/" replace />} />
-            <Route path="*" element={<div className="p-10 text-center text-slate-500">Page not found</div>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>
@@ -77,6 +92,7 @@ function AppLayout() {
       <MobileBottomNav />
       <FloatingWhatsApp />
       <CartToastContainer />
+      <CartDrawer />
     </div>
   )
 }

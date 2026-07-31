@@ -79,6 +79,10 @@ export async function fetchSiteSettings() {
     settingsPromise = api.getSettings()
       .then(data => {
         cachedSettings = aliasSettings(data)
+        if (cachedSettings.favicon) {
+          const link = document.querySelector("link[rel~='icon']")
+          if (link) link.href = cachedSettings.favicon
+        }
         return cachedSettings
       })
       .catch(() => {
