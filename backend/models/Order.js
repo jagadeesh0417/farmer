@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema({
   couponDiscount: { type: Number, default: 0 },
   couponCode: String,
   total: { type: Number, required: true },
-  paymentMethod: { type: String, enum: ['razorpay', 'whatsapp', 'cod'], default: 'whatsapp' },
+  paymentMethod: { type: String, enum: ['razorpay', 'whatsapp', 'cod', 'upi', 'card'], default: 'whatsapp' },
   paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },
   paymentId: String,
   razorpayOrderId: String,

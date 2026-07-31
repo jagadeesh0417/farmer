@@ -27,6 +27,10 @@ const Contact = lazy(() => import('./pages/Contact'))
 const Payment = lazy(() => import('./pages/Payment'))
 const Cart = lazy(() => import('./pages/Cart'))
 const CheckoutPage = lazy(() => import('./pages/Checkout'))
+const CheckoutAddressPage = lazy(() => import('./pages/CheckoutAddress'))
+const CheckoutPaymentPage = lazy(() => import('./pages/CheckoutPayment'))
+const OrderSuccessPage = lazy(() => import('./pages/OrderSuccess'))
+const OrdersPage = lazy(() => import('./pages/Orders'))
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
@@ -80,8 +84,11 @@ function AppLayout() {
             <Route path="/combos/:slug" element={<BundleDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/checkout/address" element={<CheckoutAddressPage />} />
+            <Route path="/checkout/payment" element={<CheckoutPaymentPage />} />
+            <Route path="/order/success" element={<OrderSuccessPage />} />
             <Route path="/payment" element={<Payment />} />
-            <Route path="/orders" element={<Navigate to="/" replace />} />
+            <Route path="/orders" element={<OrdersPage />} />
             <Route path="/account" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/signup" element={<Navigate to="/" replace />} />

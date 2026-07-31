@@ -4,7 +4,7 @@ import { useCart } from '../contexts/CartContext'
 import { formatPrice } from '../lib/utils'
 import { CartIcon } from './Icons'
 
-const HIDDEN_ROUTES = ['/cart', '/checkout', '/payment']
+const HIDDEN_ROUTES = ['/cart', '/checkout', '/checkout/address', '/checkout/payment', '/order/success', '/payment']
 
 export default function StickyCartBar() {
   const { cartItems, itemCount, totals, openCartDrawer } = useCart()
