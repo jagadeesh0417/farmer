@@ -41,6 +41,7 @@ const AdminBannerManagement = lazy(() => import('./pages/admin/AdminBannerManage
 const QRRedirect = lazy(() => import('./pages/QRRedirect'))
 const AdminQRCode = lazy(() => import('./pages/admin/AdminQRCode'))
 const AdminStories = lazy(() => import('./pages/admin/AdminStories'))
+const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 function LoadingFallback() {
@@ -119,6 +120,7 @@ export default function App() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="banners" element={<AdminBannerManagement />} />
           <Route path="stories" element={<AdminStories />} />
+          <Route path="reviews" element={<AdminReviews />} />
         </Route>
         <Route path="/*" element={<><ScrollToTop /><PageTracker /><AppLayout /></>} />
       </Routes>

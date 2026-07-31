@@ -188,4 +188,12 @@ export const api = {
   createStory: (data) => request('/stories', { method: 'POST', body: JSON.stringify(data) }),
   updateStory: (id, data) => request(`/stories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteStory: (id) => request(`/stories/${id}`, { method: 'DELETE' }),
+
+  // Reviews
+  getReviews: () => request('/reviews'),
+  getAllReviews: () => request('/reviews/all'),
+  createReview: (data) => request('/reviews', { method: 'POST', body: JSON.stringify(data) }),
+  updateReview: (id, data) => request(`/reviews/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteReview: (id) => request(`/reviews/${id}`, { method: 'DELETE' }),
+  reorderReviews: (orders) => request('/reviews/reorder', { method: 'PATCH', body: JSON.stringify({ orders }) }),
 }

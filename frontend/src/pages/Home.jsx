@@ -16,19 +16,20 @@ import { getItems } from '../lib/demoStore'
 import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
 import WhyChooseUs from '../components/WhyChooseUs'
 import FarmTimeline from '../components/FarmTimeline'
+import TestimonialsCarousel from '../components/TestimonialsCarousel'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
 function catNameOf(p) {
   return (typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')).toLowerCase()
 }
 
-const TESTIMONIALS = [
-  { name: 'Priya Sharma', location: 'Mumbai', text: 'The forest honey is pure magic. You can taste the difference — it\'s nothing like the processed stuff from supermarkets. My whole family loves it!', rating: 5 },
-  { name: 'Rajesh Kumar', location: 'Bangalore', text: 'I\'ve been buying millets and lentils for months now. The quality is consistent and knowing it supports tribal farmers makes every purchase meaningful.', rating: 5 },
-  { name: 'Ananya Patel', location: 'Delhi', text: 'The combos are such great value! I ordered the staples bundle and everything was fresh and well-packaged. Perfect for my monthly shopping.', rating: 5 },
-  { name: 'Vikram Singh', location: 'Pune', text: 'Finally a brand that\'s truly natural and transparent. I scanned the QR on my turmeric pack and saw the exact farmer who grew it. Incredible!', rating: 5 },
-  { name: 'Sneha Reddy', location: 'Hyderabad', text: 'The millets are incredibly fresh and the taste is unmatched. I make millet dosa every weekend now and my kids love it!', rating: 5 },
-  { name: 'Arun Kumar', location: 'Chennai', text: 'Been a customer for over a year. The spice blends are aromatic and the dry fruits are premium quality. Highly recommend!', rating: 5 },
+const DEMO_REVIEWS = [
+  { name: 'Priya Sharma', designation: 'Nutrition Client', product: 'Wild Forest Honey', text: 'The forest honey is pure magic. You can taste the difference — it\'s nothing like the processed stuff from supermarkets. My whole family loves it!', rating: 5, status: 'published', featured: true, displayOrder: 0 },
+  { name: 'Rajesh Kumar', designation: 'Customer', product: 'Millet Starter Combo', text: 'I\'ve been buying millets and lentils for months now. The quality is consistent and knowing it supports tribal farmers makes every purchase meaningful.', rating: 5, status: 'published', featured: true, displayOrder: 1 },
+  { name: 'Ananya Patel', designation: 'Fitness Enthusiast', product: 'Staples Bundle', text: 'The combos are such great value! I ordered the staples bundle and everything was fresh and well-packaged. Perfect for my monthly shopping.', rating: 5, status: 'published', featured: false, displayOrder: 2 },
+  { name: 'Vikram Singh', designation: 'Customer', product: 'Organic Turmeric Powder', text: 'Finally a brand that\'s truly natural and transparent. I scanned the QR on my turmeric pack and saw the exact farmer who grew it. Incredible!', rating: 5, status: 'published', featured: false, displayOrder: 3 },
+  { name: 'Sneha Reddy', designation: 'Home Cook', product: 'Foxtail Millet 1kg', text: 'The millets are incredibly fresh and the taste is unmatched. I make millet dosa every weekend now and my kids love it!', rating: 5, status: 'published', featured: false, displayOrder: 4 },
+  { name: 'Arun Kumar', designation: 'Doctor', product: 'Premium Spice Box', text: 'Been a customer for over a year. The spice blends are aromatic and the dry fruits are premium quality. Highly recommend!', rating: 5, status: 'published', featured: false, displayOrder: 5 },
 ]
 
 export default function Home() {
@@ -41,6 +42,7 @@ export default function Home() {
   const [viewerOpen, setViewerOpen] = useState(false)
   const [viewerIndex, setViewerIndex] = useState(0)
   const [categories, setCategories] = useState([])
+  const [reviews, setReviews] = useState([])
   const [categoryProducts, setCategoryProducts] = useState({})
   const [catLoading, setCatLoading] = useState({})
   const [activeCategory, setActiveCategory] = useState(null)
@@ -66,13 +68,15 @@ export default function Home() {
     let cancelled = false
     async function load() {
       try {
-        const [homeData, bannerSettings, storiesData] = await Promise.all([
+        const [homeData, bannerSettings, storiesData, reviewsData] = await Promise.all([
           api.getHomeSections().then(r => r?.homeSections || {}).catch(() => ({})),
           api.getBannerSettings().catch(() => ({})),
           api.getStories().catch(() => []),
+          api.getReviews().catch(() => []),
         ])
         if (cancelled) return
         setHomeSections(homeData || {})
+        setReviews(Array.isArray(reviewsData) ? reviewsData : [])
         setReels(Array.isArray(storiesData) ? storiesData.map(s => ({
           ...s,
           poster: s.thumbnail,
@@ -155,6 +159,13 @@ export default function Home() {
       })
     }
     setReels(demoStories.map(s => ({ poster: s.poster, alt: s.alt || s.title, src: null, duration: s.duration })))
+    const savedReviews = getItems('reviews')
+    const demoReviews = DEMO_REVIEWS.map((r, i) => ({ ...r, _id: `demo-review-${i}` }))
+    const mergedReviews = [
+      ...savedReviews.filter(r => r.status !== 'draft'),
+      ...demoReviews.filter(d => !savedReviews.some(s => s.name === d.name)),
+    ].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    setReviews(mergedReviews)
     setLoading(false)
   }, [settings, settingsLoading])
 
@@ -618,49 +629,31 @@ export default function Home() {
       </section>
 
       {/* 15. Testimonials */}
-      <section className="py-10 lg:py-14 bg-off-white">
-        <div className="section-container">
-          <div className="text-center mb-8">
-            <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Community</span>
-            <h2 className="mt-1 text-h2 font-bold">What Our Customers Say</h2>
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <div className="flex">
-                {[1,2,3,4,5].map(i => (
-                  <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
+      {reviews.length > 0 && (() => {
+        const avgRating = (reviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / reviews.length)
+        return (
+          <section className="py-10 lg:py-14 bg-off-white">
+            <div className="section-container">
+              <div className="text-center mb-8">
+                <span className="text-micro font-semibold tracking-[0.12em] uppercase text-green-600">Our Community</span>
+                <h2 className="mt-1 text-h2 font-bold">What Our Customers Say</h2>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <svg key={i} className={`w-4 h-4 ${i <= Math.round(avgRating) ? 'text-amber-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-body-sm font-bold text-ink">{avgRating.toFixed(1)}/5</span>
+                  <span className="text-caption text-muted">based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
+                </div>
               </div>
-              <span className="text-body-sm font-bold text-ink">4.9/5</span>
-              <span className="text-caption text-muted">based on 10,000+ reviews</span>
+              <TestimonialsCarousel reviews={reviews} />
             </div>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="rounded-xl border border-border bg-white p-5 flex flex-col transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-                <div className="flex items-center gap-1 mb-3">
-                  {Array.from({ length: 5 }, (_, j) => (
-                    <svg key={j} className={`h-3.5 w-3.5 ${j < t.rating ? 'text-amber-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                  <span className="text-micro font-bold text-amber-500 ml-1">Verified Purchase</span>
-                </div>
-                <p className="text-body-sm text-muted leading-relaxed flex-1">"{t.text}"</p>
-                <div className="mt-4 pt-3 border-t border-border flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-caption">
-                    {t.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <p className="text-caption font-bold text-ink">{t.name}</p>
-                    <p className="text-micro text-muted">{t.location}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          </section>
+        )
+      })()}
     </div>
   )
 }
