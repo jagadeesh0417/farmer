@@ -327,11 +327,6 @@ export default function Cart() {
                 </div>
               </div>
 
-              <button onClick={() => navigate('/checkout')} disabled={cartItems.length === 0}
-                className="mt-6 w-full rounded-full bg-[#2E7D32] py-3.5 text-body-sm font-semibold text-white shadow-lg shadow-[#2E7D32]/20 transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0">
-                Proceed to Checkout
-              </button>
-
               {/* Trust badges */}
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <div className="flex items-center justify-center gap-1.5 rounded-xl bg-[#F4F9EF] py-2 px-3">
@@ -348,6 +343,15 @@ export default function Cart() {
                 </div>
               </div>
             </div>
+
+            {/* Prominent Proceed to Checkout — full width, below the Order Summary card */}
+            <button onClick={() => navigate('/checkout')} aria-label="Proceed to Checkout"
+              className="!mt-5 mb-6 flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#2E7D32] text-body-sm font-bold text-white shadow-lg shadow-[#2E7D32]/25 transition-all hover:bg-[#1B5E20] hover:-translate-y-0.5 active:scale-[0.99]">
+              Proceed to Checkout
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6l6 6-6 6" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
