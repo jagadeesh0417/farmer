@@ -37,6 +37,21 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+async function ensureHomeSections(settings) {
+  let changed = false
+  if (!settings.homeSections || typeof settings.homeSections !== 'object') {
+    settings.homeSections = {}
+  }
+  for (const key of SECTION_KEYS) {
+    if (!Array.isArray(settings.homeSections[key])) {
+      settings.homeSections[key] = []
+      changed = true
+    }
+  }
+  if (changed) await settings.save().catch(() => {})
+  return settings
+}
+
 async function autoFillSection(key) {
   const baseQuery = { isActive: { $ne: false } }
   const limit = SECTION_LIMITS[key] || 10
@@ -89,6 +104,7 @@ router.get('/', async (req, res) => {
   try {
     let settings = await SiteSetting.findOne()
     if (!settings) settings = await SiteSetting.create({})
+    await ensureHomeSections(settings)
     res.json(settings)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -99,6 +115,7 @@ router.get('/home', async (req, res) => {
   try {
     let settings = await SiteSetting.findOne()
     if (!settings) settings = await SiteSetting.create({})
+    await ensureHomeSections(settings)
     const hs = settings.homeSections || {}
     const result = {}
     const staleIds = {}
@@ -146,6 +163,7 @@ router.put('/', protect, adminOnly, async (req, res) => {
     let settings = await SiteSetting.findOne()
     if (!settings) settings = new SiteSetting()
     Object.assign(settings, req.body)
+    await ensureHomeSections(settings)
     await settings.save()
     res.json(settings)
   } catch (err) {

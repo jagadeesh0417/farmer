@@ -21,6 +21,21 @@ const COMBO_SECTION_KEYS = [
   { key: 'combos', label: 'Combos' },
 ]
 
+const SECTION_CATEGORY_FILTERS = {
+  millets: { slugs: ['millets'], names: ['millets'] },
+  lentilsBeans: { slugs: ['lentils-beans', 'lentils', 'beans'], names: ['lentils & beans', 'pulses'] },
+  honey: { slugs: ['honey', 'natural-sweeteners'], names: ['honey', 'natural sweeteners'] },
+  spices: { slugs: ['spices', 'spices-seasonings', 'spices-seasoning'], names: ['spices', 'spices & seasonings'] },
+}
+
+function productMatchesSection(product, sectionKey) {
+  const filter = SECTION_CATEGORY_FILTERS[sectionKey]
+  if (!filter) return true
+  const catSlug = String(product.category?.slug || '').toLowerCase()
+  const catName = String(product.category?.name || product.categoryName || '').toLowerCase()
+  return filter.slugs.includes(catSlug) || filter.names.includes(catName)
+}
+
 const defaultSectionIds = {
   groceries: [],
   bestSellers: [],
@@ -95,7 +110,7 @@ export default function AdminSettings() {
           sliderSettings: { mode: 'both', autoPlay: true, loop: true, pauseOnHover: true, transitionSpeed: 2100, showArrows: true, showDots: true },
           homeSections: loadSavedHomeSections(),
         })
-        setProducts(demoProducts.map(p => ({ id: p.id || p._id, name: p.name })))
+        setProducts(demoProducts.map(p => ({ id: p.id || p._id, name: p.name, category: p.category, categoryName: p.category_name || p.categoryName })))
         setBundles(demoCombos.map(b => ({ id: b._id || b.id, name: b.name })))
         setLoading(false)
         return
@@ -106,7 +121,7 @@ export default function AdminSettings() {
           api.getProducts({ active: 'all', limit: 500 }),
         ])
         setSettings({ ...data, homeSections: { ...defaultSectionIds, ...(data.homeSections || {}) } })
-        setProducts((allProducts?.data || []).map(p => ({ id: p._id, name: p.name })))
+        setProducts((allProducts?.data || []).map(p => ({ id: p._id, name: p.name, category: p.category, categoryName: p.categoryName })))
       } catch (err) { toast.error(err.message) }
       finally { setLoading(false) }
     }
@@ -366,11 +381,20 @@ export default function AdminSettings() {
             <div className="space-y-6">
               {SECTION_KEYS.map(section => {
                 const selectedIds = settings?.homeSections?.[section.key] || []
+                const sectionProducts = products.filter(p => productMatchesSection(p, section.key))
+                const isCategoryScoped = Boolean(SECTION_CATEGORY_FILTERS[section.key])
                 return (
                   <div key={section.key} className="border border-slate-200 rounded-xl p-4">
-                    <h3 className="text-sm font-bold text-slate-900 mb-3">{section.label}</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-slate-900">{section.label}</h3>
+                      {isCategoryScoped && (
+                        <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[11px] font-semibold text-brand-700">
+                          {sectionProducts.length} product(s) in this category
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                      {products.map(p => {
+                      {sectionProducts.map(p => {
                         const isSelected = selectedIds.includes(p.id)
                         return (
                           <button
@@ -392,6 +416,11 @@ export default function AdminSettings() {
                           </button>
                         )
                       })}
+                      {sectionProducts.length === 0 && (
+                        <p className="text-xs text-slate-400 py-1">
+                          {isCategoryScoped ? `No products found in this category yet` : 'No products available yet'}
+                        </p>
+                      )}
                     </div>
                     <p className="text-[11px] text-slate-400 mt-2">{selectedIds.length} product(s) selected</p>
                   </div>
