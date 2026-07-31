@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import SiteSetting from '../models/SiteSetting.js'
 import Product from '../models/Product.js'
 import Bundle from '../models/Bundle.js'
+import Category from '../models/Category.js'
 import { protect, adminOnly } from '../middleware/auth.js'
 
 const router = express.Router()
@@ -13,6 +14,66 @@ const PRODUCT_SECTION_KEYS = [
 ]
 const BUNDLE_SECTION_KEYS = ['superSaverCombos', 'combos']
 const SECTION_KEYS = [...PRODUCT_SECTION_KEYS, ...BUNDLE_SECTION_KEYS]
+
+const SECTION_LIMITS = {
+  groceries: 12,
+  bestSellers: 12,
+  newArrivals: 8,
+  trending: 8,
+  millets: 10,
+  lentilsBeans: 10,
+  honey: 10,
+  spices: 10,
+}
+
+const CATEGORY_ALIASES = {
+  millets: ['millets'],
+  lentilsBeans: ['lentils-beans', 'lentils', 'beans'],
+  honey: ['honey', 'natural-sweeteners'],
+  spices: ['spices', 'spices-seasonings', 'spices-seasoning'],
+}
+
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+async function autoFillSection(key) {
+  const baseQuery = { isActive: { $ne: false } }
+  const limit = SECTION_LIMITS[key] || 10
+
+  if (key === 'bestSellers') {
+    return Product.find({ ...baseQuery, isFeatured: true }).sort({ createdAt: -1 }).limit(limit)
+  }
+  if (key === 'newArrivals' || key === 'trending') {
+    return Product.find(baseQuery).sort({ createdAt: -1 }).limit(limit)
+  }
+  if (key === 'groceries') {
+    return Product.find(baseQuery).sort({ createdAt: -1 }).limit(limit)
+  }
+  if (key === 'healthConcern') return []
+
+  const aliases = CATEGORY_ALIASES[key]
+  if (aliases && aliases.length) {
+    const cats = await Category.find({ slug: { $in: aliases }, isActive: { $ne: false } })
+    const catIds = cats.map(c => c._id)
+    const catNames = cats.map(c => new RegExp(escapeRegExp(c.name), 'i'))
+    const or = []
+    if (catIds.length) or.push({ category: { $in: catIds } })
+    if (catNames.length) or.push({ categoryName: { $in: catNames } })
+    if (!or.length) return []
+    return Product.find({ ...baseQuery, $or: or }).sort({ createdAt: -1 }).limit(limit)
+  }
+
+  return []
+}
+
+async function autoFillBundles(key) {
+  const bundles = await Bundle.find({ isActive: { $ne: false } }).sort({ createdAt: -1 })
+  if (key === 'superSaverCombos') {
+    return bundles.filter(b => b.comboType === 'super_saver' || b.isSuperSaver)
+  }
+  return bundles.filter(b => (b.comboType || 'normal') !== 'super_saver' && !b.isSuperSaver)
+}
 
 function orderByIds(items, ids) {
   const index = {}
@@ -45,7 +106,12 @@ router.get('/home', async (req, res) => {
     for (const key of SECTION_KEYS) {
       const rawIds = hs[key] || []
       const ids = rawIds.filter(id => id && mongoose.isValidObjectId(id))
-      if (ids.length === 0) { result[key] = []; continue }
+      if (ids.length === 0) {
+        result[key] = BUNDLE_SECTION_KEYS.includes(key)
+          ? await autoFillBundles(key)
+          : await autoFillSection(key)
+        continue
+      }
 
       let docs = []
       if (BUNDLE_SECTION_KEYS.includes(key)) {

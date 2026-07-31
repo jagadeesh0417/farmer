@@ -10,7 +10,7 @@ import SeoHead from '../components/SeoHead'
 import { api } from '../lib/api'
 import { formatPrice, getImageUrl } from '../lib/utils'
 import { cld } from '../lib/cloudinary'
-import { generatePlaceholder } from '../lib/placeholders'
+import { generatePlaceholder, heroPlaceholder, bannerPlaceholder } from '../lib/placeholders'
 import { isDemoMode } from '../lib/withDemoFallback'
 import { getItems } from '../lib/demoStore'
 import { demoProducts, demoCombos, demoStories, demoCategories, demoProductsByCategory } from '../lib/demoData'
@@ -86,24 +86,32 @@ export default function Home() {
           taggedProduct: s.productId,
         })) : [])
         const bs = bannerSettings || {}
-        const heroBanners = ['hero1', 'hero2', 'hero3'].filter(k => bs[k]).map(k => ({
-          id: k,
-          desktopImage: bs[k].desktopImage || bs[k].image,
-          mobileImage: bs[k].mobileImage || bs[k].image,
-          image: bs[k].image,
-          ctaHref: bs[k].buttonLink || '/products',
-        }))
-        setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero.map(s => ({
-          id: s.title,
-          desktopImage: s.desktopImage || s.image,
-          mobileImage: s.mobileImage || s.tabletImage || s.image,
-          image: s.image,
+        const heroBanners = ['hero1', 'hero2', 'hero3']
+          .filter(k => bs[k] && (bs[k].desktopImage || bs[k].mobileImage || bs[k].image))
+          .map(k => ({
+            id: k,
+            desktopImage: bs[k].desktopImage || bs[k].image,
+            mobileImage: bs[k].mobileImage || bs[k].image,
+            image: bs[k].image,
+            heading: bs[k].heading || bs[k].title,
+            subtext: bs[k].subtext || bs[k].subtitle,
+            ctaLabel: bs[k].buttonText || 'Shop Now',
+            ctaHref: bs[k].buttonLink || '/products',
+          }))
+        setBanners(heroBanners.length > 0 ? heroBanners : HOME_ASSETS.hero.map((s, i) => ({
+          id: s.title || `hero-fallback-${i}`,
+          image: s.image || heroPlaceholder(i),
+          desktopImage: s.desktopImage || heroPlaceholder(i),
+          mobileImage: s.mobileImage || s.tabletImage || heroPlaceholder(i),
+          heading: s.title || 'HAiFarmer',
+          subtext: s.subtitle || 'Fresh from Forests, Straight to Your Home',
+          ctaLabel: s.buttonText || 'Shop Now',
           ctaHref: '/products',
         })))
         const promo = bs.promotional || {}
         setPromoBanner({
-          desktopImage: promo.desktopImage || promo.image,
-          mobileImage: promo.mobileImage || promo.image,
+          desktopImage: promo.desktopImage || promo.image || bannerPlaceholder(),
+          mobileImage: promo.mobileImage || promo.image || bannerPlaceholder(),
           link: promo.buttonLink || '/products',
         })
         const scBanner = bs.shopByCategory || {}
@@ -159,6 +167,17 @@ export default function Home() {
       })
     }
     setReels(demoStories.map(s => ({ poster: s.poster, alt: s.alt || s.title, src: null, duration: s.duration })))
+    setBanners(HOME_ASSETS.hero.map((s, i) => ({
+      id: s.title || `hero-fallback-${i}`,
+      image: s.image || heroPlaceholder(i),
+      desktopImage: s.desktopImage || heroPlaceholder(i),
+      mobileImage: s.mobileImage || s.tabletImage || heroPlaceholder(i),
+      heading: s.title || 'HAiFarmer',
+      subtext: s.subtitle || 'Fresh from Forests, Straight to Your Home',
+      ctaLabel: s.buttonText || 'Shop Now',
+      ctaHref: '/products',
+    })))
+    setPromoBanner({ desktopImage: bannerPlaceholder(), mobileImage: bannerPlaceholder(), link: '/products' })
     const savedReviews = getItems('reviews')
     const demoReviews = DEMO_REVIEWS.map((r, i) => ({ ...r, _id: `demo-review-${i}` }))
     const mergedReviews = [
