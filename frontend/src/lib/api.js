@@ -159,6 +159,7 @@ export const api = {
   // Settings
   getSettings: () => request('/settings'),
   updateSettings: (data) => request('/settings', { method: 'PUT', body: JSON.stringify(data) }),
+  getHomeSections: () => request('/settings/home'),
 
   // Upload
   uploadImage: (file, folder = 'haifarmer') => {

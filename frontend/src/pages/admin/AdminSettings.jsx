@@ -7,6 +7,8 @@ import { isDemoMode } from '../../lib/withDemoFallback'
 const SECTION_KEYS = [
   { key: 'groceries', label: 'Groceries' },
   { key: 'bestSellers', label: 'Our Best Sellers' },
+  { key: 'newArrivals', label: 'New Arrivals' },
+  { key: 'trending', label: 'Trending' },
   { key: 'healthConcern', label: 'Health Concern' },
   { key: 'millets', label: 'Millets' },
   { key: 'lentilsBeans', label: 'Lentils & Beans' },
@@ -14,17 +16,23 @@ const SECTION_KEYS = [
   { key: 'spices', label: 'Spices' },
 ]
 
-const COMBO_SECTION_KEY = { key: 'superSaverCombos', label: 'Super Saver Combos' }
+const COMBO_SECTION_KEYS = [
+  { key: 'superSaverCombos', label: 'Super Saver Combos' },
+  { key: 'combos', label: 'Combos' },
+]
 
 const defaultSectionIds = {
   groceries: [],
   bestSellers: [],
+  newArrivals: [],
+  trending: [],
   healthConcern: [],
   millets: [],
   lentilsBeans: [],
   honey: [],
   spices: [],
   superSaverCombos: [],
+  combos: [],
 }
 
 function getNestedValue(obj, path) {
@@ -131,13 +139,13 @@ export default function AdminSettings() {
     })
   }
 
-  const toggleSectionBundle = (bundleId) => {
+  const toggleSectionBundle = (sectionKey, bundleId) => {
     setSettings(prev => {
-      const current = prev.homeSections?.superSaverCombos || []
+      const current = prev.homeSections?.[sectionKey] || []
       const updated = current.includes(bundleId)
         ? current.filter(id => id !== bundleId)
         : [...current, bundleId]
-      const homeSections = { ...defaultSectionIds, ...prev.homeSections, superSaverCombos: updated }
+      const homeSections = { ...defaultSectionIds, ...prev.homeSections, [sectionKey]: updated }
       if (isDemoMode()) saveHomeSections(homeSections)
       return { ...prev, homeSections }
     })
@@ -385,35 +393,36 @@ export default function AdminSettings() {
                 )
               })}
 
-              {/* Super Saver Combos */}
-              <div className="border border-slate-200 rounded-xl p-4">
-                <h3 className="text-sm font-bold text-slate-900 mb-3">{COMBO_SECTION_KEY.label}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {bundles.map(b => {
-                    const isSelected = (settings?.homeSections?.superSaverCombos || []).includes(b.id)
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => toggleSectionBundle(b.id)}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                          isSelected
-                            ? 'bg-brand-600 text-white ring-2 ring-brand-300 ring-offset-1'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        {isSelected && (
-                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                        {b.name}
-                      </button>
-                    )
-                  })}
+              {COMBO_SECTION_KEYS.map(section => (
+                <div key={section.key} className="border border-slate-200 rounded-xl p-4">
+                  <h3 className="text-sm font-bold text-slate-900 mb-3">{section.label}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {bundles.map(b => {
+                      const isSelected = (settings?.homeSections?.[section.key] || []).includes(b.id)
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => toggleSectionBundle(section.key, b.id)}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                            isSelected
+                              ? 'bg-brand-600 text-white ring-2 ring-brand-300 ring-offset-1'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {isSelected && (
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          {b.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-2">{(settings?.homeSections?.[section.key] || []).length} combo(s) selected</p>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2">{(settings?.homeSections?.superSaverCombos || []).length} combo(s) selected</p>
-              </div>
+              ))}
             </div>
           </div>
         )}

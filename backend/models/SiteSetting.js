@@ -117,11 +117,15 @@ const siteSettingSchema = new mongoose.Schema({
   homeSections: {
     groceries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     bestSellers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    newArrivals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    trending: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     healthConcern: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     millets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     lentilsBeans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     honey: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     spices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    superSaverCombos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bundle' }],
+    combos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bundle' }],
   },
 }, { timestamps: true })
 

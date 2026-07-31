@@ -20,21 +20,8 @@ import WhyChooseUs from '../components/WhyChooseUs'
 import FarmTimeline from '../components/FarmTimeline'
 import { HOME_ASSETS } from '../lib/homeAssets'
 
-function getSuperSaverCombos(bundles) {
-  return bundles.filter(b => (b.comboType === 'super_saver' || b.isSuperSaver) && b.showOnHome !== false)
-}
-
-function getNormalCombos(bundles) {
-  return bundles.filter(b => (b.comboType || 'normal') !== 'super_saver' && !b.isSuperSaver && b.showOnHome !== false)
-}
-
-function getSectionProducts(products, settings, sectionKey) {
-  if (sectionKey === 'bestSellers') {
-    const ids = settings?.homeSections?.bestSellers
-    if (ids && ids.length > 0) return products.filter(p => ids.includes(p.id || p._id) && p.showOnHome !== false)
-    return products.filter(p => p.isFeatured && p.showOnHome !== false)
-  }
-  return products.filter(p => p.showOnHome !== false)
+function catNameOf(p) {
+  return (typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')).toLowerCase()
 }
 
 const TESTIMONIALS = [
@@ -48,10 +35,9 @@ const TESTIMONIALS = [
 
 export default function Home() {
   const { cartItems } = useCart()
-  const { settings } = useSiteSettings()
+  const { settings, loading: settingsLoading } = useSiteSettings()
   const navigate = useNavigate()
-  const [products, setProducts] = useState([])
-  const [bundles, setBundles] = useState([])
+  const [homeSections, setHomeSections] = useState({})
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
   const [promoBanner, setPromoBanner] = useState({ desktopImage: null, mobileImage: null, link: '/products' })
@@ -72,45 +58,26 @@ export default function Home() {
     }))
   }, [reels])
 
-  const bestSellers = useMemo(() => getSectionProducts(products, settings, 'bestSellers'), [products, settings])
-  const groceries = useMemo(() => products.filter(p => p.showOnHome !== false), [products])
-  const superSaverCombos = useMemo(() => getSuperSaverCombos(bundles), [bundles])
-  const normalCombos = useMemo(() => getNormalCombos(bundles), [bundles])
-  const milletProducts = useMemo(() => products.filter(p => {
-    const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
-    return cat.toLowerCase() === 'millets' && p.showOnHome !== false
-  }), [products])
-  const lentilProducts = useMemo(() => products.filter(p => {
-    const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
-    return cat.toLowerCase() === 'lentils-beans' && p.showOnHome !== false
-  }), [products])
-  const spiceProducts = useMemo(() => products.filter(p => {
-    const cat = typeof p.category === 'string' ? p.category : (p.category?.slug || p.category?.name || '')
-    return cat.toLowerCase() === 'spices' && p.showOnHome !== false
-  }), [products])
+  const bestSellers = homeSections.bestSellers || []
+  const groceries = homeSections.groceries || []
+  const superSaverCombos = homeSections.superSaverCombos || []
+  const normalCombos = homeSections.combos || []
+  const milletProducts = homeSections.millets || []
+  const lentilProducts = homeSections.lentilsBeans || []
+  const spiceProducts = homeSections.spices || []
 
   useEffect(() => {
+    if (isDemoMode()) return
     let cancelled = false
     async function load() {
-      if (isDemoMode()) {
-        const savedProducts = getItems('products')
-        const savedBundles = getItems('bundles')
-        setProducts([...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))])
-        setBundles([...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))])
-        setReels(demoStories.map(s => ({ poster: s.poster, alt: s.alt || s.title, src: null, duration: s.duration })))
-        setLoading(false)
-        return
-      }
       try {
-        const [productsData, bundlesData, bannerSettings, storiesData] = await Promise.all([
-          api.getProducts({ limit: 100 }).then(r => r.data || []).catch(() => []),
-          api.getBundles({ combo: 'true' }).then(r => r?.data || r || []).catch(() => []),
+        const [homeData, bannerSettings, storiesData] = await Promise.all([
+          api.getHomeSections().then(r => r?.homeSections || {}).catch(() => ({})),
           api.getBannerSettings().catch(() => ({})),
           api.getStories().catch(() => []),
         ])
         if (cancelled) return
-        setProducts(productsData)
-        setBundles(Array.isArray(bundlesData) ? bundlesData : bundlesData?.data || [])
+        setHomeSections(homeData || {})
         setReels(Array.isArray(storiesData) ? storiesData.map(s => ({
           ...s,
           poster: s.thumbnail,
@@ -153,6 +120,48 @@ export default function Home() {
     load()
     return () => { cancelled = true }
   }, [])
+
+  useEffect(() => {
+    if (!isDemoMode() || settingsLoading) return
+    const savedProducts = getItems('products')
+    const savedBundles = getItems('bundles')
+    const allProducts = [...savedProducts, ...demoProducts.filter(dp => !savedProducts.some(s => s.name === dp.name))]
+    const allBundles = [...savedBundles, ...demoCombos.filter(dc => !savedBundles.some(s => s.name === dc.name))]
+    const hs = settings?.homeSections || {}
+    const idsFor = (key) => Array.isArray(hs[key]) ? hs[key] : []
+    const hasConfig = Object.values(hs).some(arr => Array.isArray(arr) && arr.length > 0)
+    const pick = (key) => {
+      const ids = idsFor(key)
+      return allProducts.filter(p => ids.includes(p.id || p._id) || ids.includes(p.name))
+    }
+    const pickBundles = (key) => {
+      const ids = idsFor(key)
+      return allBundles.filter(b => ids.includes(b.id || b._id) || ids.includes(b.name))
+    }
+    if (hasConfig) {
+      setHomeSections({
+        bestSellers: pick('bestSellers'),
+        groceries: pick('groceries'),
+        millets: pick('millets'),
+        lentilsBeans: pick('lentilsBeans'),
+        spices: pick('spices'),
+        superSaverCombos: pickBundles('superSaverCombos'),
+        combos: pickBundles('combos'),
+      })
+    } else {
+      setHomeSections({
+        bestSellers: allProducts.filter(p => p.isFeatured),
+        groceries: allProducts,
+        millets: allProducts.filter(p => catNameOf(p) === 'millets'),
+        lentilsBeans: allProducts.filter(p => catNameOf(p) === 'lentils-beans'),
+        spices: allProducts.filter(p => catNameOf(p) === 'spices'),
+        superSaverCombos: allBundles.filter(b => (b.comboType === 'super_saver' || b.isSuperSaver) && b.showOnHome !== false),
+        combos: allBundles.filter(b => (b.comboType || 'normal') !== 'super_saver' && !b.isSuperSaver && b.showOnHome !== false),
+      })
+    }
+    setReels(demoStories.map(s => ({ poster: s.poster, alt: s.alt || s.title, src: null, duration: s.duration })))
+    setLoading(false)
+  }, [settings, settingsLoading])
 
   useEffect(() => {
     let cancelled = false
@@ -243,6 +252,7 @@ export default function Home() {
       <WhyChooseUs />
 
       {/* 4. Super Savers */}
+      {!loading && superSaverCombos.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -267,14 +277,10 @@ export default function Home() {
                 <Link to="/combos?tab=super-savers" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All Super Savers</Link>
               </div>
             </>
-          ) : (
-            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No combos available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 5. 9:16 Vertical Videos — Reels with tagged products */}
       <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
@@ -322,6 +328,7 @@ export default function Home() {
       </section>
 
       {/* 6. Best Sellers */}
+      {!loading && bestSellers.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -346,15 +353,13 @@ export default function Home() {
                 <Link to="/products" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All Products</Link>
               </div>
             </>
-          ) : (
-            <div className="text-center py-12 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No products available yet.</p>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 7. Groceries — horizontal scroll */}
+      {!loading && groceries.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-off-white overflow-hidden">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -374,16 +379,13 @@ export default function Home() {
                 </div>
               ))}
             </HorizontalScroll>
-          ) : (
-            <div className="text-center py-10 bg-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No products available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 8. Combos */}
+      {!loading && normalCombos.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -408,14 +410,10 @@ export default function Home() {
                 <Link to="/combos" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All Combos</Link>
               </div>
             </>
-          ) : (
-            <div className="text-center py-10 bg-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No combos available yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse Products →</Link>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 9. Full screen video */}
       <section className="py-10 lg:py-14 bg-off-white">
@@ -439,6 +437,7 @@ export default function Home() {
       </section>
 
       {/* 10. Traditional Grains — Millets */}
+      {!loading && milletProducts.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -463,16 +462,13 @@ export default function Home() {
                 <Link to="/products?category=millets" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All</Link>
               </div>
             </>
-          ) : (
-            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No millet products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 11. Protein Rich — Lentils & Beans */}
+      {!loading && lentilProducts.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-off-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -497,16 +493,13 @@ export default function Home() {
                 <Link to="/products?category=lentils-beans" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All</Link>
               </div>
             </>
-          ) : (
-            <div className="text-center py-10 bg-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No lentil or bean products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 12. Aromatic & Wild — Spices */}
+      {!loading && spiceProducts.length === 0 ? null : (
       <section className="py-10 lg:py-14 bg-white">
         <div className="section-container">
           <div className="text-center mb-6">
@@ -520,7 +513,6 @@ export default function Home() {
             </HorizontalScroll>
           ) : spiceProducts.length > 0 ? (
             <>
-
               <HorizontalScroll>
                 {spiceProducts.map(product => (
                   <div key={product.id || product._id} className="min-w-[170px] sm:min-w-[220px] lg:min-w-[240px] w-[170px] sm:w-[220px] lg:w-[240px] shrink-0">
@@ -532,14 +524,10 @@ export default function Home() {
                 <Link to="/products?category=spices" className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg text-body-sm font-semibold hover:bg-green-700 transition-colors">View All</Link>
               </div>
             </>
-          ) : (
-            <div className="text-center py-10 bg-off-white rounded-xl border border-border">
-              <p className="text-body-sm text-muted">No spice products yet.</p>
-              <Link to="/products" className="mt-2 inline-flex text-body-sm font-semibold text-green-600 hover:text-green-700">Browse all →</Link>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
+      )}
 
       {/* 13. Our Process — Farm to Table */}
       <FarmTimeline />

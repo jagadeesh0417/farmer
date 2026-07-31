@@ -8,8 +8,13 @@ const router = express.Router()
 
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 50, category, search, sort, featured, active } = req.query
+    const { page = 1, limit = 50, category, search, sort, featured, active, ids } = req.query
     const query = {}
+    let idOrder = null
+    if (ids) {
+      idOrder = ids.split(',').map(s => s.trim()).filter(Boolean)
+      if (idOrder.length) query._id = { $in: idOrder }
+    }
     if (category) {
       const catDoc = await Category.findOne({ slug: category })
       if (catDoc) query.category = catDoc._id
@@ -27,11 +32,19 @@ router.get('/', async (req, res) => {
     else if (sort === 'sold') sortObj = { totalSold: -1 }
 
     const total = await Product.countDocuments(query)
-    const products = await Product.find(query)
+    let products = await Product.find(query)
       .populate('category', 'name slug')
       .sort(sortObj)
       .skip((page - 1) * limit)
       .limit(Number(limit))
+
+    if (idOrder) {
+      products = products.slice().sort((a, b) => {
+        const ia = idOrder.indexOf(String(a._id))
+        const ib = idOrder.indexOf(String(b._id))
+        return (ia === -1 ? 1e9 : ia) - (ib === -1 ? 1e9 : ib)
+      })
+    }
 
     res.json({ data: products, total, page: Number(page), pages: Math.ceil(total / limit) })
   } catch (err) {
