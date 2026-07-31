@@ -62,7 +62,9 @@ export default function Home() {
     : demoCombos.map(c => ({ ...c, comboType: 'super_saver', showOnHome: true }))
   const normalCombos = homeSections.combos || []
   const milletProducts = homeSections.millets || []
-  const lentilProducts = homeSections.lentilsBeans || []
+  const lentilProducts = homeSections.lentilsBeans?.length
+    ? homeSections.lentilsBeans
+    : demoProductsByCategory('lentils-beans')
   const spiceProducts = homeSections.spices || []
 
   useEffect(() => {
