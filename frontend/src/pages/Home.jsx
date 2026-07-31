@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import BundleCard from '../components/BundleCard'
 import HorizontalScroll from '../components/HorizontalScroll'
@@ -34,9 +34,8 @@ const TESTIMONIALS = [
 ]
 
 export default function Home() {
-  const { cartItems } = useCart()
+  const { cartItems, openCartDrawer } = useCart()
   const { settings, loading: settingsLoading } = useSiteSettings()
-  const navigate = useNavigate()
   const [homeSections, setHomeSections] = useState({})
   const [reels, setReels] = useState([])
   const [banners, setBanners] = useState([])
@@ -668,12 +667,12 @@ export default function Home() {
       </section>
 
       {/* Floating cart */}
-      <button type="button" onClick={() => navigate('/checkout')}
+      <button type="button" onClick={openCartDrawer}
         className="fixed bottom-[76px] left-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-all hover:bg-green-700 hover:-translate-y-1 sm:bottom-8 sm:left-8 sm:h-14 sm:w-14"
         aria-label="Shopping cart">
         <CartIcon className="h-6 w-6" />
         {cartCount > 0 && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-sale px-2 py-0.5 text-micro font-bold text-white shadow-sm">{cartCount}</span>
+          <span className="absolute -right-1 -top-1 rounded-full bg-sale px-2 py-0.5 text-micro font-bold text-white shadow-sm cart-badge">{cartCount}</span>
         )}
       </button>
     </div>

@@ -11,7 +11,7 @@ function slugify(name) {
 }
 
 export default function ProductCard({ product, priority }) {
-  const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection, itemCount } = useCart()
+  const { cartItems, addToCart, removeFromCart, updateQuantity, productSelections, setProductSelection, itemCount, openCartDrawer } = useCart()
   const [added, setAdded] = useState(false)
   const imgRef = useRef(null)
 
@@ -157,7 +157,7 @@ export default function ProductCard({ product, priority }) {
         {/* Button — always at bottom */}
         <div className="mt-auto flex-shrink-0 max-sm:pt-1 sm:pt-1.5">
           {isInCart ? (
-            <>
+            <div className="stepper-enter flex flex-col gap-1.5">
               <div className="flex h-10 w-full items-center justify-between overflow-hidden rounded-full border-2 border-[#222] bg-white max-sm:h-[36px] sm:h-[44px]">
                 <button
                   type="button"
@@ -165,7 +165,7 @@ export default function ProductCard({ product, priority }) {
                   className="flex h-full w-10 items-center justify-center text-body font-bold text-[#1a1a1a] transition hover:bg-[#FAF3E8] font-product max-sm:w-9 sm:w-11"
                   aria-label="Decrease quantity"
                 >−</button>
-                <span className="font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
+                <span key={cartQuantity} className="qty-pop font-product text-body-sm font-semibold text-[#1a1a1a]">{cartQuantity}</span>
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(cartQuantity + 1) }}
@@ -173,17 +173,17 @@ export default function ProductCard({ product, priority }) {
                   aria-label="Increase quantity"
                 >+</button>
               </div>
-              <Link to="/cart" onClick={(e) => e.stopPropagation()}
-                className="proceed-in mt-1.5 flex h-8 w-full items-center justify-center gap-1.5 rounded-full bg-[#0E9F3E]/10 font-product text-caption font-bold text-[#0E9F3E] transition-colors hover:bg-[#0E9F3E] hover:text-white max-sm:h-7">
+              <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); openCartDrawer() }}
+                className="proceed-in flex h-8 w-full items-center justify-center gap-1.5 rounded-full bg-[#0E9F3E]/10 font-product text-caption font-bold text-[#0E9F3E] transition-colors hover:bg-[#0E9F3E] hover:text-white max-sm:h-7">
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                 Proceed to Cart
-              </Link>
-            </>
+              </button>
+            </div>
           ) : (
             <button
               onClick={handleAddToCart}
               disabled={added}
-              className="h-10 w-full rounded-full font-product text-btn font-semibold text-white transition active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px] flex items-center justify-center gap-1.5"
+              className="ripple-btn h-10 w-full rounded-full font-product text-btn font-semibold text-white transition active:scale-[0.98] max-sm:h-[36px] max-sm:text-[12px] sm:h-[44px] flex items-center justify-center gap-1.5"
               style={{ background: added ? '#16a34a' : '#0E9F3E' }}
             >{added ? <><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> Added</> : 'Add to Cart'}</button>
           )}

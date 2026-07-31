@@ -23,7 +23,7 @@ export default function MobileBottomNav() {
           <span className="mb-0.5 inline-flex h-7 w-7 items-center justify-center relative">
             <CartIcon className="h-5 w-5" />
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full bg-green-600 min-w-[16px] h-[16px] px-0.5 text-[9px] font-bold text-white shadow-sm leading-none">
+              <span className="cart-badge absolute -top-1 -right-1 flex items-center justify-center rounded-full bg-green-600 min-w-[16px] h-[16px] px-0.5 text-[9px] font-bold text-white shadow-sm leading-none">
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}

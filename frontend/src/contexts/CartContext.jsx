@@ -56,6 +56,9 @@ export function CartProvider({ children }) {
     try { return JSON.parse(localStorage.getItem(BUNDLE_SELECTIONS_KEY) || '{}') } catch { return {} }
   })
   const [loading, setLoading] = useState(true)
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false)
+  const openCartDrawer = useCallback(() => setCartDrawerOpen(true), [])
+  const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), [])
 
   useEffect(() => { localStorage.setItem(PRODUCT_SELECTIONS_KEY, JSON.stringify(productSelections)) }, [productSelections])
   useEffect(() => { localStorage.setItem(BUNDLE_SELECTIONS_KEY, JSON.stringify(bundleSelections)) }, [bundleSelections])
@@ -299,6 +302,7 @@ export function CartProvider({ children }) {
     totals, loading,
     appliedCoupon, couponDiscount, couponError, couponLoading,
     handleApplyCoupon, handleRemoveCoupon,
+    cartDrawerOpen, openCartDrawer, closeCartDrawer,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
