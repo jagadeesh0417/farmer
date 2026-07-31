@@ -74,7 +74,7 @@ export default function Header() {
 
       {/* Header */}
       <header className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${scrolled ? 'shadow-sm' : ''}`}>
-        <div className="section-container flex items-center justify-between py-1.5 lg:py-2.5">
+        <div className="section-container flex items-center justify-between h-16 lg:h-20">
           {/* Left: Logo + Brand */}
           <Logo onClick={closeAll} />
 

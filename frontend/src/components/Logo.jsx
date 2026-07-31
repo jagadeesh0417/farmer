@@ -5,10 +5,10 @@ import { cld } from '../lib/cloudinary'
 
 const SIZE_MAP = {
   header: {
-    img: 'h-[54px] sm:h-[63px] lg:h-[72px]',
-    mark: 'h-12 w-12 lg:h-[60px] lg:w-[60px]',
-    icon: 'h-[30px] w-[30px] lg:h-9 lg:w-9',
-    name: 'text-[27px] sm:text-[30px] lg:text-4xl',
+    img: 'h-4/5 w-auto object-contain',
+    mark: 'h-12 w-12 lg:h-16 lg:w-16',
+    icon: 'h-7 w-7 lg:h-8 lg:w-8',
+    name: 'text-2xl sm:text-3xl lg:text-[34px]',
   },
   footer: {
     img: 'h-14 sm:h-16 lg:h-20',
@@ -74,15 +74,15 @@ export default function Logo({
       decoding="async"
       draggable={false}
       onError={() => setBroken(true)}
-      className={`${s.img} w-auto object-contain ${className}`}
+      className={`${s.img} ${className}`}
     />
   )
 
   if (to === null) {
-    return <span className={`inline-flex items-center gap-2 shrink-0 ${className}`}>{content}</span>
+    return <span className={`h-full inline-flex items-center gap-2 shrink-0 ${className}`}>{content}</span>
   }
   return (
-    <Link to={to} onClick={onClick} aria-label={`${name} — Home`} className={`inline-flex items-center gap-2 shrink-0 ${className}`}>
+    <Link to={to} onClick={onClick} aria-label={`${name} — Home`} className={`h-full inline-flex items-center gap-2 shrink-0 ${className}`}>
       {content}
     </Link>
   )
